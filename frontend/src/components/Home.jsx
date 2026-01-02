@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Instagram, Mail, Phone, Sparkles } from 'lucide-react';
-import { InlineWidget } from 'react-calendly';
+import { useNavigate } from 'react-router-dom';
 
 const AnimatedGrid = () => {
   return (
@@ -14,6 +14,7 @@ const AnimatedGrid = () => {
 };
 
 const Home = () => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState({});
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
