@@ -682,6 +682,13 @@ body {
   margin-top: var(--space-md);
 }
 
+.calendly-note {
+  font-size: 12px;
+  color: var(--accent-primary);
+  margin-top: var(--space-xs);
+  font-style: italic;
+}
+
 /* ========================================
    FOOTER
 ======================================== */
