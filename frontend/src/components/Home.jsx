@@ -155,7 +155,7 @@ const Home = () => {
               We build digital systems that attract customers, convert leads, and help your business grow — without guesswork.
             </p>
             <div className="hero-cta-group">
-              <button className="btn-primary btn-large glow-on-hover" onClick={() => document.getElementById('book-call').scrollIntoView({ behavior: 'smooth' })}>
+              <button className="btn-primary btn-large glow-on-hover" onClick={() => navigate('/book-call')}>
                 Book a Free Strategy Call
                 <ArrowRight className="ml-2" size={20} />
               </button>
