@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Instagram, Mail, Phone, Sparkles } from 'lucide-react';
+import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Instagram, Mail, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AnimatedGrid = () => {
@@ -93,7 +93,7 @@ const Home = () => {
 
   const testimonials = [
     {
-      quote: "WeScale transformed how we attract customers. Our booking rate tripled in 2 months.",
+      quote: "weROI transformed how we attract customers. Our booking rate tripled in 2 months.",
       name: 'Marcus Thompson',
       business: 'Elite Cuts Barbershop'
     },
@@ -126,8 +126,8 @@ const Home = () => {
       <nav className="nav-bar">
         <div className="container nav-content">
           <div className="logo">
-            <Sparkles className="logo-icon" size={20} />
-            WeScale
+            <TrendingUp className="logo-icon growth-icon" size={20} />
+            <span>we<span className="roi-text">ROI</span></span>
           </div>
           <div className="nav-links">
             <a href="#services" className="nav-link">Services</a>
@@ -325,7 +325,7 @@ const Home = () => {
       <section className="who-section" id="section-who">
         <div className="container">
           <h2 className={`section-title text-center ${isVisible['section-who'] ? 'fade-in-up' : ''}`}>
-            Is WeScale Right For You?
+            Is weROI Right For You?
           </h2>
           <div className="who-grid">
             <div className={`who-card glass-card who-for ${isVisible['section-who'] ? 'fade-in-up' : ''}`}>
@@ -374,15 +374,15 @@ const Home = () => {
           <div className="footer-content">
             <div className="footer-brand">
               <div className="footer-logo">
-                <Sparkles className="logo-icon" size={20} />
-                WeScale
+                <TrendingUp className="logo-icon growth-icon" size={20} />
+                <span>we<span className="roi-text">ROI</span></span>
               </div>
               <p className="footer-tagline">Brand Scaling for Local Businesses</p>
               <div className="footer-social">
                 <a href="https://instagram.com/wescale.jm" target="_blank" rel="noopener noreferrer" className="social-link">
                   <Instagram size={20} />
                 </a>
-                <a href="mailto:hello@wescale.com" className="social-link">
+                <a href="mailto:hello@weroi.com" className="social-link">
                   <Mail size={20} />
                 </a>
                 <a href="https://wa.me/18761234567" target="_blank" rel="noopener noreferrer" className="social-link">
@@ -409,13 +409,13 @@ const Home = () => {
                 <div className="footer-contact">
                   <p className="footer-link">@wescale.jm</p>
                   <p className="footer-link">(876) 123-4567</p>
-                  <p className="footer-link">hello@wescale.com</p>
+                  <p className="footer-link">hello@weroi.com</p>
                 </div>
               </div>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>© 2025 WeScale. All rights reserved.</p>
+            <p>© 2025 weROI. All rights reserved.</p>
           </div>
         </div>
       </footer>

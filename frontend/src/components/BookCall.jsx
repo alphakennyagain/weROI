@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { InlineWidget } from 'react-calendly';
-import { ChevronDown, CheckCircle, XCircle, ArrowLeft, Sparkles } from 'lucide-react';
+import { CheckCircle, ArrowLeft, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const BookCall = () => {
@@ -11,7 +11,7 @@ const BookCall = () => {
     readiness: ''
   });
   const [showCalendar, setShowCalendar] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
+  const [dateRange, setDateRange] = useState({ min: '', max: '' });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -25,23 +25,38 @@ const BookCall = () => {
   const handleReadinessSelect = (value) => {
     setAnswers({ ...answers, readiness: value });
     
-    // Check if qualified
-    const qualifiedBusinessStage = [
-      'Consistent sales, ready to grow',
-      'Established business, want better ROI'
-    ].includes(answers.businessStage);
+    // Calculate date range based on readiness
+    const today = new Date();
+    let minDate, maxDate;
     
-    const qualifiedReadiness = [
-      'Ready now',
-      'Ready within 30 days'
-    ].includes(value);
+    if (value === 'Ready now') {
+      // Today to 7 days from now
+      minDate = today;
+      maxDate = new Date(today);
+      maxDate.setDate(maxDate.getDate() + 7);
+    } else if (value === 'Ready within 30 days') {
+      // Today to 30 days from now
+      minDate = today;
+      maxDate = new Date(today);
+      maxDate.setDate(maxDate.getDate() + 30);
+    } else {
+      // Default: no restrictions (for other options)
+      minDate = today;
+      maxDate = new Date(today);
+      maxDate.setDate(maxDate.getDate() + 60);
+    }
+    
+    const formatDate = (date) => {
+      return date.toISOString().split('T')[0];
+    };
+    
+    setDateRange({
+      min: formatDate(minDate),
+      max: formatDate(maxDate)
+    });
     
     setTimeout(() => {
-      if (qualifiedBusinessStage && qualifiedReadiness) {
-        setShowCalendar(true);
-      } else {
-        setShowFallback(true);
-      }
+      setShowCalendar(true);
     }, 300);
   };
 
@@ -65,8 +80,8 @@ const BookCall = () => {
       <nav className="nav-bar">
         <div className="container nav-content">
           <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <Sparkles className="logo-icon" size={20} />
-            WeScale
+            <TrendingUp className="logo-icon growth-icon" size={20} />
+            <span>we<span className="roi-text">ROI</span></span>
           </div>
           <button className="btn-ghost" onClick={() => navigate('/')}>
             <ArrowLeft size={20} className="mr-2" />
@@ -77,7 +92,7 @@ const BookCall = () => {
 
       <div className="book-call-container">
         <div className="container">
-          {!showCalendar && !showFallback && (
+          {!showCalendar && (
             <div className="qualification-section">
               <div className="qualification-header fade-in-up">
                 <h1 className="qualification-title">Book Your Free Strategy Call</h1>
@@ -138,7 +153,7 @@ const BookCall = () => {
             </div>
           )}
 
-          {/* Show Calendar for Qualified Leads */}
+          {/* Show Calendar for All Leads */}
           {showCalendar && (
             <div className="calendar-section fade-in-up">
               <div className="calendar-header">
@@ -152,7 +167,7 @@ const BookCall = () => {
                 <InlineWidget
                   url={`https://calendly.com/wescalejm/30min?a1=${encodeURIComponent(
                     answers.businessStage
-                  )}&a2=${encodeURIComponent(answers.readiness)}`}
+                  )}&a2=${encodeURIComponent(answers.readiness)}&date_range_start=${dateRange.min}&date_range_end=${dateRange.max}`}
                   styles={{
                     height: '700px',
                     minWidth: '320px'
@@ -171,37 +186,6 @@ const BookCall = () => {
                     }
                   }}
                 />
-              </div>
-            </div>
-          )}
-
-          {/* Fallback Message for Unqualified Leads */}
-          {showFallback && (
-            <div className="fallback-section fade-in-up">
-              <div className="fallback-card glass-card">
-                <XCircle size={64} className="fallback-icon" />
-                <h2 className="fallback-title">Thanks for Your Interest</h2>
-                <p className="fallback-text">
-                  Right now, this call is best for businesses that are already making consistent sales and ready to invest in growth.
-                </p>
-                <p className="fallback-text">
-                  We'll send you helpful resources to help you get to that stage.
-                </p>
-                <div className="fallback-actions">
-                  <button className="btn-primary btn-large" onClick={() => navigate('/')}>
-                    Return to Home
-                  </button>
-                  <button
-                    className="btn-secondary btn-large"
-                    onClick={() => {
-                      setStep(1);
-                      setAnswers({ businessStage: '', readiness: '' });
-                      setShowFallback(false);
-                    }}
-                  >
-                    Start Over
-                  </button>
-                </div>
               </div>
             </div>
           )}
