@@ -427,7 +427,7 @@ const Home = () => {
                 <h4 className="footer-heading">Company</h4>
                 <a href="#how-it-works" className="footer-link">How It Works</a>
                 <a href="#reviews" className="footer-link">Reviews</a>
-                <a href="#book-call" className="footer-link">Book a Call</a>
+                <button onClick={() => navigate('/book-call')} className="footer-link" style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, textAlign: 'left' }}>Book a Call</button>
               </div>
               <div className="footer-column">
                 <h4 className="footer-heading">Contact</h4>
