@@ -377,6 +377,22 @@ const Home = () => {
         </div>
       </section>
 
+      {/* CTA Section */}
+      <section className="cta-section" id="section-cta">
+        <div className="container">
+          <div className={`cta-card glass-card ${isVisible['section-cta'] ? 'fade-in-up' : ''}`}>
+            <h2 className="cta-title">Ready to Scale Your Business the Right Way?</h2>
+            <p className="cta-subtitle">
+              Book a free 30-minute strategy call. No pressure. Just clarity.
+            </p>
+            <button className="btn-primary btn-large glow-on-hover" onClick={() => navigate('/book-call')}>
+              Book Your Strategy Call
+              <ArrowRight className="ml-2" size={20} />
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="footer">
         <div className="container">
