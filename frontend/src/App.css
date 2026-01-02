@@ -1246,6 +1246,14 @@ body {
   gap: 8px;
 }
 
+/* ROI Text in Footer */
+.footer-logo .roi-text {
+  display: inline-block;
+  animation: roi-grow 4s ease-in-out infinite;
+  font-weight: 900;
+  transform-origin: center;
+}
+
 .footer-tagline {
   font-size: 14px;
   color: var(--text-muted);
