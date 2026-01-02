@@ -1219,17 +1219,14 @@ body {
 
 .footer-logo .roi-text {
   display: inline-block;
-  animation: roi-grow 4s ease-in-out infinite;
+  animation: roi-grow-premium 4s ease-in-out infinite;
   font-weight: 900;
-  font-size: 32px;
+  font-size: 34px;
   transform-origin: left center;
-  text-shadow: 
-    0 0 10px rgba(218, 255, 1, 0.8),
-    0 0 20px rgba(218, 255, 1, 0.6),
-    -1px -1px 0 var(--accent-primary),
-    1px -1px 0 var(--accent-primary),
-    -1px 1px 0 var(--accent-primary),
-    1px 1px 0 var(--accent-primary);
+  color: var(--accent-primary);
+  filter: drop-shadow(0 0 8px rgba(218, 255, 1, 0.8))
+          drop-shadow(0 0 12px rgba(218, 255, 1, 0.6))
+          drop-shadow(0 0 16px rgba(218, 255, 1, 0.4));
 }
 
 .footer-tagline {
