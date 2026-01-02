@@ -1209,6 +1209,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
 }
 
 .footer-logo span {
@@ -1216,17 +1217,13 @@ body {
   align-items: baseline;
 }
 
-.footer-logo span:first-of-type {
-  font-size: 18px;
-  font-weight: 500;
-  opacity: 0.7;
-}
-
 .footer-logo .we-text {
-  font-size: 18px;
-  font-weight: 500;
-  opacity: 0.7;
-  margin-right: -1px;
+  font-size: 22px;
+  font-weight: 600;
+  opacity: 0.8;
+  margin-right: -4px;
+  position: relative;
+  z-index: 1;
 }
 
 .footer-logo .roi-text {
@@ -1236,6 +1233,8 @@ body {
   font-size: 34px;
   transform-origin: left center;
   color: var(--accent-primary);
+  position: relative;
+  z-index: 2;
   filter: drop-shadow(0 0 8px rgba(218, 255, 1, 0.8))
           drop-shadow(0 0 12px rgba(218, 255, 1, 0.6))
           drop-shadow(0 0 16px rgba(218, 255, 1, 0.4));
