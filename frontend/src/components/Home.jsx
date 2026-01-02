@@ -362,21 +362,15 @@ const Home = () => {
               Book a free 30-minute strategy call. No pressure. Just clarity.
             </p>
           </div>
-          <div className={`calendly-container ${isVisible['section-book'] ? 'fade-in-up' : ''}`}>
-            <div className="calendly-card glass-card">
-              <div className="calendly-glow"></div>
-              <Calendar size={48} className="calendly-icon" />
-              <p className="calendly-text">Schedule Your Free Strategy Call</p>
-              <a 
-                href="https://calendly.com/wescalejm/30min" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="btn-primary btn-large glow-on-hover"
-              >
-                Open Calendar
-                <ArrowRight className="ml-2" size={20} />
-              </a>
-              <p className="reassurance-text">No pressure. Just clarity.</p>
+          <div className={`calendly-embed-container ${isVisible['section-book'] ? 'fade-in-up' : ''}`}>
+            <div className="calendly-widget-wrapper">
+              <InlineWidget 
+                url="https://calendly.com/wescalejm/30min"
+                styles={{
+                  height: '700px',
+                  minWidth: '320px'
+                }}
+              />
             </div>
           </div>
         </div>
