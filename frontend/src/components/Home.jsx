@@ -352,31 +352,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Book a Call Section */}
-      <section className="book-section" id="book-call">
-        <div className="container">
-          <div className="section-header" id="section-book">
-            <h2 className={`section-title text-center ${isVisible['section-book'] ? 'fade-in-up' : ''}`}>
-              Ready to Scale Your Business the Right Way?
-            </h2>
-            <p className={`section-subtitle text-center ${isVisible['section-book'] ? 'fade-in-up' : ''}`}>
-              Book a free 30-minute strategy call. No pressure. Just clarity.
-            </p>
-          </div>
-          <div className={`calendly-embed-container ${isVisible['section-book'] ? 'fade-in-up' : ''}`}>
-            <div className="calendly-widget-wrapper">
-              <InlineWidget 
-                url="https://calendly.com/wescalejm/30min"
-                styles={{
-                  height: '700px',
-                  minWidth: '320px'
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="cta-section" id="section-cta">
         <div className="container">
