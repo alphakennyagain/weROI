@@ -124,30 +124,17 @@ body {
   animation-delay: -14s;
 }
 
-/* Cursor Glow with Progressive Brightness */
+/* Cursor Glow - Starts Dim */
 .cursor-glow {
   position: fixed;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(218, 255, 1, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(218, 255, 1, 0.5) 0%, transparent 70%);
   pointer-events: none;
   transform: translate(-50%, -50%);
   z-index: 1;
   transition: opacity 0.3s ease;
   filter: blur(40px);
-  animation: cursor-brighten 60s ease-in forwards;
-}
-
-@keyframes cursor-brighten {
-  0% {
-    background: radial-gradient(circle, rgba(218, 255, 1, 0.08) 0%, transparent 70%);
-  }
-  50% {
-    background: radial-gradient(circle, rgba(218, 255, 1, 0.15) 0%, transparent 70%);
-  }
-  100% {
-    background: radial-gradient(circle, rgba(218, 255, 1, 0.22) 0%, transparent 70%);
-  }
 }
 
 @keyframes gridMove {
