@@ -921,6 +921,245 @@ body {
 }
 
 /* ========================================
+   CTA SECTION
+======================================== */
+
+.cta-section {
+  padding: var(--space-4xl) 0;
+}
+
+.cta-card {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  line-height: 1.2;
+}
+
+.cta-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+}
+
+/* ========================================
+   BOOKING PAGE STYLES
+======================================== */
+
+.book-call-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.book-call-container {
+  padding: var(--space-3xl) 0;
+  min-height: calc(100vh - 200px);
+}
+
+/* Qualification Section */
+.qualification-section {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.qualification-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.qualification-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  line-height: 1.2;
+}
+
+.qualification-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Question Cards */
+.question-card {
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  position: relative;
+}
+
+.question-number {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-sm);
+}
+
+.question-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+  line-height: 1.4;
+}
+
+/* Options Grid */
+.options-grid {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.option-button {
+  background: rgba(38, 40, 42, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: var(--space-md) var(--space-lg);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.option-button:hover {
+  background: rgba(38, 40, 42, 0.9);
+  border-color: rgba(218, 255, 1, 0.3);
+  transform: translateX(8px);
+}
+
+.option-button.selected {
+  background: rgba(218, 255, 1, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 20px rgba(218, 255, 1, 0.2);
+}
+
+.option-text {
+  flex: 1;
+}
+
+.option-check {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+/* Calendar Section */
+.calendar-section {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.calendar-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.success-icon {
+  color: var(--accent-primary);
+  margin: 0 auto var(--space-md);
+  animation: pulse-scale 2s ease-in-out infinite;
+}
+
+@keyframes pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.calendar-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.calendar-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Fallback Section */
+.fallback-section {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.fallback-card {
+  text-align: center;
+  padding: var(--space-3xl);
+}
+
+.fallback-icon {
+  color: rgb(239, 68, 68);
+  margin: 0 auto var(--space-lg);
+}
+
+.fallback-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.fallback-text {
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-md);
+}
+
+.fallback-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: var(--space-xl);
+}
+
+/* Ghost Button Enhancement */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-ghost:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
    FOOTER - ENHANCED
 ======================================== */
 
