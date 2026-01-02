@@ -312,7 +312,7 @@ const Home = () => {
               <Calendar size={48} />
               <p className="calendly-text">Schedule Your Free Strategy Call</p>
               <a 
-                href="https://calendly.com" 
+                href="https://calendly.com/your-username" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="btn-primary btn-large"
@@ -320,6 +320,7 @@ const Home = () => {
                 Open Calendar
               </a>
               <p className="reassurance-text">No pressure. Just clarity.</p>
+              <p className="calendly-note">Replace with your Calendly link in Home.jsx</p>
             </div>
           </div>
         </div>
