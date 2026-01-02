@@ -1,18 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Calendar, Instagram, Mail, Phone } from 'lucide-react';
+import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Calendar, Instagram, Mail, Phone, Sparkles } from 'lucide-react';
 
 const AnimatedGrid = () => {
   return (
     <div className="animated-grid-bg">
       <div className="grid-overlay"></div>
+      <div className="gradient-orb orb-1"></div>
+      <div className="gradient-orb orb-2"></div>
+      <div className="gradient-orb orb-3"></div>
     </div>
   );
 };
 
 const Home = () => {
   const [isVisible, setIsVisible] = useState({});
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -28,29 +38,36 @@ const Home = () => {
       observer.observe(el);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const services = [
     {
       icon: <TrendingUp className="w-8 h-8" />,
       title: 'Brand Scaling Systems',
-      description: 'Digital infrastructure that supports growth and builds long-term brand equity.'
+      description: 'Digital infrastructure that supports growth and builds long-term brand equity.',
+      gradient: 'from-accent-1'
     },
     {
       icon: <Globe className="w-8 h-8" />,
       title: 'High-Conversion Websites',
-      description: 'Websites built to convert visitors into customers, not just look pretty.'
+      description: 'Websites built to convert visitors into customers, not just look pretty.',
+      gradient: 'from-accent-2'
     },
     {
       icon: <Zap className="w-8 h-8" />,
       title: 'Local SEO Foundations',
-      description: 'Get discovered on Google and Maps. Be found when customers are searching.'
+      description: 'Get discovered on Google and Maps. Be found when customers are searching.',
+      gradient: 'from-accent-3'
     },
     {
       icon: <Users className="w-8 h-8" />,
       title: 'Lead Capture & Automation',
-      description: 'Forms, booking, follow-ups, and pipelines that work while you sleep.'
+      description: 'Forms, booking, follow-ups, and pipelines that work while you sleep.',
+      gradient: 'from-accent-4'
     }
   ];
 
@@ -94,10 +111,22 @@ const Home = () => {
     <div className="home-container">
       <AnimatedGrid />
       
+      {/* Cursor Glow Effect */}
+      <div 
+        className="cursor-glow" 
+        style={{
+          left: `${mousePosition.x}px`,
+          top: `${mousePosition.y}px`
+        }}
+      />
+      
       {/* Navigation */}
       <nav className="nav-bar">
         <div className="container nav-content">
-          <div className="logo">WeScale</div>
+          <div className="logo">
+            <Sparkles className="logo-icon" size={20} />
+            WeScale
+          </div>
           <div className="nav-links">
             <a href="#services" className="nav-link">Services</a>
             <a href="#how-it-works" className="nav-link">How It Works</a>
@@ -113,6 +142,10 @@ const Home = () => {
       <section className="hero-section" id="section-hero">
         <div className="container">
           <div className={`hero-content ${isVisible['section-hero'] ? 'fade-in-up' : ''}`}>
+            <div className="hero-badge">
+              <span className="badge-dot"></span>
+              Systems Over Shortcuts
+            </div>
             <h1 className="hero-title">
               We scale local businesses into trusted, revenue-ready brands.
             </h1>
@@ -120,7 +153,7 @@ const Home = () => {
               We build digital systems that attract customers, convert leads, and help your business grow — without guesswork.
             </p>
             <div className="hero-cta-group">
-              <button className="btn-primary btn-large" onClick={() => document.getElementById('book-call').scrollIntoView({ behavior: 'smooth' })}>
+              <button className="btn-primary btn-large glow-on-hover" onClick={() => document.getElementById('book-call').scrollIntoView({ behavior: 'smooth' })}>
                 Book a Free Strategy Call
                 <ArrowRight className="ml-2" size={20} />
               </button>
@@ -136,25 +169,25 @@ const Home = () => {
       <section className="authority-section" id="section-authority">
         <div className="container">
           <div className={`authority-grid ${isVisible['section-authority'] ? 'fade-in-up' : ''}`}>
-            <div className="authority-card">
-              <div className="authority-stat">50+</div>
+            <div className="authority-card glass-card">
+              <div className="authority-stat gradient-text">50+</div>
               <div className="authority-label">Businesses Supported</div>
             </div>
-            <div className="authority-card">
+            <div className="authority-card glass-card">
               <div className="authority-badge">Built for Local Businesses</div>
             </div>
-            <div className="authority-card">
-              <div className="authority-stat">100+</div>
+            <div className="authority-card glass-card">
+              <div className="authority-stat gradient-text">100+</div>
               <div className="authority-label">Systems Deployed</div>
             </div>
-            <div className="authority-card">
+            <div className="authority-card glass-card">
               <div className="authority-badge">Systems Over Shortcuts</div>
             </div>
-            <div className="authority-card">
-              <div className="authority-stat">85+</div>
+            <div className="authority-card glass-card">
+              <div className="authority-stat gradient-text">85+</div>
               <div className="authority-label">Websites Built</div>
             </div>
-            <div className="authority-card">
+            <div className="authority-card glass-card">
               <div className="authority-badge">Designed to Convert</div>
             </div>
           </div>
@@ -176,9 +209,10 @@ const Home = () => {
             {services.map((service, index) => (
               <div 
                 key={index} 
-                className={`service-card ${isVisible['section-services'] ? 'fade-in-up' : ''}`}
+                className={`service-card glass-card ${isVisible['section-services'] ? 'fade-in-up' : ''}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
+                <div className="service-icon-glow"></div>
                 <div className="service-icon">{service.icon}</div>
                 <h3 className="service-title">{service.title}</h3>
                 <p className="service-description">{service.description}</p>
@@ -203,12 +237,13 @@ const Home = () => {
             {steps.map((step, index) => (
               <div 
                 key={index} 
-                className={`step-card ${isVisible['section-how'] ? 'fade-in-up' : ''}`}
+                className={`step-card glass-card ${isVisible['section-how'] ? 'fade-in-up' : ''}`}
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
-                <div className="step-number">{step.number}</div>
+                <div className="step-number gradient-text">{step.number}</div>
                 <h3 className="step-title">{step.title}</h3>
                 <p className="step-description">{step.description}</p>
+                <div className="step-glow"></div>
               </div>
             ))}
           </div>
@@ -224,8 +259,23 @@ const Home = () => {
               <p className="section-subtitle">
                 Every contact captured, every follow-up automated, every opportunity tracked. This is what systematic growth looks like.
               </p>
+              <div className="lead-stats">
+                <div className="lead-stat-item">
+                  <div className="stat-icon">⚡</div>
+                  <div>Instant Capture</div>
+                </div>
+                <div className="lead-stat-item">
+                  <div className="stat-icon">🎯</div>
+                  <div>Smart Routing</div>
+                </div>
+                <div className="lead-stat-item">
+                  <div className="stat-icon">📊</div>
+                  <div>Real-time Tracking</div>
+                </div>
+              </div>
             </div>
-            <div className="lead-visual-image">
+            <div className="lead-visual-image glass-card">
+              <div className="image-glow"></div>
               <img 
                 src="https://customer-assets.emergentagent.com/job_local-scale/artifacts/25smaio8_image.png" 
                 alt="Lead management system"
@@ -251,13 +301,17 @@ const Home = () => {
             {testimonials.map((testimonial, index) => (
               <div 
                 key={index} 
-                className={`testimonial-card ${isVisible['section-reviews'] ? 'fade-in-up' : ''}`}
+                className={`testimonial-card glass-card ${isVisible['section-reviews'] ? 'fade-in-up' : ''}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <p className="testimonial-quote">"{testimonial.quote}"</p>
+                <div className="quote-icon">"</div>
+                <p className="testimonial-quote">{testimonial.quote}</p>
                 <div className="testimonial-author">
-                  <div className="author-name">{testimonial.name}</div>
-                  <div className="author-business">{testimonial.business}</div>
+                  <div className="author-avatar">{testimonial.name.charAt(0)}</div>
+                  <div className="author-info">
+                    <div className="author-name">{testimonial.name}</div>
+                    <div className="author-business">{testimonial.business}</div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -272,7 +326,7 @@ const Home = () => {
             Is WeScale Right For You?
           </h2>
           <div className="who-grid">
-            <div className={`who-card who-for ${isVisible['section-who'] ? 'fade-in-up' : ''}`}>
+            <div className={`who-card glass-card who-for ${isVisible['section-who'] ? 'fade-in-up' : ''}`}>
               <h3 className="who-title">✓ This Is For You If:</h3>
               <ul className="who-list">
                 <li><CheckCircle2 size={20} /> You're a local business ready to grow</li>
@@ -282,7 +336,7 @@ const Home = () => {
                 <li><CheckCircle2 size={20} /> You value professionalism and results</li>
               </ul>
             </div>
-            <div className={`who-card who-not ${isVisible['section-who'] ? 'fade-in-up' : ''}`} style={{ animationDelay: '0.1s' }}>
+            <div className={`who-card glass-card who-not ${isVisible['section-who'] ? 'fade-in-up' : ''}`} style={{ animationDelay: '0.1s' }}>
               <h3 className="who-title">✗ This Is NOT For You If:</h3>
               <ul className="who-list">
                 <li><XCircle size={20} /> You're looking for cheap, template websites</li>
@@ -308,19 +362,20 @@ const Home = () => {
             </p>
           </div>
           <div className={`calendly-container ${isVisible['section-book'] ? 'fade-in-up' : ''}`}>
-            <div className="calendly-placeholder">
-              <Calendar size={48} />
+            <div className="calendly-card glass-card">
+              <div className="calendly-glow"></div>
+              <Calendar size={48} className="calendly-icon" />
               <p className="calendly-text">Schedule Your Free Strategy Call</p>
               <a 
-                href="https://calendly.com/your-username" 
+                href="https://calendly.com/wescalejm/30min" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="btn-primary btn-large"
+                className="btn-primary btn-large glow-on-hover"
               >
                 Open Calendar
+                <ArrowRight className="ml-2" size={20} />
               </a>
               <p className="reassurance-text">No pressure. Just clarity.</p>
-              <p className="calendly-note">Replace with your Calendly link in Home.jsx</p>
             </div>
           </div>
         </div>
@@ -331,7 +386,10 @@ const Home = () => {
         <div className="container">
           <div className="footer-content">
             <div className="footer-brand">
-              <div className="footer-logo">WeScale</div>
+              <div className="footer-logo">
+                <Sparkles className="logo-icon" size={20} />
+                WeScale
+              </div>
               <p className="footer-tagline">Brand Scaling for Local Businesses</p>
               <div className="footer-social">
                 <a href="https://instagram.com/wescale.jm" target="_blank" rel="noopener noreferrer" className="social-link">
