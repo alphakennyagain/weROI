@@ -234,6 +234,7 @@ body {
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .logo:hover {
@@ -241,12 +242,14 @@ body {
   filter: drop-shadow(0 0 10px var(--accent-glow));
 }
 
-/* Logo text styling - "we" smaller, "ROI" prominent with smooth neon glow */
+/* Logo text styling - "we" bigger and closer, "ROI" overlaps when growing */
 .we-text {
-  font-size: 16px;
-  font-weight: 500;
-  opacity: 0.7;
-  margin-right: -1px;
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 0.8;
+  margin-right: -4px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Growth Icon Animation */
@@ -273,7 +276,7 @@ body {
   }
 }
 
-/* ROI Text Animation - Smooth Premium Growth with Neon Glow */
+/* ROI Text Animation - Smooth Premium Growth with Overlap Effect */
 .roi-text {
   display: inline-block;
   animation: roi-grow-premium 4s ease-in-out infinite;
@@ -282,6 +285,8 @@ body {
   transform-origin: left center;
   letter-spacing: -0.5px;
   color: var(--accent-primary);
+  position: relative;
+  z-index: 2;
   filter: drop-shadow(0 0 8px rgba(218, 255, 1, 0.8))
           drop-shadow(0 0 12px rgba(218, 255, 1, 0.6))
           drop-shadow(0 0 16px rgba(218, 255, 1, 0.4));
