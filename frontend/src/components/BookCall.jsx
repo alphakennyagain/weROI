@@ -30,17 +30,14 @@ const BookCall = () => {
     let minDate, maxDate;
     
     if (value === 'Ready now') {
-      // Today to 7 days from now
       minDate = today;
       maxDate = new Date(today);
       maxDate.setDate(maxDate.getDate() + 7);
     } else if (value === 'Ready within 30 days') {
-      // Today to 30 days from now
       minDate = today;
       maxDate = new Date(today);
       maxDate.setDate(maxDate.getDate() + 30);
     } else {
-      // Default: no restrictions (for other options)
       minDate = today;
       maxDate = new Date(today);
       maxDate.setDate(maxDate.getDate() + 60);
@@ -81,7 +78,7 @@ const BookCall = () => {
         <div className="container nav-content">
           <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <TrendingUp className="logo-icon growth-icon" size={20} />
-            <span>we<span className="roi-text">ROI</span></span>
+            <span className="we-text">we</span><span className="roi-text">ROI</span>
           </div>
           <button className="btn-ghost" onClick={() => navigate('/')}>
             <ArrowLeft size={20} className="mr-2" />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Instagram, Mail, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,10 +13,70 @@ const AnimatedGrid = () => {
   );
 };
 
+const CountUpStat = ({ end, label, delay = 0 }) => {
+  const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const timeout = setTimeout(() => {
+      const duration = 2000;
+      const steps = 60;
+      const increment = end / steps;
+      let current = 0;
+
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+          setCount(end);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(current));
+        }
+      }, duration / steps);
+
+      return () => clearInterval(timer);
+    }, delay);
+
+    return () => clearTimeout(timeout);
+  }, [isVisible, end, delay]);
+
+  return (
+    <div ref={ref} className="authority-card glass-card">
+      <div className="authority-stat gradient-text">{count}+</div>
+      <div className="authority-label">{label}</div>
+    </div>
+  );
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState({});
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [cursorOpacity, setCursorOpacity] = useState(0.05);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -24,6 +84,16 @@ const Home = () => {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
+
+    // Gradually increase cursor glow brightness over time
+    const brightnessInterval = setInterval(() => {
+      setCursorOpacity((prev) => {
+        if (prev < 0.22) {
+          return prev + 0.002;
+        }
+        return prev;
+      });
+    }, 1000);
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -43,6 +113,7 @@ const Home = () => {
     return () => {
       observer.disconnect();
       window.removeEventListener('mousemove', handleMouseMove);
+      clearInterval(brightnessInterval);
     };
   }, []);
 
@@ -113,12 +184,13 @@ const Home = () => {
     <div className="home-container">
       <AnimatedGrid />
       
-      {/* Cursor Glow Effect */}
+      {/* Cursor Glow Effect with Dynamic Opacity */}
       <div 
         className="cursor-glow" 
         style={{
           left: `${mousePosition.x}px`,
-          top: `${mousePosition.y}px`
+          top: `${mousePosition.y}px`,
+          opacity: cursorOpacity
         }}
       />
       
@@ -127,7 +199,7 @@ const Home = () => {
         <div className="container nav-content">
           <div className="logo">
             <TrendingUp className="logo-icon growth-icon" size={20} />
-            <span>we<span className="roi-text">ROI</span></span>
+            <span className="we-text">we</span><span className="roi-text">ROI</span>
           </div>
           <div className="nav-links">
             <a href="#services" className="nav-link">Services</a>
@@ -167,31 +239,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Authority Section */}
+      {/* Authority Section - Only Stats with Count-Up Animation */}
       <section className="authority-section" id="section-authority">
         <div className="container">
           <div className={`authority-grid ${isVisible['section-authority'] ? 'fade-in-up' : ''}`}>
-            <div className="authority-card glass-card">
-              <div className="authority-stat gradient-text">50+</div>
-              <div className="authority-label">Businesses Supported</div>
-            </div>
-            <div className="authority-card glass-card">
-              <div className="authority-badge">Built for Local Businesses</div>
-            </div>
-            <div className="authority-card glass-card">
-              <div className="authority-stat gradient-text">100+</div>
-              <div className="authority-label">Systems Deployed</div>
-            </div>
-            <div className="authority-card glass-card">
-              <div className="authority-badge">Systems Over Shortcuts</div>
-            </div>
-            <div className="authority-card glass-card">
-              <div className="authority-stat gradient-text">85+</div>
-              <div className="authority-label">Websites Built</div>
-            </div>
-            <div className="authority-card glass-card">
-              <div className="authority-badge">Designed to Convert</div>
-            </div>
+            <CountUpStat end={50} label="Businesses Supported" delay={0} />
+            <CountUpStat end={100} label="Systems Deployed" delay={200} />
+            <CountUpStat end={85} label="Websites Built" delay={400} />
           </div>
         </div>
       </section>
@@ -375,7 +429,7 @@ const Home = () => {
             <div className="footer-brand">
               <div className="footer-logo">
                 <TrendingUp className="logo-icon growth-icon" size={20} />
-                <span>we<span className="roi-text">ROI</span></span>
+                <span className="we-text">we</span><span className="roi-text">ROI</span>
               </div>
               <p className="footer-tagline">Brand Scaling for Local Businesses</p>
               <div className="footer-social">
