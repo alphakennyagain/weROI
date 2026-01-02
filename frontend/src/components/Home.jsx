@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Calendar, Instagram, Mail, Phone, Sparkles } from 'lucide-react';
+import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Instagram, Mail, Phone, Sparkles } from 'lucide-react';
+import { InlineWidget } from 'react-calendly';
 
 const AnimatedGrid = () => {
   return (
