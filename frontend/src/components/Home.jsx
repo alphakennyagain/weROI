@@ -382,7 +382,7 @@ const Home = () => {
                 <a href="https://instagram.com/wescale.jm" target="_blank" rel="noopener noreferrer" className="social-link">
                   <Instagram size={20} />
                 </a>
-                <a href="mailto:hello@weroi.com" className="social-link">
+                <a href="mailto:contact.weroi@gmail.com" className="social-link">
                   <Mail size={20} />
                 </a>
                 <a href="https://wa.me/18761234567" target="_blank" rel="noopener noreferrer" className="social-link">
@@ -409,7 +409,7 @@ const Home = () => {
                 <div className="footer-contact">
                   <p className="footer-link">@wescale.jm</p>
                   <p className="footer-link">(876) 123-4567</p>
-                  <p className="footer-link">hello@weroi.com</p>
+                  <p className="footer-link">contact.weroi@gmail.com</p>
                 </div>
               </div>
             </div>
