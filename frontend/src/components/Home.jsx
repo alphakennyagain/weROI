@@ -133,7 +133,7 @@ const Home = () => {
             <a href="#services" className="nav-link">Services</a>
             <a href="#how-it-works" className="nav-link">How It Works</a>
             <a href="#reviews" className="nav-link">Reviews</a>
-            <button className="btn-primary" onClick={() => document.getElementById('book-call').scrollIntoView({ behavior: 'smooth' })}>
+            <button className="btn-primary" onClick={() => navigate('/book-call')}>
               Book a Call
             </button>
           </div>
