@@ -162,7 +162,7 @@ const BookCall = () => {
               </div>
               <div className="calendly-widget-wrapper">
                 <InlineWidget
-                  url={`https://calendly.com/wescalejm/30min?a1=${encodeURIComponent(
+                  url={`https://calendly.com/contact-weroi/30min?a1=${encodeURIComponent(
                     answers.businessStage
                   )}&a2=${encodeURIComponent(answers.readiness)}&date_range_start=${dateRange.min}&date_range_end=${dateRange.max}`}
                   styles={{
