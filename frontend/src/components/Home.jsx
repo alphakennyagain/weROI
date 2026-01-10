@@ -433,7 +433,7 @@ const Home = () => {
               </div>
               <p className="footer-tagline">Brand Scaling for Local Businesses</p>
               <div className="footer-social">
-                <a href="https://instagram.com/wescale.jm" target="_blank" rel="noopener noreferrer" className="social-link">
+                <a href="https://instagram.com/werio.co" target="_blank" rel="noopener noreferrer" className="social-link">
                   <Instagram size={20} />
                 </a>
                 <a href="mailto:contact.weroi@gmail.com" className="social-link">
