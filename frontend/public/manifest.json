@@ -1,0 +1,20 @@
+{
+  "short_name": "weROI",
+  "name": "weROI - Real Growth. Real ROI.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#DAFF01",
+  "background_color": "#111113"
+}
