@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ArrowRight, TrendingUp, Globe, Zap, Users, CheckCircle2, XCircle, Instagram, Mail, Phone } from 'lucide-react';
+import { ArrowRight, TrendingUp, Bot, Rocket, Handshake, Target, Compass, PenTool, Send, CheckCircle2, XCircle, Instagram, Mail, Phone, Zap, BarChart3, Users, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AnimatedGrid = () => {
@@ -13,7 +13,7 @@ const AnimatedGrid = () => {
   );
 };
 
-const CountUpStat = ({ end, label, delay = 0 }) => {
+const CountUpStat = ({ end, suffix = '+', label, delay = 0 }) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -66,7 +66,7 @@ const CountUpStat = ({ end, label, delay = 0 }) => {
 
   return (
     <div ref={ref} className="authority-card glass-card">
-      <div className="authority-stat gradient-text">{count}+</div>
+      <div className="authority-stat gradient-text">{count}{suffix}</div>
       <div className="authority-label">{label}</div>
     </div>
   );
@@ -85,7 +85,6 @@ const Home = () => {
 
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Gradually increase cursor glow brightness over time
     const brightnessInterval = setInterval(() => {
       setCursorOpacity((prev) => {
         if (prev < 0.22) {
@@ -117,66 +116,97 @@ const Home = () => {
     };
   }, []);
 
-  const services = [
+  // Three Pillars of Service
+  const servicePillars = [
     {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: 'Brand Scaling Systems',
-      description: 'Digital infrastructure that supports growth and builds long-term brand equity.',
-      gradient: 'from-accent-1'
+      icon: <Bot className="w-8 h-8" />,
+      title: 'AI Audit & Transformation',
+      subtitle: 'Identify measurable AI value. Deploy safely.',
+      services: [
+        'All-Star AI Growth Audit',
+        'Technical & Data Security Audit',
+        'Agent Design with AI Workflows',
+        'Model Governance & Monitoring',
+        'Complete AI Transformation'
+      ]
     },
     {
-      icon: <Globe className="w-8 h-8" />,
-      title: 'High-Conversion Websites',
-      description: 'Websites built to convert visitors into customers, not just look pretty.',
-      gradient: 'from-accent-2'
+      icon: <Rocket className="w-8 h-8" />,
+      title: 'Growth Systems Applications',
+      subtitle: 'Practical systems built fast.',
+      services: [
+        'Website Build / Redesign',
+        'Branding & Visual Identity',
+        'CRM & Operational Systems',
+        'Marketing Systems (Inbound/Outbound)',
+        'Content & Social Production',
+        'Paid Ads & Local SEO'
+      ]
     },
     {
-      icon: <Zap className="w-8 h-8" />,
-      title: 'Local SEO Foundations',
-      description: 'Get discovered on Google and Maps. Be found when customers are searching.',
-      gradient: 'from-accent-3'
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: 'Lead Capture & Automation',
-      description: 'Forms, booking, follow-ups, and pipelines that work while you sleep.',
-      gradient: 'from-accent-4'
+      icon: <Handshake className="w-8 h-8" />,
+      title: 'Scale Partnerships',
+      subtitle: 'One partner. Total accountability.',
+      services: [
+        'Revenue-Focused Partnership',
+        'Monthly Optimization & A/B Testing',
+        'AI Maintenance & Prompt Engineering',
+        'Routine Reporting & Dashboards',
+        'Complete Strategic Growth Partner'
+      ]
     }
   ];
 
-  const steps = [
+  // Process Steps - Align -> Diagnose -> Design -> Deliver
+  const processSteps = [
     {
-      number: '01',
-      title: 'Diagnose & Strategy',
-      description: 'We analyze your business, identify gaps, and create a custom growth roadmap.'
+      icon: <Compass className="w-6 h-6" />,
+      number: 'ALIGN',
+      title: 'Align & Collect',
+      description: 'Meet with stakeholders, gather core artifacts — revenue data, proposals, CRM export, org structure.',
+      deliverable: 'Executive Audit & Baseline Workbook'
     },
     {
-      number: '02',
-      title: 'Build the Digital System',
-      description: 'We design and deploy your conversion-ready website and automation systems.'
+      icon: <Target className="w-6 h-6" />,
+      number: 'DIAGNOSE',
+      title: 'Diagnose & Map',
+      description: 'Deep dives across sales, marketing, and delivery. Map value chain, quantify leaks, surface impact levers.',
+      deliverable: 'Opportunity Map & Top 10 Inefficiencies'
     },
     {
-      number: '03',
-      title: 'Launch, Optimize, Scale',
-      description: 'Go live, track results, refine performance, and watch your business grow.'
+      icon: <PenTool className="w-6 h-6" />,
+      number: 'DESIGN',
+      title: 'Design the Pilot',
+      description: 'Turn highest-value lever into testable hypothesis. Build pilot plan, security checklist, measurement design.',
+      deliverable: 'Pilot Implementation Plan & ROI Workbook'
+    },
+    {
+      icon: <Send className="w-6 h-6" />,
+      number: 'DELIVER',
+      title: 'Deliver & Scale',
+      description: 'Execute the pilot, validate results, then scale through implementation or ongoing Growth Partnership.',
+      deliverable: 'Validated System & Scale Roadmap'
     }
   ];
 
   const testimonials = [
     {
-      quote: "weROI transformed how we attract customers. Our booking rate tripled in 2 months.",
+      quote: "weROI engineered a lead system that 3x'd our qualified appointments in 60 days. No fluff, just results.",
       name: 'Marcus Thompson',
-      business: 'Elite Cuts Barbershop'
+      business: 'Elite Cuts Barbershop',
+      result: '3x Appointments'
     },
     {
-      quote: "Finally, a system that actually brings in leads. No more guessing, just results.",
+      quote: "They built infrastructure that generates leads while we sleep. Our CAC dropped 40% in the first quarter.",
       name: 'Sarah Chen',
-      business: 'Tech Repair Pro'
+      business: 'Tech Repair Pro',
+      result: '40% Lower CAC'
     },
     {
-      quote: "They built us a website that converts. Our phone hasn't stopped ringing since launch.",
+      quote: "Finally, a partner who speaks ROI, not vanity metrics. Revenue is up, stress is down.",
       name: 'David Martinez',
-      business: 'Martinez Legal Services'
+      business: 'Martinez Legal Services',
+      result: '2.5x Revenue'
     }
   ];
 
@@ -184,7 +214,7 @@ const Home = () => {
     <div className="home-container">
       <AnimatedGrid />
       
-      {/* Cursor Glow Effect with Dynamic Opacity */}
+      {/* Cursor Glow Effect */}
       <div 
         className="cursor-glow" 
         style={{
@@ -203,10 +233,14 @@ const Home = () => {
           </div>
           <div className="nav-links">
             <a href="#services" className="nav-link">Services</a>
-            <a href="#how-it-works" className="nav-link">How It Works</a>
-            <a href="#reviews" className="nav-link">Reviews</a>
-            <button className="btn-primary" onClick={() => navigate('/book-call')}>
-              Book a Call
+            <a href="#process" className="nav-link">Our Process</a>
+            <a href="#reviews" className="nav-link">Results</a>
+            <button 
+              data-testid="nav-cta-btn"
+              className="btn-primary" 
+              onClick={() => navigate('/growth-survey')}
+            >
+              Get Growth Guide
             </button>
           </div>
         </div>
@@ -218,126 +252,149 @@ const Home = () => {
           <div className={`hero-content ${isVisible['section-hero'] ? 'fade-in-up' : ''}`}>
             <div className="hero-badge">
               <span className="badge-dot"></span>
-              Systems Over Shortcuts
+              Growth Systems That Scale
             </div>
             <h1 className="hero-title">
-              We scale local businesses into trusted, revenue-ready brands.
+              We Engineer Revenue.<br />
+              <span className="gradient-text">You Own the System.</span>
             </h1>
             <p className="hero-subtitle">
-              We build digital systems that attract customers, convert leads, and help your business grow — without guesswork.
+              AI-powered growth infrastructure for businesses ready to scale. 
+              No guesswork. No vanity metrics. Just measurable ROI.
             </p>
             <div className="hero-cta-group">
-              <button className="btn-primary btn-large glow-on-hover" onClick={() => navigate('/book-call')}>
-                Book a Free Strategy Call
+              <button 
+                data-testid="hero-cta-btn"
+                className="btn-primary btn-large glow-on-hover" 
+                onClick={() => navigate('/growth-survey')}
+              >
+                Unlock Your Free Custom Growth Guide
                 <ArrowRight className="ml-2" size={20} />
               </button>
-              <button className="btn-secondary btn-large" onClick={() => document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' })}>
-                See How It Works
+              <button 
+                className="btn-secondary btn-large" 
+                onClick={() => document.getElementById('process').scrollIntoView({ behavior: 'smooth' })}
+              >
+                See Our Process
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Authority Section - Only Stats with Count-Up Animation */}
+      {/* Authority Section - Stats */}
       <section className="authority-section" id="section-authority">
         <div className="container">
           <div className={`authority-grid ${isVisible['section-authority'] ? 'fade-in-up' : ''}`}>
-            <CountUpStat end={50} label="Businesses Supported" delay={0} />
-            <CountUpStat end={100} label="Systems Deployed" delay={200} />
-            <CountUpStat end={85} label="Websites Built" delay={400} />
+            <CountUpStat end={127} suffix="+" label="Growth Systems Deployed" delay={0} />
+            <CountUpStat end={3.2} suffix="x" label="Average Revenue Lift" delay={200} />
+            <CountUpStat end={94} suffix="%" label="Client Retention Rate" delay={400} />
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* About Section - Who We Are */}
+      <section className="about-section" id="section-about">
+        <div className="container">
+          <div className={`about-content ${isVisible['section-about'] ? 'fade-in-up' : ''}`}>
+            <div className="about-text">
+              <h2 className="section-title">Built for Founders Who Demand ROI</h2>
+              <p className="about-description">
+                weROI was engineered from a simple truth: <strong>if your business can run without you, 
+                you don't have a business—you have a job.</strong>
+              </p>
+              <p className="about-description">
+                We build scalable growth systems that work in the background. AI-powered automation, 
+                conversion infrastructure, and strategic partnerships that turn attention into revenue—predictably.
+              </p>
+              <div className="about-features">
+                <div className="about-feature">
+                  <Shield size={20} className="feature-icon" />
+                  <span>No jargon. No theory. Just proof that systems pay for themselves.</span>
+                </div>
+                <div className="about-feature">
+                  <BarChart3 size={20} className="feature-icon" />
+                  <span>Data-driven decisions. Every action tied to measurable outcomes.</span>
+                </div>
+                <div className="about-feature">
+                  <Users size={20} className="feature-icon" />
+                  <span>One partner, total accountability. No more agency juggling.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section - Three Pillars */}
       <section className="services-section" id="services">
         <div className="container">
           <div className="section-header" id="section-services">
             <h2 className={`section-title ${isVisible['section-services'] ? 'fade-in-up' : ''}`}>
-              What We Build For You
+              Three Pillars of Growth
             </h2>
             <p className={`section-subtitle ${isVisible['section-services'] ? 'fade-in-up' : ''}`}>
-              Complete digital systems that turn your business into a customer magnet
+              Comprehensive systems engineered for scale
             </p>
           </div>
-          <div className="services-grid">
-            {services.map((service, index) => (
+          <div className="pillars-grid">
+            {servicePillars.map((pillar, index) => (
               <div 
                 key={index} 
-                className={`service-card glass-card ${isVisible['section-services'] ? 'fade-in-up' : ''}`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="service-icon-glow"></div>
-                <div className="service-icon">{service.icon}</div>
-                <h3 className="service-title">{service.title}</h3>
-                <p className="service-description">{service.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="how-it-works-section" id="how-it-works">
-        <div className="container">
-          <div className="section-header" id="section-how">
-            <h2 className={`section-title ${isVisible['section-how'] ? 'fade-in-up' : ''}`}>
-              How It Works
-            </h2>
-            <p className={`section-subtitle ${isVisible['section-how'] ? 'fade-in-up' : ''}`}>
-              A proven 3-step system to scale your brand
-            </p>
-          </div>
-          <div className="steps-container">
-            {steps.map((step, index) => (
-              <div 
-                key={index} 
-                className={`step-card glass-card ${isVisible['section-how'] ? 'fade-in-up' : ''}`}
+                className={`pillar-card glass-card ${isVisible['section-services'] ? 'fade-in-up' : ''}`}
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
-                <div className="step-number gradient-text">{step.number}</div>
-                <h3 className="step-title">{step.title}</h3>
-                <p className="step-description">{step.description}</p>
-                <div className="step-glow"></div>
+                <div className="pillar-icon-wrapper">
+                  <div className="pillar-icon">{pillar.icon}</div>
+                </div>
+                <h3 className="pillar-title">{pillar.title}</h3>
+                <p className="pillar-subtitle">{pillar.subtitle}</p>
+                <ul className="pillar-services">
+                  {pillar.services.map((service, i) => (
+                    <li key={i}>
+                      <Zap size={14} className="service-bullet" />
+                      {service}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Lead Capture Visual */}
-      <section className="lead-visual-section" id="section-lead-visual">
+      {/* Process Section - Align -> Diagnose -> Design -> Deliver */}
+      <section className="process-section" id="process">
         <div className="container">
-          <div className={`lead-visual-content ${isVisible['section-lead-visual'] ? 'fade-in-up' : ''}`}>
-            <div className="lead-visual-text">
-              <h2 className="section-title">Your Leads, Organized & Automated</h2>
-              <p className="section-subtitle">
-                Every contact captured, every follow-up automated, every opportunity tracked. This is what systematic growth looks like.
-              </p>
-              <div className="lead-stats">
-                <div className="lead-stat-item">
-                  <div className="stat-icon">⚡</div>
-                  <div>Instant Capture</div>
+          <div className="section-header" id="section-process">
+            <h2 className={`section-title ${isVisible['section-process'] ? 'fade-in-up' : ''}`}>
+              Our Process
+            </h2>
+            <p className={`section-subtitle ${isVisible['section-process'] ? 'fade-in-up' : ''}`}>
+              The All-Star AI Growth Framework
+            </p>
+          </div>
+          <div className="process-timeline">
+            {processSteps.map((step, index) => (
+              <div 
+                key={index} 
+                className={`process-step ${isVisible['section-process'] ? 'fade-in-up' : ''}`}
+                style={{ animationDelay: `${index * 0.15}s` }}
+              >
+                <div className="process-step-header">
+                  <div className="process-icon">{step.icon}</div>
+                  <span className="process-number gradient-text">{step.number}</span>
                 </div>
-                <div className="lead-stat-item">
-                  <div className="stat-icon">🎯</div>
-                  <div>Smart Routing</div>
-                </div>
-                <div className="lead-stat-item">
-                  <div className="stat-icon">📊</div>
-                  <div>Real-time Tracking</div>
+                <div className="process-step-content glass-card">
+                  <h3 className="process-title">{step.title}</h3>
+                  <p className="process-description">{step.description}</p>
+                  <div className="process-deliverable">
+                    <CheckCircle2 size={16} className="deliverable-icon" />
+                    <span>{step.deliverable}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="lead-visual-image glass-card">
-              <div className="image-glow"></div>
-              <img 
-                src="https://customer-assets.emergentagent.com/job_local-scale/artifacts/25smaio8_image.png" 
-                alt="Lead management system"
-                className="data-image"
-              />
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -347,10 +404,10 @@ const Home = () => {
         <div className="container">
           <div className="section-header" id="section-reviews">
             <h2 className={`section-title ${isVisible['section-reviews'] ? 'fade-in-up' : ''}`}>
-              What Our Clients Say
+              Engineered Results
             </h2>
             <p className={`section-subtitle ${isVisible['section-reviews'] ? 'fade-in-up' : ''}`}>
-              Real results from real local businesses
+              ROI our clients can measure
             </p>
           </div>
           <div className="testimonials-grid">
@@ -360,8 +417,8 @@ const Home = () => {
                 className={`testimonial-card glass-card ${isVisible['section-reviews'] ? 'fade-in-up' : ''}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="quote-icon">"</div>
-                <p className="testimonial-quote">{testimonial.quote}</p>
+                <div className="testimonial-result gradient-text">{testimonial.result}</div>
+                <p className="testimonial-quote">"{testimonial.quote}"</p>
                 <div className="testimonial-author">
                   <div className="author-avatar">{testimonial.name.charAt(0)}</div>
                   <div className="author-info">
@@ -383,23 +440,23 @@ const Home = () => {
           </h2>
           <div className="who-grid">
             <div className={`who-card glass-card who-for ${isVisible['section-who'] ? 'fade-in-up' : ''}`}>
-              <h3 className="who-title">✓ This Is For You If:</h3>
+              <h3 className="who-title">✓ We Engineer Growth For:</h3>
               <ul className="who-list">
-                <li><CheckCircle2 size={20} /> You're a local business ready to grow</li>
-                <li><CheckCircle2 size={20} /> You want a system, not just a website</li>
-                <li><CheckCircle2 size={20} /> You're serious about attracting more customers</li>
-                <li><CheckCircle2 size={20} /> You're willing to invest in long-term growth</li>
-                <li><CheckCircle2 size={20} /> You value professionalism and results</li>
+                <li><CheckCircle2 size={20} /> Founders ready to scale beyond manual operations</li>
+                <li><CheckCircle2 size={20} /> Businesses seeking AI-powered competitive advantage</li>
+                <li><CheckCircle2 size={20} /> Teams tired of agencies that can't prove ROI</li>
+                <li><CheckCircle2 size={20} /> Leaders who value systems over shortcuts</li>
+                <li><CheckCircle2 size={20} /> Companies ready to invest in long-term infrastructure</li>
               </ul>
             </div>
             <div className={`who-card glass-card who-not ${isVisible['section-who'] ? 'fade-in-up' : ''}`} style={{ animationDelay: '0.1s' }}>
-              <h3 className="who-title">✗ This Is NOT For You If:</h3>
+              <h3 className="who-title">✗ This Isn't For:</h3>
               <ul className="who-list">
-                <li><XCircle size={20} /> You're looking for cheap, template websites</li>
-                <li><XCircle size={20} /> You want quick fixes without strategy</li>
-                <li><XCircle size={20} /> You're not ready to invest in your business</li>
-                <li><XCircle size={20} /> You expect results without implementation</li>
-                <li><XCircle size={20} /> You're not serious about scaling</li>
+                <li><XCircle size={20} /> Businesses looking for quick fixes or magic bullets</li>
+                <li><XCircle size={20} /> Those who want cheap templates over custom systems</li>
+                <li><XCircle size={20} /> Anyone not ready to invest in real growth</li>
+                <li><XCircle size={20} /> Leaders who chase vanity metrics over revenue</li>
+                <li><XCircle size={20} /> Companies unwilling to implement and iterate</li>
               </ul>
             </div>
           </div>
@@ -410,12 +467,17 @@ const Home = () => {
       <section className="cta-section" id="section-cta">
         <div className="container">
           <div className={`cta-card glass-card ${isVisible['section-cta'] ? 'fade-in-up' : ''}`}>
-            <h2 className="cta-title">Ready to Scale Your Business the Right Way?</h2>
+            <h2 className="cta-title">Ready to Engineer Your Growth?</h2>
             <p className="cta-subtitle">
-              Book a free 30-minute strategy call. No pressure. Just clarity.
+              Get your free custom growth guide. Discover where revenue is leaking 
+              and what systems will capture it.
             </p>
-            <button className="btn-primary btn-large glow-on-hover" onClick={() => navigate('/book-call')}>
-              Book Your Strategy Call
+            <button 
+              data-testid="cta-btn"
+              className="btn-primary btn-large glow-on-hover" 
+              onClick={() => navigate('/growth-survey')}
+            >
+              Unlock Your Free Custom Growth Guide
               <ArrowRight className="ml-2" size={20} />
             </button>
           </div>
@@ -431,7 +493,7 @@ const Home = () => {
                 <TrendingUp className="logo-icon growth-icon" size={20} />
                 <span className="we-text">we</span><span className="roi-text">ROI</span>
               </div>
-              <p className="footer-tagline">Brand Scaling for Local Businesses</p>
+              <p className="footer-tagline">Growth Systems Engineered for Scale</p>
               <div className="footer-social">
                 <a href="https://instagram.com/weroi.co" target="_blank" rel="noopener noreferrer" className="social-link">
                   <Instagram size={20} />
@@ -447,29 +509,27 @@ const Home = () => {
             <div className="footer-links">
               <div className="footer-column">
                 <h4 className="footer-heading">Services</h4>
-                <a href="#services" className="footer-link">Brand Scaling</a>
-                <a href="#services" className="footer-link">Web Design</a>
-                <a href="#services" className="footer-link">Local SEO</a>
-                <a href="#services" className="footer-link">Lead Capture</a>
+                <a href="#services" className="footer-link">AI Audit & Transformation</a>
+                <a href="#services" className="footer-link">Growth Systems</a>
+                <a href="#services" className="footer-link">Scale Partnerships</a>
               </div>
               <div className="footer-column">
                 <h4 className="footer-heading">Company</h4>
-                <a href="#how-it-works" className="footer-link">How It Works</a>
-                <a href="#reviews" className="footer-link">Reviews</a>
-                <button onClick={() => navigate('/book-call')} className="footer-link" style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, textAlign: 'left' }}>Book a Call</button>
+                <a href="#process" className="footer-link">Our Process</a>
+                <a href="#reviews" className="footer-link">Results</a>
+                <button onClick={() => navigate('/growth-survey')} className="footer-link" style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, textAlign: 'left' }}>Get Growth Guide</button>
               </div>
               <div className="footer-column">
                 <h4 className="footer-heading">Contact</h4>
                 <div className="footer-contact">
-                  <p className="footer-link">@wescale.jm</p>
-                  <p className="footer-link">(876) 123-4567</p>
+                  <p className="footer-link">@weroi.co</p>
                   <p className="footer-link">contact.weroi@gmail.com</p>
                 </div>
               </div>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>© 2025 weROI. All rights reserved.</p>
+            <p>© 2025 weROI. Engineered for Growth.</p>
           </div>
         </div>
       </footer>
