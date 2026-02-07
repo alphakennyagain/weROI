@@ -1,57 +1,56 @@
-# weROI - Lead Generation Platform PRD (Final)
+# weROI - Lead Generation Platform PRD (Updated Feb 7, 2025)
 
 ## Original Problem Statement
 Build a premium, high-conversion lead generation website for weROI with multi-step audit forms, exit-intent popups, email automation, and admin dashboard.
 
 ## ✅ All Requirements Completed
 
-### Task 1: Mobile-Only UI Refinement
-- ✅ Desktop preserved - no changes to PC layout
-- ✅ Mobile (<768px): 16px button fonts, 30% reduced padding
-- ✅ All text center-aligned on mobile
-- ✅ Form fields stacked vertically at 100% width
-- ✅ Touch-friendly tap targets (min 56px)
+### Phase 1: Initial Website & Lead Funnel
+- ✅ Premium dark-themed "Luxury Tech" website
+- ✅ Multi-step AI Growth Audit form (5 steps)
+- ✅ Exit-intent popup for guide downloads
+- ✅ Thank You page with video placeholder
+- ✅ Trust Ticker with animated scroll
+- ✅ Interactive service cards
 
-### Task 2: Dual-Trigger Popup Logic
-- ✅ **Time-based**: Shows after 5 seconds of page residence
-- ✅ **Exit Intent (Desktop)**: Triggers when mouse leaves window top
-- ✅ **Mobile Support**: Back gesture detection, scroll-up at top
-- ✅ Only triggers once per session (sessionStorage)
-
-### Task 3: Footer & Social Integration
-- ✅ Removed weROI logo from footer
-- ✅ Removed "Claim Your Free Audit" button from footer
-- ✅ Minimalist "Socials & Contact" section
-- ✅ Instagram icon linked to https://www.instagram.com/weroi.co/
-
-### Task 4: Resend Email Automation
-- ✅ Resend API connected (API key configured)
-- ✅ **Email 1 (Immediate)**: "Your Scaling Blueprint Has Arrived"
-- ✅ **Email 2 (24h)**: "Why DIY Scaling Usually Fails"
+### Phase 2: Email Automation
+- ✅ Resend API integration from `growth@weroi.net`
+- ✅ **Email 1 (Immediate)**: "Your Scaling Blueprint Has Arrived" with personalized PDF
+- ✅ **Email 2 (24h)**: "Why DIY Scaling Usually Fails" with Anti-DIY Framework
 - ✅ **Email 3 (48h)**: "A Custom Roadmap for [Company]?"
-- ✅ Premium Luxury Template: Dark grey text on white, thin borders, centered CTA
-- ✅ Audit confirmation email on form submission
+- ✅ Audit confirmation email with Calendly booking link
 
-### Task 5: Private Admin Dashboard
-- ✅ Hidden route at `/admin-dashboard`
-- ✅ Password-protected: `weROI2025Admin!`
-- ✅ **Lead Log**: Table with Date, Name, Email, Company, Source, Status
-- ✅ **Analytics View**: Page Views, Form Submissions, Popup Downloads, Conversion Rate
-- ✅ **Export**: CSV download button
+### Phase 3: Admin Dashboard (Feb 7, 2025)
+- ✅ Password-protected at `/admin-dashboard`
+- ✅ **Password**: `TylerandZach2025!`
+- ✅ **Stats Overview**: Unique Visitors, Audit Leads, Guide Downloads, Total Leads
+- ✅ **Lead Log Tab**: Full table with Edit/Delete per lead
+- ✅ **Analytics Tab**: Conversion Funnels (Audit Form, Popup Capture)
+- ✅ **Sources Tab**: Top Referrers with traffic source data
+- ✅ **CRUD Operations**: Edit leads, Delete single leads, Clear All by type
+- ✅ **CSV Export**: Download all leads
+- ✅ **Mobile Responsive**: Works at 375px width
+
+### Phase 4: Enhanced Analytics Tracking (Feb 7, 2025)
+- ✅ Session-based unique visitor tracking
+- ✅ `audit_form_start` event tracking when form loads
+- ✅ `popup_shown` event tracking when exit popup appears
+- ✅ `page_view` tracking on Home page
+- ✅ `document.referrer` capture for source attribution
+- ✅ Conversion rate calculations (form views → submissions)
 
 ## Architecture
 ```
 /app
 ├── frontend/
 │   └── src/components/
-│       ├── Home.jsx           # Homepage with social footer
-│       ├── AuditForm.jsx      # 5-step multi-step form
-│       ├── ExitIntentPopup.jsx # Dual-trigger popup
-│       ├── ThankYou.jsx       # Video placeholder page
-│       ├── AdminDashboard.jsx # Password-protected admin
-│       └── ...
+│       ├── Home.jsx           # Homepage with analytics tracking
+│       ├── AuditForm.jsx      # 5-step form with form_start tracking
+│       ├── ExitIntentPopup.jsx # Popup with popup_shown tracking
+│       ├── ThankYou.jsx       # Post-submission page
+│       └── AdminDashboard.jsx # Full CRUD admin with analytics
 └── backend/
-    └── server.py              # Lead APIs, email, admin, CSV export
+    └── server.py              # All APIs, email, admin, analytics
 ```
 
 ## API Endpoints
@@ -61,85 +60,56 @@ Build a premium, high-conversion lead generation website for weROI with multi-st
 |----------|--------|-------------|
 | `/api/leads/audit` | POST | Submit audit form |
 | `/api/leads/audit` | GET | List audit leads |
+| `/api/leads/audit/{id}` | PUT | Update audit lead |
+| `/api/leads/audit/{id}` | DELETE | Delete audit lead |
 | `/api/leads/guide` | POST | Submit guide download |
 | `/api/leads/guide` | GET | List guide leads |
-| `/api/leads/stats` | GET | Lead statistics |
+| `/api/leads/guide/{id}` | PUT | Update guide lead |
+| `/api/leads/guide/{id}` | DELETE | Delete guide lead |
+| `/api/leads/clear-all` | DELETE | Clear all leads by type |
 | `/api/leads/export/csv` | GET | Download all leads as CSV |
 
 ### Admin
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/admin/auth` | POST | Authenticate (password: weROI2025Admin!) |
+| `/api/admin/auth` | POST | Authenticate |
 | `/api/admin/dashboard-data` | GET | Get all dashboard data |
 
 ### Analytics
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/analytics/event` | POST | Track page view/event |
-| `/api/analytics/stats` | GET | Get conversion stats |
-
-### Email
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/emails/process-scheduled` | POST | Process Email 2 & 3 queue |
-
-## Routes
-| Route | Description |
-|-------|-------------|
-| `/` | Homepage |
-| `/audit` | 5-step audit form |
-| `/thank-you` | Thank you page |
-| `/admin-dashboard` | Admin dashboard (protected) |
-| `/struggling-to-scale` | PDF landing page |
-| `/book-call` | Calendly booking |
+| `/api/analytics/event` | POST | Track events (page_view, audit_form_start, popup_shown) |
+| `/api/analytics/stats` | GET | Get conversion stats, funnels, sources |
 
 ## Important Credentials
-- **Admin Password**: `weROI2025Admin!`
+- **Admin Password**: `TylerandZach2025!`
 - **Admin URL**: `/admin-dashboard`
-- **Resend API Key**: Configured in `backend/.env`
+- **Sender Email**: `growth@weroi.net`
 
-## ⚠️ Email Setup Required
-The Resend API is configured but requires **domain verification**:
-
-1. Go to https://resend.com/domains
-2. Either:
-   - **Option A**: Verify your domain (e.g., `weroi.net`) and update `SENDER_EMAIL` in `backend/.env`
-   - **Option B**: Use Resend's default `onboarding@resend.dev` for testing
-
-Current error: "The gmail.com domain is not verified"
-
-To fix, update `backend/.env`:
-```
-SENDER_EMAIL=hello@weroi.net  # After verifying weroi.net domain
-```
-
-## Testing Status
-- ✅ Backend: 100% (20/20 tests passed)
+## Testing Status (Feb 7, 2025)
+- ✅ Backend: 100% (37/37 tests passed)
 - ✅ Frontend: 100%
-- ✅ Mobile responsive: Verified at 390px width
-- ✅ Admin dashboard: Fully functional
+- ✅ Mobile responsive: Verified at 375px width
+- ✅ Admin CRUD: Edit/Delete/Clear All working
 
 ## What's Implemented
-- [x] "Claim Your Free AI Growth Audit" CTAs
-- [x] 5-step multi-step audit form with validation
-- [x] Progress bar and step indicators
-- [x] Trust Ticker with animated scroll
-- [x] Interactive service cards (expand, blur, ghost button)
+- [x] Premium "Luxury Tech" dark theme
+- [x] Multi-step audit form with validation
 - [x] Dual-trigger exit-intent popup
-- [x] 3D animated book mockup in popup
-- [x] Thank you page with video placeholder
-- [x] MongoDB lead storage
-- [x] Resend 3-email sequence (templates ready)
-- [x] Social-only footer (Instagram @weroi.co)
-- [x] Mobile-optimized experience
-- [x] Admin dashboard with stats
-- [x] Lead log table
-- [x] CSV export functionality
+- [x] 3D animated book mockup
+- [x] MongoDB lead storage with full CRUD
+- [x] Resend 4-email automation sequence
+- [x] Admin dashboard with stats, leads, analytics, sources
+- [x] Lead editing via modal
+- [x] Bulk delete (Clear Audit/Guide/All)
+- [x] Session-based visitor tracking
 - [x] Conversion funnel analytics
-- [x] All glow transitions on button hover
+- [x] Source/referrer tracking
+- [x] CSV export
+- [x] Mobile-optimized admin UI
 
-## Backlog
-- [ ] Verify domain on Resend for email delivery
-- [ ] Add case study video to Thank You page
-- [ ] Google Analytics integration
+## Backlog (P1-P2)
+- [ ] Integrate real case study video on Thank You page
+- [ ] Google Analytics integration for robust tracking
 - [ ] Lead scoring system
+- [ ] A/B testing framework
