@@ -152,7 +152,8 @@ const AuditForm = () => {
       2: <Phone size={24} />,
       3: <Mail size={24} />,
       4: <Building size={24} />,
-      5: <Search size={24} />
+      5: <Globe size={24} />,
+      6: <Search size={24} />
     };
     return icons[stepNum];
   };
@@ -163,7 +164,8 @@ const AuditForm = () => {
       2: "What's your phone number?",
       3: "What's your email?",
       4: "What's your company name?",
-      5: "How did you find us?"
+      5: "What's your website or business page?",
+      6: "How did you find us?"
     };
     return titles[stepNum];
   };
