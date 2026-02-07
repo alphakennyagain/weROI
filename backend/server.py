@@ -66,6 +66,7 @@ class AuditLeadCreate(BaseModel):
     phone: str
     email: EmailStr
     company_name: str
+    website: Optional[str] = None
     how_found_us: str
     referrer: Optional[str] = None
 
@@ -76,6 +77,7 @@ class AuditLead(BaseModel):
     phone: str
     email: EmailStr
     company_name: str
+    website: Optional[str] = None
     how_found_us: str
     referrer: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
