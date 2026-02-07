@@ -293,16 +293,6 @@ def get_audit_confirmation_email(name: str, company_name: str, calendly_url: str
             cta_link=calendly_url
         )
     }
-    <p style="margin: 0 0 20px 0;">In the meantime, keep an eye on your inbox. We move fast.</p>
-    <p style="margin: 0;">To your growth,<br><strong style="color: #111113;">The weROI Team</strong></p>
-    '''
-    return {
-        "subject": "Your AI Growth Audit Request — Received",
-        "html": get_premium_email_template(
-            content,
-            headline="We've Got Your Request"
-        )
-    }
 
 # ========================================
 # EMAIL SENDING FUNCTIONS
