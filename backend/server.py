@@ -263,8 +263,8 @@ def get_email_3_content(name: str, company_name: str, audit_url: str) -> dict:
         )
     }
 
-def get_audit_confirmation_email(name: str, company_name: str) -> dict:
-    """Audit Form Confirmation Email - Premium Luxury Style"""
+def get_audit_confirmation_email(name: str, company_name: str, calendly_url: str) -> dict:
+    """Audit Form Confirmation Email with Calendly Booking - Premium Luxury Style"""
     content = f'''
     <p style="margin: 0 0 20px 0;">{name},</p>
     <p style="margin: 0 0 20px 0;">Your AI Growth Audit request has been received.</p>
@@ -272,12 +272,27 @@ def get_audit_confirmation_email(name: str, company_name: str) -> dict:
         <span style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #999999; margin-bottom: 8px;">Company</span>
         <span style="display: block; font-size: 18px; font-weight: 600; color: #111113;">{company_name}</span>
     </p>
-    <p style="margin: 0 0 8px 0; font-weight: 500; color: #111113;">What happens next:</p>
-    <ol style="margin: 0 0 20px 0; padding-left: 20px; color: #444444;">
-        <li style="margin-bottom: 12px;"><strong style="color: #111113;">Within 24 hours</strong> — Our team reviews your submission</li>
-        <li style="margin-bottom: 12px;"><strong style="color: #111113;">Within 48 hours</strong> — You'll receive a personalized response with next steps</li>
-        <li style="margin-bottom: 12px;"><strong style="color: #111113;">Discovery Call</strong> — A 30-minute deep dive into your growth opportunities</li>
-    </ol>
+    <p style="margin: 0 0 20px 0; font-weight: 500; color: #111113;">Skip the wait. Book your call now.</p>
+    <p style="margin: 0 0 20px 0;">We've reserved priority slots for new audit applicants. Secure your 30-minute discovery call and let's map out your growth opportunities together.</p>
+    <p style="margin: 24px 0; padding: 24px; background-color: #111113; color: #ffffff;">
+        <span style="display: block; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #DAFF01;">What We'll Cover</span>
+        <span style="display: block; font-size: 16px; font-weight: 300; line-height: 1.6;">
+            ✓ Your current growth bottlenecks<br>
+            ✓ Quick wins you can implement immediately<br>
+            ✓ Custom roadmap tailored to {company_name}
+        </span>
+    </p>
+    <p style="margin: 0;">To your growth,<br><strong style="color: #111113;">The weROI Team</strong></p>
+    '''
+    return {
+        "subject": f"Your AI Growth Audit — Book Your Call, {name}",
+        "html": get_premium_email_template(
+            content,
+            headline="You're In. Let's Talk Growth.",
+            cta_text="Book Your Discovery Call",
+            cta_link=calendly_url
+        )
+    }
     <p style="margin: 0 0 20px 0;">In the meantime, keep an eye on your inbox. We move fast.</p>
     <p style="margin: 0;">To your growth,<br><strong style="color: #111113;">The weROI Team</strong></p>
     '''
