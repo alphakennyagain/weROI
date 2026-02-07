@@ -239,6 +239,23 @@ const AuditForm = () => {
       case 5:
         return (
           <div className="form-field">
+            <input
+              type="url"
+              data-testid="audit-website-input"
+              placeholder="https://yourwebsite.com (optional)"
+              value={formData.website}
+              onChange={(e) => handleInputChange('website', e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleNext()}
+              className={`form-input ${errors.website ? 'error' : ''}`}
+              autoFocus
+            />
+            <span className="field-hint">Enter your website, Instagram, or any business page</span>
+            {errors.website && <span className="error-text">{errors.website}</span>}
+          </div>
+        );
+      case 6:
+        return (
+          <div className="form-field">
             <div className="how-found-options">
               {howFoundOptions.map((option, index) => (
                 <button
