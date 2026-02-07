@@ -2676,6 +2676,13 @@ body {
   margin-top: var(--space-xs);
 }
 
+.field-hint {
+  display: block;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: var(--space-xs);
+}
+
 /* How Found Options */
 .how-found-options {
   display: flex;
