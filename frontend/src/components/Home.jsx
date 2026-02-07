@@ -106,6 +106,34 @@ const Home = () => {
   const [cursorOpacity, setCursorOpacity] = useState(0.05);
   const [hoveredCard, setHoveredCard] = useState(null);
 
+  const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+  const sessionId = sessionStorage.getItem('sessionId') || (() => {
+    const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('sessionId', id);
+    return id;
+  })();
+
+  // Track page view on mount
+  useEffect(() => {
+    const trackPageView = async () => {
+      try {
+        await fetch(`${API_URL}/api/analytics/event`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_type: 'page_view',
+            page: '/',
+            referrer: document.referrer || null,
+            session_id: sessionId
+          })
+        });
+      } catch (err) {
+        console.log('Analytics tracking failed:', err);
+      }
+    };
+    trackPageView();
+  }, []);
+
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
