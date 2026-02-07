@@ -808,4 +808,76 @@ app.add_middleware(
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    scheduler.shutdown()
     client.close()
+
+# ========================================
+# BACKGROUND EMAIL SCHEDULER
+# ========================================
+
+async def process_scheduled_emails_job():
+    """Background job to process scheduled emails (runs every 15 minutes)"""
+    now = datetime.now(timezone.utc)
+    anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
+    audit_url = "https://weroi.net/audit"
+    
+    processed_2 = 0
+    processed_3 = 0
+    
+    try:
+        # Find leads needing Email 2 (24 hours after Email 1)
+        leads_for_email_2 = await db.guide_leads.find({
+            "email_1_sent": True,
+            "email_2_sent": False,
+            "email_2_scheduled_for": {"$lte": now.isoformat()}
+        }, {"_id": 0}).to_list(100)
+        
+        for lead in leads_for_email_2:
+            email_2 = get_email_2_content(lead['name'], anti_diy_framework_pdf)
+            success = await send_email_async(lead['email'], email_2["subject"], email_2["html"])
+            if success:
+                await db.guide_leads.update_one(
+                    {"id": lead['id']},
+                    {"$set": {"email_2_sent": True, "email_2_sent_at": now.isoformat()}}
+                )
+                processed_2 += 1
+                logger.info(f"Email 2 sent to {lead['email']}")
+        
+        # Find leads needing Email 3 (48 hours after Email 1)
+        leads_for_email_3 = await db.guide_leads.find({
+            "email_2_sent": True,
+            "email_3_sent": False,
+            "email_3_scheduled_for": {"$lte": now.isoformat()}
+        }, {"_id": 0}).to_list(100)
+        
+        for lead in leads_for_email_3:
+            company_name = lead.get('company_name', '')
+            email_3 = get_email_3_content(lead['name'], company_name, audit_url)
+            success = await send_email_async(lead['email'], email_3["subject"], email_3["html"])
+            if success:
+                await db.guide_leads.update_one(
+                    {"id": lead['id']},
+                    {"$set": {"email_3_sent": True, "email_3_sent_at": now.isoformat()}}
+                )
+                processed_3 += 1
+                logger.info(f"Email 3 sent to {lead['email']}")
+        
+        if processed_2 > 0 or processed_3 > 0:
+            logger.info(f"Scheduled email job completed: {processed_2} Email 2s, {processed_3} Email 3s sent")
+    
+    except Exception as e:
+        logger.error(f"Error in scheduled email job: {str(e)}")
+
+@app.on_event("startup")
+async def startup_event():
+    """Start the background scheduler on app startup"""
+    # Schedule email processing every 15 minutes
+    scheduler.add_job(
+        process_scheduled_emails_job,
+        IntervalTrigger(minutes=15),
+        id="email_scheduler",
+        name="Process scheduled follow-up emails",
+        replace_existing=True
+    )
+    scheduler.start()
+    logger.info("Background email scheduler started - checking every 15 minutes")
