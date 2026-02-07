@@ -463,6 +463,7 @@ const AdminDashboard = () => {
                     <th>Name</th>
                     <th>Email</th>
                     <th className="hide-mobile">Company</th>
+                    <th className="hide-mobile">Website</th>
                     <th className="hide-mobile">Source</th>
                     <th>Actions</th>
                   </tr>
@@ -475,6 +476,16 @@ const AdminDashboard = () => {
                       <td className="name-cell">{lead.name}</td>
                       <td className="email-cell">{lead.email}</td>
                       <td className="hide-mobile">{lead.company_name || '-'}</td>
+                      <td className="hide-mobile">
+                        {lead.website ? (
+                          <a href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} 
+                             target="_blank" 
+                             rel="noopener noreferrer" 
+                             className="website-link">
+                            {formatSource(lead.website)}
+                          </a>
+                        ) : '-'}
+                      </td>
                       <td className="hide-mobile">{formatSource(lead.referrer) || lead.how_found_us || '-'}</td>
                       <td>
                         <div className="action-buttons">
