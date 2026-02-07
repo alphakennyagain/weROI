@@ -3645,6 +3645,534 @@ body {
   box-shadow: 0 0 20px rgba(218, 255, 1, 0.4);
 }
 
+/* Admin Header Actions */
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.admin-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-refresh:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.admin-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-refresh .spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Admin Tab Actions */
+.admin-tab-actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Leads Header & Actions */
+.leads-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.leads-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.btn-clear-audit,
+.btn-clear-guide,
+.btn-clear-all {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-clear-audit:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.btn-clear-guide:hover {
+  border-color: rgb(168, 85, 247);
+  color: rgb(168, 85, 247);
+}
+
+.btn-clear-all:hover {
+  border-color: rgb(239, 68, 68);
+  color: rgb(239, 68, 68);
+}
+
+/* Table Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-edit-row,
+.btn-delete-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit-row {
+  background: rgba(59, 130, 246, 0.1);
+  color: rgb(59, 130, 246);
+}
+
+.btn-edit-row:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.btn-delete-row {
+  background: rgba(239, 68, 68, 0.1);
+  color: rgb(239, 68, 68);
+}
+
+.btn-delete-row:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Delete/Edit Modal Overlay */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-md);
+}
+
+.delete-modal,
+.edit-modal {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: var(--space-xl);
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+}
+
+.edit-modal {
+  max-width: 450px;
+  text-align: left;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+.modal-warning-icon {
+  color: rgb(245, 158, 11);
+  margin-bottom: var(--space-md);
+}
+
+.modal-edit-icon {
+  color: rgb(59, 130, 246);
+  margin-bottom: var(--space-md);
+}
+
+.delete-modal h3,
+.edit-modal h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.delete-modal p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.modal-lead-info {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.modal-warning {
+  color: rgb(239, 68, 68) !important;
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  justify-content: center;
+}
+
+.btn-cancel,
+.btn-delete,
+.btn-save {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+}
+
+.btn-cancel:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.btn-delete {
+  background: rgb(239, 68, 68);
+  border: none;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: rgb(220, 38, 38);
+}
+
+.btn-save {
+  background: var(--accent-primary);
+  border: none;
+  color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-save:hover {
+  box-shadow: 0 0 20px rgba(218, 255, 1, 0.4);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Edit Form */
+.edit-form {
+  margin-top: var(--space-lg);
+}
+
+.edit-field {
+  margin-bottom: var(--space-md);
+}
+
+.edit-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.edit-field input,
+.edit-field select {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.edit-field input:focus,
+.edit-field select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.edit-field select {
+  cursor: pointer;
+}
+
+/* Additional Stat Icon Colors */
+.stat-icon.visitors { background: rgba(59, 130, 246, 0.1); color: rgb(59, 130, 246); }
+.stat-icon.audit { background: rgba(218, 255, 1, 0.1); color: var(--accent-primary); }
+.stat-icon.guide { background: rgba(168, 85, 247, 0.1); color: rgb(168, 85, 247); }
+.stat-icon.total { background: rgba(34, 197, 94, 0.1); color: rgb(34, 197, 94); }
+
+/* Stat Rate */
+.stat-rate {
+  font-size: 11px;
+  color: rgb(34, 197, 94);
+  font-weight: 500;
+}
+
+/* Funnel Cards */
+.funnels-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.funnel-card {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: var(--space-lg);
+}
+
+.funnel-card h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+.funnel-metrics {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+.funnel-metric {
+  text-align: center;
+}
+
+.funnel-metric .metric-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.funnel-metric .metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.funnel-metric.highlight .metric-value {
+  color: var(--accent-primary);
+}
+
+.funnel-arrow {
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.funnel-bar-container {
+  margin-top: var(--space-md);
+}
+
+.funnel-bar-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.funnel-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.funnel-bar-fill.audit {
+  background: linear-gradient(90deg, var(--accent-primary), rgba(218, 255, 1, 0.6));
+}
+
+.funnel-bar-fill.guide {
+  background: linear-gradient(90deg, rgb(168, 85, 247), rgba(168, 85, 247, 0.6));
+}
+
+/* Overall Stats */
+.overall-stats {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: var(--space-lg);
+}
+
+.overall-stats h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.stat-item svg {
+  color: var(--text-muted);
+}
+
+.stat-item-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-item-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Sources Section */
+.sources-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+.sources-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.sources-card,
+.sources-info {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: var(--space-lg);
+}
+
+.sources-card h3,
+.sources-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.sources-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sources-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sources-list li:last-child {
+  border-bottom: none;
+}
+
+.source-name {
+  color: var(--text-secondary);
+}
+
+.source-count {
+  background: rgba(218, 255, 1, 0.1);
+  color: var(--accent-primary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.no-sources {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.sources-info p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: var(--space-md);
+}
+
+.sources-info ul {
+  padding-left: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.sources-info li {
+  margin-bottom: 8px;
+}
+
 /* Admin Content */
 .admin-content {
   max-width: 1200px;
