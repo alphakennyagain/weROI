@@ -15,6 +15,8 @@ import resend
 import csv
 import io
 import urllib.parse
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -34,6 +36,9 @@ app = FastAPI()
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Initialize scheduler
+scheduler = AsyncIOScheduler()
 
 # Configure logging
 logging.basicConfig(
