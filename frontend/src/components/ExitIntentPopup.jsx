@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, ArrowRight, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,6 +13,14 @@ const ExitIntentPopup = () => {
   });
   const [errors, setErrors] = useState({});
 
+  const showPopup = useCallback(() => {
+    if (!hasTriggered) {
+      setIsVisible(true);
+      setHasTriggered(true);
+      sessionStorage.setItem('exitPopupShown', 'true');
+    }
+  }, [hasTriggered]);
+
   useEffect(() => {
     // Check if popup was already shown in this session
     const popupShown = sessionStorage.getItem('exitPopupShown');
@@ -21,25 +29,71 @@ const ExitIntentPopup = () => {
       return;
     }
 
+    // TRIGGER 1: Time-based - Show after 5 seconds
+    const timeoutId = setTimeout(() => {
+      showPopup();
+    }, 5000);
+
+    // TRIGGER 2: Exit intent for Desktop (mouse leaves window top)
     const handleMouseLeave = (e) => {
-      // Only trigger when mouse leaves from the top
-      if (e.clientY <= 0 && !hasTriggered) {
-        setIsVisible(true);
-        setHasTriggered(true);
-        sessionStorage.setItem('exitPopupShown', 'true');
+      if (e.clientY <= 0) {
+        showPopup();
       }
     };
 
-    // Add delay before enabling exit intent
-    const timer = setTimeout(() => {
+    // TRIGGER 3: Mobile back/swipe detection (history state)
+    const handlePopState = () => {
+      showPopup();
+      // Push state back to prevent actual navigation
+      window.history.pushState(null, '', window.location.href);
+    };
+
+    // TRIGGER 4: Mobile scroll up detection (at top of page)
+    let lastScrollY = window.scrollY;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // If user scrolls up aggressively at top of page
+      if (currentScrollY < 50 && lastScrollY > currentScrollY && lastScrollY - currentScrollY > 30) {
+        showPopup();
+      }
+      lastScrollY = currentScrollY;
+    };
+
+    // TRIGGER 5: Touch end at top (mobile swipe down)
+    let touchStartY = 0;
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+    const handleTouchEnd = (e) => {
+      const touchEndY = e.changedTouches[0].clientY;
+      // Swipe down from top of screen
+      if (touchStartY < 100 && touchEndY - touchStartY > 100) {
+        showPopup();
+      }
+    };
+
+    // Add history state for mobile back detection
+    window.history.pushState(null, '', window.location.href);
+
+    // Add event listeners with delay
+    const listenerTimeout = setTimeout(() => {
       document.addEventListener('mouseleave', handleMouseLeave);
-    }, 5000); // 5 second delay
+      window.addEventListener('popstate', handlePopState);
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      document.addEventListener('touchstart', handleTouchStart, { passive: true });
+      document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }, 2000);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(timeoutId);
+      clearTimeout(listenerTimeout);
       document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [hasTriggered]);
+  }, [hasTriggered, showPopup]);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -80,7 +134,6 @@ const ExitIntentPopup = () => {
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Still navigate on error for demo
       sessionStorage.setItem('guideFormData', JSON.stringify(formData));
       setIsVisible(false);
       navigate('/thank-you?type=guide');
