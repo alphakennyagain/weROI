@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, TrendingUp, CheckCircle, User, Phone, Mail, Building, Search } from 'lucide-react';
+import { ArrowRight, ArrowLeft, TrendingUp, CheckCircle, User, Phone, Mail, Building, Search, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AuditForm = () => {
@@ -11,11 +11,12 @@ const AuditForm = () => {
     phone: '',
     email: '',
     company_name: '',
+    website: '',
     how_found_us: ''
   });
   const [errors, setErrors] = useState({});
 
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   const API_URL = process.env.REACT_APP_BACKEND_URL || '';
   const sessionId = sessionStorage.getItem('sessionId') || (() => {
