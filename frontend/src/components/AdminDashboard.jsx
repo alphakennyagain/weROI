@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Lock, Users, FileText, Download, BarChart3, Eye, ArrowUpRight, LogOut, Trash2, AlertTriangle, X, RefreshCw, Globe, MousePointer, UserPlus } from 'lucide-react';
+import { TrendingUp, Lock, Users, FileText, Download, BarChart3, Eye, ArrowUpRight, LogOut, Trash2, AlertTriangle, X, RefreshCw, Globe, MousePointer, UserPlus, Pencil, Save } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -11,6 +11,10 @@ const AdminDashboard = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [editSaving, setEditSaving] = useState(false);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 
@@ -106,6 +110,46 @@ const AdminDashboard = () => {
   const openDeleteModal = (target) => {
     setDeleteTarget(target);
     setShowDeleteModal(true);
+  };
+
+  const openEditModal = (lead, leadType) => {
+    setEditTarget({ ...lead, leadType });
+    setEditFormData(leadType === 'audit' ? {
+      name: lead.name || '',
+      email: lead.email || '',
+      phone: lead.phone || '',
+      company_name: lead.company_name || '',
+      how_found_us: lead.how_found_us || '',
+      status: lead.status || 'new'
+    } : {
+      name: lead.name || '',
+      email: lead.email || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSave = async () => {
+    const storedPassword = sessionStorage.getItem('adminAuth');
+    setEditSaving(true);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/leads/${editTarget.leadType}/${editTarget.id}?password=${encodeURIComponent(storedPassword)}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editFormData)
+        }
+      );
+      if (response.ok) {
+        fetchDashboardData();
+        setShowEditModal(false);
+        setEditTarget(null);
+      }
+    } catch (err) {
+      console.error('Failed to update lead:', err);
+    } finally {
+      setEditSaving(false);
+    }
   };
 
   useEffect(() => {
