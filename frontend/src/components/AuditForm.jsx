@@ -78,6 +78,9 @@ const AuditForm = () => {
         if (!formData.company_name.trim()) newErrors.company_name = 'Company name is required';
         break;
       case 5:
+        // Website is optional, no validation needed
+        break;
+      case 6:
         if (!formData.how_found_us) newErrors.how_found_us = 'Please select an option';
         break;
       default:
