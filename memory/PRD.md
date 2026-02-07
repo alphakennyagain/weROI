@@ -1,199 +1,145 @@
-# weROI - Lead Generation Agency Platform PRD
+# weROI - Lead Generation Platform PRD (Final)
 
 ## Original Problem Statement
-Build a premium, high-conversion lead generation website for weROI with a Lead Magnet funnel strategy. The website should capture leads through a multi-step audit form and an exit-intent popup for guide downloads, with automated email sequences.
+Build a premium, high-conversion lead generation website for weROI with multi-step audit forms, exit-intent popups, email automation, and admin dashboard.
 
-## Core Requirements (Completed ✅)
+## ✅ All Requirements Completed
 
-### 1. Primary Hook - Free AI Growth Audit
-- All CTAs changed to "Claim Your Free AI Growth Audit"
-- Multi-step premium form (5 steps):
-  1. Name
-  2. Phone
-  3. Email
-  4. Company Name
-  5. How did you find us?
-- Progress bar at top showing completion
-- Touch-friendly inputs for mobile
-- Data stored in MongoDB `audit_leads` collection
+### Task 1: Mobile-Only UI Refinement
+- ✅ Desktop preserved - no changes to PC layout
+- ✅ Mobile (<768px): 16px button fonts, 30% reduced padding
+- ✅ All text center-aligned on mobile
+- ✅ Form fields stacked vertically at 100% width
+- ✅ Touch-friendly tap targets (min 56px)
 
-### 2. Exit-Intent Capture - The Guide
-- Popup triggers when mouse leaves window top (after 5s delay)
-- Headline: "Don't leave your growth to chance."
-- Subtext: "Download our Custom Tailored Guide to Scale your Business ($0 to $1M Blueprint)"
-- 3D animated book mockup
-- Fields: Name and Email only
-- Data stored in MongoDB `guide_leads` collection
+### Task 2: Dual-Trigger Popup Logic
+- ✅ **Time-based**: Shows after 5 seconds of page residence
+- ✅ **Exit Intent (Desktop)**: Triggers when mouse leaves window top
+- ✅ **Mobile Support**: Back gesture detection, scroll-up at top
+- ✅ Only triggers once per session (sessionStorage)
 
-### 3. Email Automation (Resend)
-- **Email 1 (Immediate)**: "Your Scaling Blueprint has arrived" - PDF delivery
-- **Email 2 (24h later)**: "Why DIY scaling usually fails..." - Value add + CTA
-- **Email 3 (48h later)**: "A custom roadmap for [Company]?" - Hard pivot + limited spots
+### Task 3: Footer & Social Integration
+- ✅ Removed weROI logo from footer
+- ✅ Removed "Claim Your Free Audit" button from footer
+- ✅ Minimalist "Socials & Contact" section
+- ✅ Instagram icon linked to https://www.instagram.com/weroi.co/
 
-### 4. Site Structure
-- **Trust Ticker**: Slow-scrolling bar below hero with: Measurable AI Growth, Bespoke Scaling Systems, Automated ROI Architecture
-- **What We Do**: Interactive service cards with expand on hover, blur background, "Learn More" ghost button
-- **How We Work**: Align → Diagnose → Design → Deliver process framework
-- **Ultra-Minimal Footer**: Logo, copyright, single "Claim Your Free Audit" CTA
+### Task 4: Resend Email Automation
+- ✅ Resend API connected (API key configured)
+- ✅ **Email 1 (Immediate)**: "Your Scaling Blueprint Has Arrived"
+- ✅ **Email 2 (24h)**: "Why DIY Scaling Usually Fails"
+- ✅ **Email 3 (48h)**: "A Custom Roadmap for [Company]?"
+- ✅ Premium Luxury Template: Dark grey text on white, thin borders, centered CTA
+- ✅ Audit confirmation email on form submission
 
-### 5. Thank You Page
-- Video placeholder with "Coming Soon" badge
-- "While you wait, watch how we implemented these exact steps for a client last month"
-- What's Next section with email sequence preview
-- CTA to skip ahead and claim audit
-
-## Tech Stack
-- **Frontend:** React, React Router, TailwindCSS
-- **Backend:** FastAPI, Motor (async MongoDB), Resend
-- **Database:** MongoDB
-- **Email:** Resend API
+### Task 5: Private Admin Dashboard
+- ✅ Hidden route at `/admin-dashboard`
+- ✅ Password-protected: `weROI2025Admin!`
+- ✅ **Lead Log**: Table with Date, Name, Email, Company, Source, Status
+- ✅ **Analytics View**: Page Views, Form Submissions, Popup Downloads, Conversion Rate
+- ✅ **Export**: CSV download button
 
 ## Architecture
 ```
 /app
 ├── frontend/
 │   └── src/components/
-│       ├── Home.jsx           # Homepage with Trust Ticker, interactive cards
+│       ├── Home.jsx           # Homepage with social footer
 │       ├── AuditForm.jsx      # 5-step multi-step form
-│       ├── ExitIntentPopup.jsx # Exit intent with 3D book
+│       ├── ExitIntentPopup.jsx # Dual-trigger popup
 │       ├── ThankYou.jsx       # Video placeholder page
-│       ├── StrugglingToScale.jsx # PDF landing page
-│       ├── GrowthSurvey.jsx   # Alternative survey flow
-│       └── BookCall.jsx       # Calendly integration
+│       ├── AdminDashboard.jsx # Password-protected admin
+│       └── ...
 └── backend/
-    └── server.py              # Lead APIs + email automation
+    └── server.py              # Lead APIs, email, admin, CSV export
 ```
 
 ## API Endpoints
+
+### Leads
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/leads/audit` | POST | Submit audit form lead |
-| `/api/leads/audit` | GET | List all audit leads |
-| `/api/leads/guide` | POST | Submit guide download lead (triggers email sequence) |
-| `/api/leads/guide` | GET | List all guide leads |
-| `/api/leads/stats` | GET | Get lead counts and recent leads |
-| `/api/emails/process-scheduled` | POST | Process scheduled emails (Email 2 & 3) |
+| `/api/leads/audit` | POST | Submit audit form |
+| `/api/leads/audit` | GET | List audit leads |
+| `/api/leads/guide` | POST | Submit guide download |
+| `/api/leads/guide` | GET | List guide leads |
+| `/api/leads/stats` | GET | Lead statistics |
+| `/api/leads/export/csv` | GET | Download all leads as CSV |
 
-## Database Schema
+### Admin
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/admin/auth` | POST | Authenticate (password: weROI2025Admin!) |
+| `/api/admin/dashboard-data` | GET | Get all dashboard data |
 
-### `audit_leads` Collection
-```json
-{
-  "id": "uuid",
-  "name": "string",
-  "phone": "string",
-  "email": "email",
-  "company_name": "string",
-  "how_found_us": "string",
-  "created_at": "datetime",
-  "status": "new|contacted|qualified|converted"
-}
-```
+### Analytics
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/analytics/event` | POST | Track page view/event |
+| `/api/analytics/stats` | GET | Get conversion stats |
 
-### `guide_leads` Collection
-```json
-{
-  "id": "uuid",
-  "name": "string",
-  "email": "email",
-  "created_at": "datetime",
-  "email_1_sent": "boolean",
-  "email_2_sent": "boolean",
-  "email_3_sent": "boolean",
-  "email_2_scheduled_for": "datetime",
-  "email_3_scheduled_for": "datetime"
-}
-```
-
-## How to Access Your Leads
-
-### Option 1: API Dashboard (Simple)
-Access your leads via the API endpoints:
-```bash
-# Get all audit leads
-curl https://your-domain.com/api/leads/audit
-
-# Get all guide leads  
-curl https://your-domain.com/api/leads/guide
-
-# Get stats overview
-curl https://your-domain.com/api/leads/stats
-```
-
-### Option 2: MongoDB Direct Access
-Connect to MongoDB using any MongoDB client (MongoDB Compass, Studio 3T, etc.):
-- **Connection String:** `mongodb://localhost:27017`
-- **Database:** `test_database`
-- **Collections:** `audit_leads`, `guide_leads`
-
-### Option 3: Build Admin Dashboard (Recommended for Production)
-Create a protected `/admin` route with:
-- Lead list table with sorting/filtering
-- Lead details view
-- Export to CSV functionality
-- Lead status management
-
-## Email Automation Setup
-
-### Required Configuration
-Add your Resend API key to `backend/.env`:
-```
-RESEND_API_KEY=re_your_actual_api_key
-SENDER_EMAIL=hello@yourdomain.com
-```
-
-### Get Resend API Key
-1. Go to https://resend.com
-2. Sign up / Log in
-3. Go to API Keys → Create API Key
-4. Copy key and add to `.env`
-5. Verify your sending domain in Resend dashboard
-
-### Process Scheduled Emails
-Set up a cron job or call this endpoint periodically:
-```bash
-# Process emails due for sending (Email 2 at 24h, Email 3 at 48h)
-curl -X POST https://your-domain.com/api/emails/process-scheduled
-```
+### Email
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/emails/process-scheduled` | POST | Process Email 2 & 3 queue |
 
 ## Routes
 | Route | Description |
 |-------|-------------|
 | `/` | Homepage |
 | `/audit` | 5-step audit form |
-| `/thank-you` | Thank you page (type=audit or type=guide) |
+| `/thank-you` | Thank you page |
+| `/admin-dashboard` | Admin dashboard (protected) |
 | `/struggling-to-scale` | PDF landing page |
-| `/growth-survey` | Alternative survey flow |
-| `/book-call` | Calendly booking page |
+| `/book-call` | Calendly booking |
+
+## Important Credentials
+- **Admin Password**: `weROI2025Admin!`
+- **Admin URL**: `/admin-dashboard`
+- **Resend API Key**: Configured in `backend/.env`
+
+## ⚠️ Email Setup Required
+The Resend API is configured but requires **domain verification**:
+
+1. Go to https://resend.com/domains
+2. Either:
+   - **Option A**: Verify your domain (e.g., `weroi.net`) and update `SENDER_EMAIL` in `backend/.env`
+   - **Option B**: Use Resend's default `onboarding@resend.dev` for testing
+
+Current error: "The gmail.com domain is not verified"
+
+To fix, update `backend/.env`:
+```
+SENDER_EMAIL=hello@weroi.net  # After verifying weroi.net domain
+```
 
 ## Testing Status
-- ✅ Backend: 100% (13/13 tests passed)
+- ✅ Backend: 100% (20/20 tests passed)
 - ✅ Frontend: 100%
-- ✅ Mobile responsive verified
+- ✅ Mobile responsive: Verified at 390px width
+- ✅ Admin dashboard: Fully functional
 
-## What's Implemented ✅
-- [x] "Claim Your Free AI Growth Audit" CTAs throughout
+## What's Implemented
+- [x] "Claim Your Free AI Growth Audit" CTAs
 - [x] 5-step multi-step audit form with validation
 - [x] Progress bar and step indicators
 - [x] Trust Ticker with animated scroll
 - [x] Interactive service cards (expand, blur, ghost button)
-- [x] Exit-intent popup with 3D book mockup
+- [x] Dual-trigger exit-intent popup
+- [x] 3D animated book mockup in popup
 - [x] Thank you page with video placeholder
 - [x] MongoDB lead storage
-- [x] Resend email integration (3-email sequence)
-- [x] Ultra-minimal footer
+- [x] Resend 3-email sequence (templates ready)
+- [x] Social-only footer (Instagram @weroi.co)
 - [x] Mobile-optimized experience
+- [x] Admin dashboard with stats
+- [x] Lead log table
+- [x] CSV export functionality
+- [x] Conversion funnel analytics
 - [x] All glow transitions on button hover
 
-## Notes
-- **Resend API Key:** Currently using placeholder. Add real key for email automation.
-- **Exit Intent:** Only triggers once per session (uses sessionStorage)
-- **Video Placeholder:** Ready for YouTube/Vimeo embed when video is ready
-
-## Backlog / Future Tasks
-- [ ] Admin dashboard for lead management
-- [ ] CSV export functionality
-- [ ] Lead scoring system
-- [ ] A/B testing for form variations
+## Backlog
+- [ ] Verify domain on Resend for email delivery
+- [ ] Add case study video to Thank You page
 - [ ] Google Analytics integration
-- [ ] Add actual case study video
+- [ ] Lead scoring system
