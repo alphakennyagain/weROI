@@ -1,114 +1,199 @@
-# weROI - Premium Agency Platform PRD
+# weROI - Lead Generation Agency Platform PRD
 
 ## Original Problem Statement
-Build a premium, dark-mode marketing website for "weROI" - a business that helps brands track, scale, and optimize real ROI through smart digital systems. The website was remodeled from a "Book a Call" CTA to a Lead Magnet funnel.
+Build a premium, high-conversion lead generation website for weROI with a Lead Magnet funnel strategy. The website should capture leads through a multi-step audit form and an exit-intent popup for guide downloads, with automated email sequences.
 
 ## Core Requirements (Completed ✅)
 
-### Visual Language - Luxury Tech Aesthetic
-- Premium dark theme (#111113) with neon green accents (#DAFF01)
-- Glassmorphism effects on all cards
-- Smooth scroll reveals and micro-interactions
-- Animated grid background with gradient orbs
-- Cursor glow effect
-- High-impact headlines, concise copy
+### 1. Primary Hook - Free AI Growth Audit
+- All CTAs changed to "Claim Your Free AI Growth Audit"
+- Multi-step premium form (5 steps):
+  1. Name
+  2. Phone
+  3. Email
+  4. Company Name
+  5. How did you find us?
+- Progress bar at top showing completion
+- Touch-friendly inputs for mobile
+- Data stored in MongoDB `audit_leads` collection
 
-### Service Remodel - Three Pillars
-1. **AI Audit & Transformation** - All-Star AI Growth Audit, Data Security, Agent Design, AI Transformation
-2. **Growth Systems Applications** - Website Build, Branding, CRM Systems, Marketing, Content, Paid Ads/SEO  
-3. **Scale Partnerships** - Revenue Partnership, Monthly Optimization, AI Maintenance, Strategic Partner
+### 2. Exit-Intent Capture - The Guide
+- Popup triggers when mouse leaves window top (after 5s delay)
+- Headline: "Don't leave your growth to chance."
+- Subtext: "Download our Custom Tailored Guide to Scale your Business ($0 to $1M Blueprint)"
+- 3D animated book mockup
+- Fields: Name and Email only
+- Data stored in MongoDB `guide_leads` collection
 
-### Process Framework - All-Star AI Growth
-- **ALIGN** - Meet stakeholders, gather artifacts → Executive Audit & Baseline Workbook
-- **DIAGNOSE** - Deep dives across sales/marketing/delivery → Opportunity Map & Top 10 Inefficiencies
-- **DESIGN** - Turn highest-value lever into testable hypothesis → Pilot Implementation Plan & ROI Workbook
-- **DELIVER** - Execute pilot, validate, scale → Validated System & Scale Roadmap
+### 3. Email Automation (Resend)
+- **Email 1 (Immediate)**: "Your Scaling Blueprint has arrived" - PDF delivery
+- **Email 2 (24h later)**: "Why DIY scaling usually fails..." - Value add + CTA
+- **Email 3 (48h later)**: "A custom roadmap for [Company]?" - Hard pivot + limited spots
 
-### Conversion Funnel - Lead Magnet
-1. **Homepage** - "Unlock Your Free Custom Growth Guide" CTA
-2. **Survey Page** (`/growth-survey`) - 2 questions:
-   - Primary growth bottleneck (6 options)
-   - 12-month revenue goal with currency selector (USD/GBP/EUR/JMD/CAD/AUD)
-3. **Landing Page** (`/struggling-to-scale`) - Content from PDF, embedded PDF viewer, sticky CTA
-4. **Growth Audit Application** - Links to `/book-call` with Calendly
+### 4. Site Structure
+- **Trust Ticker**: Slow-scrolling bar below hero with: Measurable AI Growth, Bespoke Scaling Systems, Automated ROI Architecture
+- **What We Do**: Interactive service cards with expand on hover, blur background, "Learn More" ghost button
+- **How We Work**: Align → Diagnose → Design → Deliver process framework
+- **Ultra-Minimal Footer**: Logo, copyright, single "Claim Your Free Audit" CTA
 
-### Tone of Voice
-- Authoritative, elite, ROI-obsessed
-- "We engineer growth" not "We help"
-- High-impact headlines: "We Engineer Revenue. You Own the System."
+### 5. Thank You Page
+- Video placeholder with "Coming Soon" badge
+- "While you wait, watch how we implemented these exact steps for a client last month"
+- What's Next section with email sequence preview
+- CTA to skip ahead and claim audit
 
 ## Tech Stack
 - **Frontend:** React, React Router, TailwindCSS
-- **Styling:** Custom CSS animations, glassmorphism, dark theme
-- **3rd Party:** Calendly (react-calendly), PDF embed via iframe
-- **Backend:** None (frontend-only application)
+- **Backend:** FastAPI, Motor (async MongoDB), Resend
+- **Database:** MongoDB
+- **Email:** Resend API
 
 ## Architecture
 ```
-/app/frontend
-├── public/
-│   ├── index.html       # SEO metadata, OG tags
-│   ├── og-image.png     # Social preview (1200x630)
-│   ├── favicon.ico      # Tab icon
-│   ├── logo192.png      # PWA icon
-│   └── manifest.json    # PWA manifest
-└── src/
-    ├── components/
-    │   ├── Home.jsx           # Homepage with 3 pillars & process
-    │   ├── GrowthSurvey.jsx   # Lead capture survey (2 questions)
-    │   ├── StrugglingToScale.jsx  # Landing page with PDF embed
-    │   └── BookCall.jsx       # Calendly qualification form
-    ├── App.js                 # Routes
-    └── App.css                # All custom styles
+/app
+├── frontend/
+│   └── src/components/
+│       ├── Home.jsx           # Homepage with Trust Ticker, interactive cards
+│       ├── AuditForm.jsx      # 5-step multi-step form
+│       ├── ExitIntentPopup.jsx # Exit intent with 3D book
+│       ├── ThankYou.jsx       # Video placeholder page
+│       ├── StrugglingToScale.jsx # PDF landing page
+│       ├── GrowthSurvey.jsx   # Alternative survey flow
+│       └── BookCall.jsx       # Calendly integration
+└── backend/
+    └── server.py              # Lead APIs + email automation
+```
+
+## API Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/leads/audit` | POST | Submit audit form lead |
+| `/api/leads/audit` | GET | List all audit leads |
+| `/api/leads/guide` | POST | Submit guide download lead (triggers email sequence) |
+| `/api/leads/guide` | GET | List all guide leads |
+| `/api/leads/stats` | GET | Get lead counts and recent leads |
+| `/api/emails/process-scheduled` | POST | Process scheduled emails (Email 2 & 3) |
+
+## Database Schema
+
+### `audit_leads` Collection
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "phone": "string",
+  "email": "email",
+  "company_name": "string",
+  "how_found_us": "string",
+  "created_at": "datetime",
+  "status": "new|contacted|qualified|converted"
+}
+```
+
+### `guide_leads` Collection
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "email": "email",
+  "created_at": "datetime",
+  "email_1_sent": "boolean",
+  "email_2_sent": "boolean",
+  "email_3_sent": "boolean",
+  "email_2_scheduled_for": "datetime",
+  "email_3_scheduled_for": "datetime"
+}
+```
+
+## How to Access Your Leads
+
+### Option 1: API Dashboard (Simple)
+Access your leads via the API endpoints:
+```bash
+# Get all audit leads
+curl https://your-domain.com/api/leads/audit
+
+# Get all guide leads  
+curl https://your-domain.com/api/leads/guide
+
+# Get stats overview
+curl https://your-domain.com/api/leads/stats
+```
+
+### Option 2: MongoDB Direct Access
+Connect to MongoDB using any MongoDB client (MongoDB Compass, Studio 3T, etc.):
+- **Connection String:** `mongodb://localhost:27017`
+- **Database:** `test_database`
+- **Collections:** `audit_leads`, `guide_leads`
+
+### Option 3: Build Admin Dashboard (Recommended for Production)
+Create a protected `/admin` route with:
+- Lead list table with sorting/filtering
+- Lead details view
+- Export to CSV functionality
+- Lead status management
+
+## Email Automation Setup
+
+### Required Configuration
+Add your Resend API key to `backend/.env`:
+```
+RESEND_API_KEY=re_your_actual_api_key
+SENDER_EMAIL=hello@yourdomain.com
+```
+
+### Get Resend API Key
+1. Go to https://resend.com
+2. Sign up / Log in
+3. Go to API Keys → Create API Key
+4. Copy key and add to `.env`
+5. Verify your sending domain in Resend dashboard
+
+### Process Scheduled Emails
+Set up a cron job or call this endpoint periodically:
+```bash
+# Process emails due for sending (Email 2 at 24h, Email 3 at 48h)
+curl -X POST https://your-domain.com/api/emails/process-scheduled
 ```
 
 ## Routes
-- `/` - Homepage
-- `/growth-survey` - Lead capture survey
-- `/struggling-to-scale` - PDF landing page with sticky CTA
-- `/book-call` - Calendly qualification + booking
-
-## What's Implemented ✅
-- [x] Premium Luxury Tech dark theme with neon green accents
-- [x] Animated "weROI" logo with growth effect
-- [x] Three service pillars with detailed service lists
-- [x] Align→Diagnose→Design→Deliver process section
-- [x] Authority stats with count-up animation (127+ systems, 3.2x revenue, 94% retention)
-- [x] About section with brand story
-- [x] Results/testimonials section with ROI metrics
-- [x] Lead magnet survey page with bottleneck + revenue questions
-- [x] Currency selector (USD/GBP/EUR/JMD/CAD/AUD)
-- [x] Struggling to Scale landing page
-- [x] Embedded PDF viewer with download button
-- [x] Sticky CTA bar "Ready to automate this? Apply for a Growth Audit"
-- [x] Calendly integration with qualification form
-- [x] Form answers passed to Calendly (a1, a2 parameters)
-- [x] SEO metadata (title, description, keywords)
-- [x] Open Graph tags for social previews
-- [x] Optimized OG image (1200x630)
-- [x] Favicon and PWA manifest
-- [x] Glassmorphism effects throughout
-- [x] Micro-interactions on all buttons and cards
-
-## PDFs Used
-- **WEROI GROWTH GUIDE.pdf** - Lead magnet download
-- **Struggling-to-scale.pdf** - Content reference for landing page
-- **Inspiration for weROI.pdf** - Service structure and framework reference
+| Route | Description |
+|-------|-------------|
+| `/` | Homepage |
+| `/audit` | 5-step audit form |
+| `/thank-you` | Thank you page (type=audit or type=guide) |
+| `/struggling-to-scale` | PDF landing page |
+| `/growth-survey` | Alternative survey flow |
+| `/book-call` | Calendly booking page |
 
 ## Testing Status
-- ✅ All frontend tests passed (100% success rate)
-- ✅ Survey flow tested: Homepage → Survey → Landing Page → Book Call
-- ✅ PDF embed and download verified
-- ✅ Calendly integration verified
-- ✅ All navigation links verified
+- ✅ Backend: 100% (13/13 tests passed)
+- ✅ Frontend: 100%
+- ✅ Mobile responsive verified
 
-## Important Notes
-- **Calendly URL:** `https://calendly.com/contact-weroi/30min`
-- **PDF URL:** `https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/xl4qmsi8_WEROI%20GROWTH%20GUIDE.pdf`
-- **Custom Calendly Questions:** User should configure `a1` and `a2` in Calendly settings to capture form answers
+## What's Implemented ✅
+- [x] "Claim Your Free AI Growth Audit" CTAs throughout
+- [x] 5-step multi-step audit form with validation
+- [x] Progress bar and step indicators
+- [x] Trust Ticker with animated scroll
+- [x] Interactive service cards (expand, blur, ghost button)
+- [x] Exit-intent popup with 3D book mockup
+- [x] Thank you page with video placeholder
+- [x] MongoDB lead storage
+- [x] Resend email integration (3-email sequence)
+- [x] Ultra-minimal footer
+- [x] Mobile-optimized experience
+- [x] All glow transitions on button hover
+
+## Notes
+- **Resend API Key:** Currently using placeholder. Add real key for email automation.
+- **Exit Intent:** Only triggers once per session (uses sessionStorage)
+- **Video Placeholder:** Ready for YouTube/Vimeo embed when video is ready
 
 ## Backlog / Future Tasks
-- [ ] Backend integration for lead data persistence
-- [ ] Analytics integration (GA4, conversion tracking)
-- [ ] A/B testing for CTA copy variations
-- [ ] Case studies page with detailed ROI breakdowns
+- [ ] Admin dashboard for lead management
+- [ ] CSV export functionality
+- [ ] Lead scoring system
+- [ ] A/B testing for form variations
+- [ ] Google Analytics integration
+- [ ] Add actual case study video
