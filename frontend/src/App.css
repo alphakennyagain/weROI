@@ -1298,11 +1298,11 @@ body {
   transform: translateX(4px);
 }
 
-.footer-contact .footer-link {
+.footer-contact-info .footer-link {
   cursor: default;
 }
 
-.footer-contact .footer-link:hover {
+.footer-contact-info .footer-link:hover {
   color: var(--text-muted);
   transform: none;
 }
