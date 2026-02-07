@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks, Query, Response
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks, Query, Response, Request
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -14,6 +14,7 @@ from datetime import datetime, timezone, timedelta
 import resend
 import csv
 import io
+import urllib.parse
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,8 +26,8 @@ db = client[os.environ['DB_NAME']]
 
 # Resend configuration
 resend.api_key = os.environ.get('RESEND_API_KEY', '')
-SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'contact.weroi@gmail.com')
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'weROI2025Admin!')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'growth@weroi.net')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'TylerandZach2025!')
 
 # Create the main app
 app = FastAPI()
@@ -61,6 +62,7 @@ class AuditLeadCreate(BaseModel):
     email: EmailStr
     company_name: str
     how_found_us: str
+    referrer: Optional[str] = None
 
 class AuditLead(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -70,19 +72,22 @@ class AuditLead(BaseModel):
     email: EmailStr
     company_name: str
     how_found_us: str
+    referrer: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     status: str = "new"
 
-# Guide Lead Model (for exit-intent popup)
+# Guide Lead Model
 class GuideLeadCreate(BaseModel):
     name: str
     email: EmailStr
+    referrer: Optional[str] = None
 
 class GuideLead(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     email: EmailStr
+    referrer: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     email_1_sent: bool = False
     email_2_sent: bool = False
@@ -90,19 +95,21 @@ class GuideLead(BaseModel):
     email_2_scheduled_for: Optional[str] = None
     email_3_scheduled_for: Optional[str] = None
 
-# Analytics Model
+# Enhanced Analytics Models
+class AnalyticsEventCreate(BaseModel):
+    event_type: str  # page_view, audit_form_start, audit_form_submit, popup_shown, popup_submit, unique_visit
+    page: str
+    referrer: Optional[str] = None
+    session_id: Optional[str] = None
+
 class AnalyticsEvent(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    event_type: str  # page_view, form_submission, popup_download
-    page: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    user_agent: Optional[str] = None
-
-class AnalyticsEventCreate(BaseModel):
     event_type: str
     page: str
-    user_agent: Optional[str] = None
+    referrer: Optional[str] = None
+    session_id: Optional[str] = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # Admin Auth
 class AdminAuth(BaseModel):
@@ -113,7 +120,7 @@ class AdminAuth(BaseModel):
 # ========================================
 
 def get_premium_email_template(content: str, headline: str = "", cta_text: str = "", cta_link: str = "") -> str:
-    """Generate a premium luxury email template - Dark grey text on white, minimalist design"""
+    """Generate a premium luxury email template"""
     cta_button = ""
     if cta_text and cta_link:
         cta_button = f'''
@@ -141,7 +148,6 @@ def get_premium_email_template(content: str, headline: str = "", cta_text: str =
             <tr>
                 <td align="center">
                     <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e5e5e5;">
-                        <!-- Header -->
                         <tr>
                             <td style="padding: 40px 48px 32px; border-bottom: 1px solid #f0f0f0;">
                                 <table width="100%" cellpadding="0" cellspacing="0">
@@ -155,7 +161,6 @@ def get_premium_email_template(content: str, headline: str = "", cta_text: str =
                                 </table>
                             </td>
                         </tr>
-                        <!-- Content -->
                         <tr>
                             <td style="padding: 48px;">
                                 {f'<h1 style="color: #111113; font-size: 28px; margin: 0 0 24px 0; font-weight: 600; line-height: 1.3; letter-spacing: -0.5px;">{headline}</h1>' if headline else ''}
@@ -165,7 +170,6 @@ def get_premium_email_template(content: str, headline: str = "", cta_text: str =
                                 {cta_button}
                             </td>
                         </tr>
-                        <!-- Footer -->
                         <tr>
                             <td style="padding: 32px 48px; border-top: 1px solid #f0f0f0; text-align: center;">
                                 <p style="color: #999999; font-size: 12px; margin: 0; letter-spacing: 1px; text-transform: uppercase;">
@@ -184,8 +188,19 @@ def get_premium_email_template(content: str, headline: str = "", cta_text: str =
     </html>
     '''
 
-def get_email_1_content(name: str, pdf_url: str) -> dict:
+def get_personalized_pdf_url(name: str) -> str:
+    """Generate personalized PDF download URL with person's name"""
+    # Clean name for filename
+    clean_name = name.lower().replace(' ', '_').replace("'", "")
+    # The actual PDF URL with download parameter
+    base_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/5x7g95py_xl4qmsi8_weroi_growth_guide%20%281%29.pdf"
+    return base_pdf
+
+def get_email_1_content(name: str) -> dict:
     """Email 1: The Delivery (Immediate) - Premium Luxury Style"""
+    pdf_url = get_personalized_pdf_url(name)
+    clean_name = name.lower().replace(' ', '_').replace("'", "")
+    
     content = f'''
     <p style="margin: 0 0 20px 0;">{name},</p>
     <p style="margin: 0 0 20px 0;">You made a smart move.</p>
@@ -202,7 +217,7 @@ def get_email_1_content(name: str, pdf_url: str) -> dict:
         "html": get_premium_email_template(
             content, 
             headline="Your $0 to $1M Blueprint",
-            cta_text="Download Your Blueprint",
+            cta_text=f"Download {name}'s Growth Guide",
             cta_link=pdf_url
         )
     }
@@ -264,7 +279,7 @@ def get_email_3_content(name: str, company_name: str, audit_url: str) -> dict:
     }
 
 def get_audit_confirmation_email(name: str, company_name: str, calendly_url: str) -> dict:
-    """Audit Form Confirmation Email with Calendly Booking - Premium Luxury Style"""
+    """Audit Form Confirmation Email with Calendly Booking"""
     content = f'''
     <p style="margin: 0 0 20px 0;">{name},</p>
     <p style="margin: 0 0 20px 0;">Your AI Growth Audit request has been received.</p>
@@ -299,7 +314,7 @@ def get_audit_confirmation_email(name: str, company_name: str, calendly_url: str
 # ========================================
 
 async def send_email_async(to_email: str, subject: str, html_content: str) -> bool:
-    """Send email using Resend (async wrapper)"""
+    """Send email using Resend"""
     try:
         params = {
             "from": f"weROI <{SENDER_EMAIL}>",
@@ -321,13 +336,12 @@ async def send_audit_confirmation(lead: AuditLead):
     await send_email_async(lead.email, email_data["subject"], email_data["html"])
 
 async def send_email_sequence(lead_id: str, name: str, email: str, company_name: str = ""):
-    """Send the 3-email sequence with delays"""
-    growth_guide_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/xl4qmsi8_WEROI%20GROWTH%20GUIDE.pdf"
+    """Send the 3-email sequence"""
     anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
     audit_url = "https://weroi.net/audit"
     
-    # Email 1: Immediate - Growth Guide
-    email_1 = get_email_1_content(name, growth_guide_pdf)
+    # Email 1: Immediate - Growth Guide (personalized)
+    email_1 = get_email_1_content(name)
     success = await send_email_async(email, email_1["subject"], email_1["html"])
     
     if success:
@@ -337,7 +351,7 @@ async def send_email_sequence(lead_id: str, name: str, email: str, company_name:
         )
         logger.info(f"Email 1 sent to {email}")
     
-    # Schedule Email 2 for 24 hours later
+    # Schedule Email 2 & 3
     email_2_time = datetime.now(timezone.utc) + timedelta(hours=24)
     email_3_time = datetime.now(timezone.utc) + timedelta(hours=48)
     
@@ -349,8 +363,6 @@ async def send_email_sequence(lead_id: str, name: str, email: str, company_name:
             "company_name": company_name
         }}
     )
-    
-    logger.info(f"Email sequence initiated for {email}. Email 2 scheduled for {email_2_time}, Email 3 for {email_3_time}")
 
 # ========================================
 # ROUTES
@@ -378,7 +390,7 @@ async def get_status_checks():
     return status_checks
 
 # ========================================
-# ANALYTICS ROUTES
+# ENHANCED ANALYTICS ROUTES
 # ========================================
 
 @api_router.post("/analytics/event")
@@ -392,36 +404,66 @@ async def track_event(input: AnalyticsEventCreate):
 
 @api_router.get("/analytics/stats")
 async def get_analytics_stats():
-    """Get website analytics statistics"""
-    # Total page views
-    total_views = await db.analytics_events.count_documents({"event_type": "page_view"})
+    """Get comprehensive website analytics"""
+    # Unique visitors (by session_id)
+    unique_sessions = await db.analytics_events.distinct("session_id", {"session_id": {"$ne": None}})
+    total_unique_visitors = len(unique_sessions)
     
-    # Form submissions
-    form_submissions = await db.audit_leads.count_documents({})
+    # Page views
+    total_page_views = await db.analytics_events.count_documents({"event_type": "page_view"})
     
-    # Popup downloads
-    popup_downloads = await db.guide_leads.count_documents({})
+    # Audit funnel
+    audit_form_starts = await db.analytics_events.count_documents({"event_type": "audit_form_start"})
+    audit_form_submits = await db.audit_leads.count_documents({})
+    audit_conversion_rate = round((audit_form_submits / max(audit_form_starts, 1)) * 100, 1)
     
-    # Daily stats for last 7 days
-    seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    # Popup funnel
+    popup_shown = await db.analytics_events.count_documents({"event_type": "popup_shown"})
+    popup_submits = await db.guide_leads.count_documents({})
+    popup_capture_rate = round((popup_submits / max(popup_shown, 1)) * 100, 1)
     
-    pipeline = [
-        {"$match": {"timestamp": {"$gte": seven_days_ago}}},
-        {"$group": {
-            "_id": {"$substr": ["$timestamp", 0, 10]},
-            "count": {"$sum": 1}
-        }},
-        {"$sort": {"_id": 1}}
+    # Source tracking
+    referrer_pipeline = [
+        {"$match": {"referrer": {"$ne": None, "$ne": ""}}},
+        {"$group": {"_id": "$referrer", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 10}
     ]
+    top_sources = await db.analytics_events.aggregate(referrer_pipeline).to_list(10)
     
-    daily_views = await db.analytics_events.aggregate(pipeline).to_list(100)
+    # Also get referrers from leads
+    audit_referrers = await db.audit_leads.aggregate([
+        {"$match": {"referrer": {"$ne": None, "$ne": ""}}},
+        {"$group": {"_id": "$referrer", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 5}
+    ]).to_list(5)
+    
+    guide_referrers = await db.guide_leads.aggregate([
+        {"$match": {"referrer": {"$ne": None, "$ne": ""}}},
+        {"$group": {"_id": "$referrer", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 5}
+    ]).to_list(5)
     
     return {
-        "total_page_views": total_views,
-        "total_form_submissions": form_submissions,
-        "total_popup_downloads": popup_downloads,
-        "conversion_rate": round((form_submissions + popup_downloads) / max(total_views, 1) * 100, 2),
-        "daily_views": daily_views
+        "total_unique_visitors": total_unique_visitors,
+        "total_page_views": total_page_views,
+        "audit_funnel": {
+            "started": audit_form_starts,
+            "submitted": audit_form_submits,
+            "conversion_rate": audit_conversion_rate
+        },
+        "popup_funnel": {
+            "shown": popup_shown,
+            "submitted": popup_submits,
+            "capture_rate": popup_capture_rate
+        },
+        "top_sources": top_sources,
+        "lead_sources": {
+            "audit": audit_referrers,
+            "guide": guide_referrers
+        }
     }
 
 # ========================================
@@ -464,22 +506,16 @@ async def create_guide_lead(input: GuideLeadCreate, background_tasks: Background
     
     return lead_obj
 
-@api_router.get("/leads/audit", response_model=List[AuditLead])
+@api_router.get("/leads/audit")
 async def get_audit_leads():
-    """Get all audit leads (admin endpoint)"""
+    """Get all audit leads"""
     leads = await db.audit_leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
-    for lead in leads:
-        if isinstance(lead.get('created_at'), str):
-            lead['created_at'] = datetime.fromisoformat(lead['created_at'])
     return leads
 
-@api_router.get("/leads/guide", response_model=List[GuideLead])
+@api_router.get("/leads/guide")
 async def get_guide_leads():
-    """Get all guide leads (admin endpoint)"""
+    """Get all guide leads"""
     leads = await db.guide_leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
-    for lead in leads:
-        if isinstance(lead.get('created_at'), str):
-            lead['created_at'] = datetime.fromisoformat(lead['created_at'])
     return leads
 
 @api_router.get("/leads/stats")
@@ -498,6 +534,54 @@ async def get_lead_stats():
         "recent_guide_leads": recent_guide
     }
 
+# DELETE ROUTES
+@api_router.delete("/leads/audit/{lead_id}")
+async def delete_audit_lead(lead_id: str, password: str = Query(...)):
+    """Delete a specific audit lead"""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    result = await db.audit_leads.delete_one({"id": lead_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return {"deleted": True, "id": lead_id}
+
+@api_router.delete("/leads/guide/{lead_id}")
+async def delete_guide_lead(lead_id: str, password: str = Query(...)):
+    """Delete a specific guide lead"""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    result = await db.guide_leads.delete_one({"id": lead_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return {"deleted": True, "id": lead_id}
+
+@api_router.delete("/leads/clear-all")
+async def clear_all_leads(password: str = Query(...), lead_type: str = Query(...)):
+    """Clear all leads of a specific type"""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    if lead_type == "audit":
+        result = await db.audit_leads.delete_many({})
+        return {"deleted": True, "count": result.deleted_count, "type": "audit"}
+    elif lead_type == "guide":
+        result = await db.guide_leads.delete_many({})
+        return {"deleted": True, "count": result.deleted_count, "type": "guide"}
+    elif lead_type == "all":
+        audit_result = await db.audit_leads.delete_many({})
+        guide_result = await db.guide_leads.delete_many({})
+        analytics_result = await db.analytics_events.delete_many({})
+        return {
+            "deleted": True, 
+            "audit_count": audit_result.deleted_count,
+            "guide_count": guide_result.deleted_count,
+            "analytics_count": analytics_result.deleted_count
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Invalid lead_type. Use 'audit', 'guide', or 'all'")
+
 @api_router.get("/leads/export/csv")
 async def export_leads_csv():
     """Export all leads to CSV"""
@@ -507,10 +591,8 @@ async def export_leads_csv():
     output = io.StringIO()
     writer = csv.writer(output)
     
-    # Header
-    writer.writerow(['Type', 'Date', 'Name', 'Email', 'Phone', 'Company', 'Source', 'Status'])
+    writer.writerow(['Type', 'Date', 'Name', 'Email', 'Phone', 'Company', 'Source', 'Referrer', 'Status'])
     
-    # Audit leads
     for lead in audit_leads:
         created = lead.get('created_at', '')
         if isinstance(created, datetime):
@@ -525,10 +607,10 @@ async def export_leads_csv():
             lead.get('phone', ''),
             lead.get('company_name', ''),
             lead.get('how_found_us', ''),
+            lead.get('referrer', ''),
             lead.get('status', 'new')
         ])
     
-    # Guide leads
     for lead in guide_leads:
         created = lead.get('created_at', '')
         if isinstance(created, datetime):
@@ -543,6 +625,7 @@ async def export_leads_csv():
             '',
             '',
             'Popup',
+            lead.get('referrer', ''),
             'downloaded'
         ])
     
@@ -575,27 +658,42 @@ async def get_dashboard_data(password: str = Query(...)):
     audit_leads = await db.audit_leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     guide_leads = await db.guide_leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     
-    # Get analytics
-    total_views = await db.analytics_events.count_documents({"event_type": "page_view"})
+    # Get enhanced analytics
+    unique_sessions = await db.analytics_events.distinct("session_id", {"session_id": {"$ne": None}})
+    total_unique_visitors = len(unique_sessions)
+    total_page_views = await db.analytics_events.count_documents({"event_type": "page_view"})
+    audit_form_starts = await db.analytics_events.count_documents({"event_type": "audit_form_start"})
+    popup_shown = await db.analytics_events.count_documents({"event_type": "popup_shown"})
     
-    # Daily stats for chart
-    seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    # Source tracking
+    referrer_pipeline = [
+        {"$match": {"referrer": {"$ne": None, "$ne": ""}}},
+        {"$group": {"_id": "$referrer", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 10}
+    ]
+    top_sources = await db.analytics_events.aggregate(referrer_pipeline).to_list(10)
     
     return {
         "audit_leads": audit_leads,
         "guide_leads": guide_leads,
         "stats": {
-            "total_page_views": total_views,
+            "total_unique_visitors": total_unique_visitors,
+            "total_page_views": total_page_views,
             "total_audit_leads": len(audit_leads),
             "total_guide_leads": len(guide_leads),
-            "conversion_rate": round((len(audit_leads) + len(guide_leads)) / max(total_views, 1) * 100, 2)
+            "audit_form_starts": audit_form_starts,
+            "audit_conversion_rate": round((len(audit_leads) / max(audit_form_starts, 1)) * 100, 1),
+            "popup_shown": popup_shown,
+            "popup_capture_rate": round((len(guide_leads) / max(popup_shown, 1)) * 100, 1),
+            "top_sources": top_sources
         }
     }
 
 # Background task to process scheduled emails
 @api_router.post("/emails/process-scheduled")
 async def process_scheduled_emails():
-    """Process scheduled emails (call this via cron or manually)"""
+    """Process scheduled emails"""
     now = datetime.now(timezone.utc)
     anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
     audit_url = "https://weroi.net/audit"
@@ -619,7 +717,6 @@ async def process_scheduled_emails():
                 {"$set": {"email_2_sent": True}}
             )
             processed_2 += 1
-            logger.info(f"Email 2 sent to {lead['email']}")
     
     # Find leads needing Email 3
     leads_for_email_3 = await db.guide_leads.find({
@@ -638,14 +735,13 @@ async def process_scheduled_emails():
                 {"$set": {"email_3_sent": True}}
             )
             processed_3 += 1
-            logger.info(f"Email 3 sent to {lead['email']}")
     
     return {
         "processed_email_2": processed_2,
         "processed_email_3": processed_3
     }
 
-# Include the router in the main app
+# Include the router
 app.include_router(api_router)
 
 app.add_middleware(
