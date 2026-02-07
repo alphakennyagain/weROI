@@ -520,6 +520,7 @@ const AdminDashboard = () => {
                       <td className="name-cell">{lead.name}</td>
                       <td className="email-cell">{lead.email}</td>
                       <td className="hide-mobile">-</td>
+                      <td className="hide-mobile">-</td>
                       <td className="hide-mobile">{formatSource(lead.referrer) || 'Popup'}</td>
                       <td>
                         <div className="action-buttons">
@@ -549,7 +550,7 @@ const AdminDashboard = () => {
                   ))}
                   {(!dashboardData?.audit_leads?.length && !dashboardData?.guide_leads?.length) && (
                     <tr>
-                      <td colSpan="7" className="no-data">No leads yet</td>
+                      <td colSpan="8" className="no-data">No leads yet</td>
                     </tr>
                   )}
                 </tbody>
