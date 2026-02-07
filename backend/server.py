@@ -207,8 +207,8 @@ def get_email_1_content(name: str, pdf_url: str) -> dict:
         )
     }
 
-def get_email_2_content(name: str, audit_url: str) -> dict:
-    """Email 2: The Value Add (24 Hours Later) - Premium Luxury Style"""
+def get_email_2_content(name: str, framework_pdf_url: str) -> dict:
+    """Email 2: The Value Add (24 Hours Later) - Premium Luxury Style with Anti-DIY Framework"""
     content = f'''
     <p style="margin: 0 0 20px 0;">{name},</p>
     <p style="margin: 0 0 20px 0;">Quick question:</p>
@@ -219,16 +219,16 @@ def get_email_2_content(name: str, audit_url: str) -> dict:
         <span style="display: block; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #DAFF01;">The weROI Insight</span>
         <span style="font-size: 18px; font-weight: 300;">Trust leaks cost businesses 40-60% of potential revenue. Most don't even know where to look.</span>
     </p>
-    <p style="margin: 0 0 20px 0;">This is exactly what we analyze during our AI Growth Audits.</p>
-    <p style="margin: 0;">Want to see where your trust leaks are?</p>
+    <p style="margin: 0 0 20px 0;">That's why we created the <strong style="color: #111113;">Anti-DIY Framework</strong> — a blueprint for founders who are done guessing and ready to build systems that actually scale.</p>
+    <p style="margin: 0;">Download it below. It's the exact framework we use with our clients.</p>
     '''
     return {
         "subject": "Why DIY Scaling Usually Fails",
         "html": get_premium_email_template(
             content,
             headline="The Hidden Cost of Trust Leaks",
-            cta_text="Find Your Trust Leaks",
-            cta_link=audit_url
+            cta_text="Download The Anti-DIY Framework",
+            cta_link=framework_pdf_url
         )
     }
 
