@@ -3486,14 +3486,14 @@ body {
     justify-content: center;
   }
 
-  .footer-contact,
-  .footer-social {
+  .footer-contact-info,
+  .footer-social-info {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
-  .footer-email {
+  .footer-email-link {
     justify-content: center;
   }
 
