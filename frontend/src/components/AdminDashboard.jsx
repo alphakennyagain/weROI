@@ -119,6 +119,7 @@ const AdminDashboard = () => {
       email: lead.email || '',
       phone: lead.phone || '',
       company_name: lead.company_name || '',
+      website: lead.website || '',
       how_found_us: lead.how_found_us || '',
       status: lead.status || 'new'
     } : {
