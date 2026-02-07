@@ -216,6 +216,78 @@ const AdminDashboard = () => {
   // Dashboard
   return (
     <div className="admin-dashboard">
+      {/* Edit Modal */}
+      {showEditModal && editTarget && (
+        <div className="delete-modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowEditModal(false)}>
+              <X size={20} />
+            </button>
+            <Pencil size={32} className="modal-edit-icon" />
+            <h3>Edit {editTarget.leadType === 'audit' ? 'Audit' : 'Guide'} Lead</h3>
+            
+            <div className="edit-form">
+              <div className="edit-field">
+                <label>Name</label>
+                <input
+                  type="text"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                />
+              </div>
+              <div className="edit-field">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                />
+              </div>
+              {editTarget.leadType === 'audit' && (
+                <>
+                  <div className="edit-field">
+                    <label>Phone</label>
+                    <input
+                      type="tel"
+                      value={editFormData.phone}
+                      onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="edit-field">
+                    <label>Company</label>
+                    <input
+                      type="text"
+                      value={editFormData.company_name}
+                      onChange={(e) => setEditFormData({ ...editFormData, company_name: e.target.value })}
+                    />
+                  </div>
+                  <div className="edit-field">
+                    <label>Status</label>
+                    <select
+                      value={editFormData.status}
+                      onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                    >
+                      <option value="new">New</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="qualified">Qualified</option>
+                      <option value="converted">Converted</option>
+                      <option value="lost">Lost</option>
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowEditModal(false)}>Cancel</button>
+              <button className="btn-save" onClick={handleEditSave} disabled={editSaving}>
+                {editSaving ? 'Saving...' : <><Save size={16} /> Save Changes</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="delete-modal-overlay" onClick={() => setShowDeleteModal(false)}>
@@ -395,18 +467,28 @@ const AdminDashboard = () => {
                       <td className="hide-mobile">{lead.company_name || '-'}</td>
                       <td className="hide-mobile">{formatSource(lead.referrer) || lead.how_found_us || '-'}</td>
                       <td>
-                        <button 
-                          className="btn-delete-row"
-                          onClick={() => openDeleteModal({ 
-                            type: 'single', 
-                            id: lead.id, 
-                            leadType: 'audit',
-                            name: lead.name,
-                            email: lead.email
-                          })}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="action-buttons">
+                          <button 
+                            className="btn-edit-row"
+                            onClick={() => openEditModal(lead, 'audit')}
+                            title="Edit"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button 
+                            className="btn-delete-row"
+                            onClick={() => openDeleteModal({ 
+                              type: 'single', 
+                              id: lead.id, 
+                              leadType: 'audit',
+                              name: lead.name,
+                              email: lead.email
+                            })}
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -419,18 +501,28 @@ const AdminDashboard = () => {
                       <td className="hide-mobile">-</td>
                       <td className="hide-mobile">{formatSource(lead.referrer) || 'Popup'}</td>
                       <td>
-                        <button 
-                          className="btn-delete-row"
-                          onClick={() => openDeleteModal({ 
-                            type: 'single', 
-                            id: lead.id, 
-                            leadType: 'guide',
-                            name: lead.name,
-                            email: lead.email
-                          })}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="action-buttons">
+                          <button 
+                            className="btn-edit-row"
+                            onClick={() => openEditModal(lead, 'guide')}
+                            title="Edit"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button 
+                            className="btn-delete-row"
+                            onClick={() => openDeleteModal({ 
+                              type: 'single', 
+                              id: lead.id, 
+                              leadType: 'guide',
+                              name: lead.name,
+                              email: lead.email
+                            })}
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
