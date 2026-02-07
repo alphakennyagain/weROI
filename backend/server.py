@@ -597,7 +597,7 @@ async def get_dashboard_data(password: str = Query(...)):
 async def process_scheduled_emails():
     """Process scheduled emails (call this via cron or manually)"""
     now = datetime.now(timezone.utc)
-    pdf_url = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/xl4qmsi8_WEROI%20GROWTH%20GUIDE.pdf"
+    anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
     audit_url = "https://weroi.net/audit"
     
     processed_2 = 0
@@ -611,7 +611,7 @@ async def process_scheduled_emails():
     }, {"_id": 0}).to_list(100)
     
     for lead in leads_for_email_2:
-        email_2 = get_email_2_content(lead['name'], audit_url)
+        email_2 = get_email_2_content(lead['name'], anti_diy_framework_pdf)
         success = await send_email_async(lead['email'], email_2["subject"], email_2["html"])
         if success:
             await db.guide_leads.update_one(
