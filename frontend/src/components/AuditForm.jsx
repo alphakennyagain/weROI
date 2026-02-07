@@ -17,8 +17,36 @@ const AuditForm = () => {
 
   const totalSteps = 5;
 
+  const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+  const sessionId = sessionStorage.getItem('sessionId') || (() => {
+    const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('sessionId', id);
+    return id;
+  })();
+
+  // Track analytics event
+  const trackEvent = async (eventType) => {
+    try {
+      await fetch(`${API_URL}/api/analytics/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: eventType,
+          page: '/audit',
+          referrer: document.referrer || null,
+          session_id: sessionId
+        })
+      });
+    } catch (err) {
+      console.log('Analytics tracking failed:', err);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Track audit form start
+    trackEvent('audit_form_start');
+    trackEvent('page_view');
   }, []);
 
   const howFoundOptions = [
@@ -79,13 +107,15 @@ const AuditForm = () => {
     setIsSubmitting(true);
     
     try {
-      const API_URL = process.env.REACT_APP_BACKEND_URL || '';
       const response = await fetch(`${API_URL}/api/leads/audit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          referrer: document.referrer || null
+        }),
       });
       
       if (response.ok) {

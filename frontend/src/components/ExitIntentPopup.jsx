@@ -13,11 +13,38 @@ const ExitIntentPopup = () => {
   });
   const [errors, setErrors] = useState({});
 
+  const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+  const sessionId = sessionStorage.getItem('sessionId') || (() => {
+    const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('sessionId', id);
+    return id;
+  })();
+
+  // Track analytics event
+  const trackEvent = async (eventType) => {
+    try {
+      await fetch(`${API_URL}/api/analytics/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: eventType,
+          page: '/',
+          referrer: document.referrer || null,
+          session_id: sessionId
+        })
+      });
+    } catch (err) {
+      console.log('Analytics tracking failed:', err);
+    }
+  };
+
   const showPopup = useCallback(() => {
     if (!hasTriggered) {
       setIsVisible(true);
       setHasTriggered(true);
       sessionStorage.setItem('exitPopupShown', 'true');
+      // Track popup shown event
+      trackEvent('popup_shown');
     }
   }, [hasTriggered]);
 
@@ -116,13 +143,15 @@ const ExitIntentPopup = () => {
     setIsSubmitting(true);
 
     try {
-      const API_URL = process.env.REACT_APP_BACKEND_URL || '';
       const response = await fetch(`${API_URL}/api/leads/guide`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          referrer: document.referrer || null
+        }),
       });
 
       if (response.ok) {

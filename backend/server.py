@@ -535,6 +535,55 @@ async def get_lead_stats():
     }
 
 # DELETE ROUTES
+# EDIT/UPDATE ROUTES
+class AuditLeadUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    company_name: Optional[str] = None
+    how_found_us: Optional[str] = None
+    status: Optional[str] = None
+    referrer: Optional[str] = None
+
+class GuideLeadUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    referrer: Optional[str] = None
+
+@api_router.put("/leads/audit/{lead_id}")
+async def update_audit_lead(lead_id: str, update: AuditLeadUpdate, password: str = Query(...)):
+    """Update a specific audit lead"""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    result = await db.audit_leads.update_one({"id": lead_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    updated_lead = await db.audit_leads.find_one({"id": lead_id}, {"_id": 0})
+    return updated_lead
+
+@api_router.put("/leads/guide/{lead_id}")
+async def update_guide_lead(lead_id: str, update: GuideLeadUpdate, password: str = Query(...)):
+    """Update a specific guide lead"""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    result = await db.guide_leads.update_one({"id": lead_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    updated_lead = await db.guide_leads.find_one({"id": lead_id}, {"_id": 0})
+    return updated_lead
+
 @api_router.delete("/leads/audit/{lead_id}")
 async def delete_audit_lead(lead_id: str, password: str = Query(...)):
     """Delete a specific audit lead"""
