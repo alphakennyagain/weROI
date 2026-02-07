@@ -3443,11 +3443,11 @@ body {
   box-shadow: 0 8px 25px rgba(225, 48, 108, 0.3);
 }
 
-.footer-instagram-link svg {
+.footer-insta-link svg {
   transition: transform 0.3s ease;
 }
 
-.footer-instagram-link:hover svg {
+.footer-insta-link:hover svg {
   transform: scale(1.1);
 }
 
