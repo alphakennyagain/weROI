@@ -309,7 +309,7 @@ const AuditForm = () => {
               ></div>
             </div>
             <div className="progress-steps">
-              {[1, 2, 3, 4, 5].map((s) => (
+              {[1, 2, 3, 4, 5, 6].map((s) => (
                 <div 
                   key={s} 
                   className={`progress-step ${s <= step ? 'active' : ''} ${s < step ? 'completed' : ''}`}
