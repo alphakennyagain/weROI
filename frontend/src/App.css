@@ -3381,9 +3381,9 @@ body {
 
 .footer-contact h4,
 .footer-social h4 {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 700;
+  color: #daff01;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: var(--space-md);
@@ -3397,16 +3397,16 @@ body {
   text-decoration: none;
   font-size: 15px;
   transition: all 0.3s ease;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
+  padding: 14px 22px;
+  background: rgba(218, 255, 1, 0.1);
+  border: 1px solid rgba(218, 255, 1, 0.3);
+  border-radius: 10px;
   width: fit-content;
 }
 
 .footer-email svg {
   flex-shrink: 0;
-  stroke: currentColor;
+  stroke: #daff01;
 }
 
 .footer-email:hover {
