@@ -648,7 +648,7 @@ async def export_leads_csv():
     output = io.StringIO()
     writer = csv.writer(output)
     
-    writer.writerow(['Type', 'Date', 'Name', 'Email', 'Phone', 'Company', 'Source', 'Referrer', 'Status'])
+    writer.writerow(['Type', 'Date', 'Name', 'Email', 'Phone', 'Company', 'Website', 'Source', 'Referrer', 'Status'])
     
     for lead in audit_leads:
         created = lead.get('created_at', '')
@@ -663,6 +663,7 @@ async def export_leads_csv():
             lead.get('email', ''),
             lead.get('phone', ''),
             lead.get('company_name', ''),
+            lead.get('website', ''),
             lead.get('how_found_us', ''),
             lead.get('referrer', ''),
             lead.get('status', 'new')
@@ -679,6 +680,7 @@ async def export_leads_csv():
             created,
             lead.get('name', ''),
             lead.get('email', ''),
+            '',
             '',
             '',
             'Popup',
