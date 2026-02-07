@@ -4555,5 +4555,75 @@ body {
     padding: 24px;
     min-height: 160px;
   }
+  
+  /* Admin responsive fixes */
+  .funnels-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sources-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .funnel-metrics {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  
+  .funnel-arrow {
+    transform: rotate(90deg);
+  }
+  
+  .leads-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .leads-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .btn-clear-audit,
+  .btn-clear-guide,
+  .btn-clear-all {
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+  }
+  
+  .edit-modal {
+    padding: var(--space-lg);
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .btn-cancel,
+  .btn-delete,
+  .btn-save {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Hide columns on mobile */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none;
+  }
+  
+  .leads-table {
+    min-width: 500px;
+  }
+  
+  .admin-logout span {
+    display: none;
+  }
 }
 
