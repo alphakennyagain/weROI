@@ -1246,7 +1246,7 @@ body {
   margin-bottom: var(--space-md);
 }
 
-.footer-social {
+.footer-social-info {
   display: flex;
   gap: var(--space-sm);
 }
