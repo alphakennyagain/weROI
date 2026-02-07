@@ -3422,17 +3422,18 @@ body {
   color: #ffffff;
   text-decoration: none;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, rgba(131, 58, 180, 0.2) 0%, rgba(253, 29, 29, 0.2) 50%, rgba(252, 176, 69, 0.2) 100%);
-  border: 1px solid rgba(225, 48, 108, 0.4);
+  padding: 14px 26px;
+  background: linear-gradient(135deg, rgba(131, 58, 180, 0.3) 0%, rgba(253, 29, 29, 0.3) 50%, rgba(252, 176, 69, 0.3) 100%);
+  border: 1px solid rgba(225, 48, 108, 0.5);
   border-radius: 50px;
   width: fit-content;
 }
 
 .footer-instagram-link svg {
   flex-shrink: 0;
+  fill: #fff;
 }
 
 .footer-instagram-link:hover {
