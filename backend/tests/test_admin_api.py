@@ -7,7 +7,7 @@ import requests
 import os
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
-ADMIN_PASSWORD = "weROI2025Admin!"
+ADMIN_PASSWORD = "TylerandZach2025!"
 
 class TestAdminAuth:
     """Test admin authentication endpoint"""
@@ -51,7 +51,7 @@ class TestAdminDashboard:
         assert "total_page_views" in stats
         assert "total_audit_leads" in stats
         assert "total_guide_leads" in stats
-        assert "conversion_rate" in stats
+        assert "audit_conversion_rate" in stats
         
         print(f"✓ Dashboard data retrieved: {len(data['audit_leads'])} audit leads, {len(data['guide_leads'])} guide leads")
     
@@ -116,11 +116,11 @@ class TestAnalyticsAPI:
         
         data = response.json()
         assert "total_page_views" in data
-        assert "total_form_submissions" in data
-        assert "total_popup_downloads" in data
-        assert "conversion_rate" in data
+        assert "total_unique_visitors" in data
+        assert "audit_funnel" in data
+        assert "popup_funnel" in data
         
-        print(f"✓ Analytics stats: {data['total_page_views']} views, {data['conversion_rate']}% conversion")
+        print(f"✓ Analytics stats: {data['total_page_views']} views, {data['total_unique_visitors']} unique visitors")
 
 
 if __name__ == "__main__":
