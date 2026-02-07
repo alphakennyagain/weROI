@@ -315,17 +315,19 @@ async def send_email_async(to_email: str, subject: str, html_content: str) -> bo
         return False
 
 async def send_audit_confirmation(lead: AuditLead):
-    """Send audit form confirmation email"""
-    email_data = get_audit_confirmation_email(lead.name, lead.company_name)
+    """Send audit form confirmation email with Calendly booking"""
+    calendly_url = "https://calendly.com/contact-weroi/30min"
+    email_data = get_audit_confirmation_email(lead.name, lead.company_name, calendly_url)
     await send_email_async(lead.email, email_data["subject"], email_data["html"])
 
 async def send_email_sequence(lead_id: str, name: str, email: str, company_name: str = ""):
     """Send the 3-email sequence with delays"""
-    pdf_url = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/xl4qmsi8_WEROI%20GROWTH%20GUIDE.pdf"
+    growth_guide_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/xl4qmsi8_WEROI%20GROWTH%20GUIDE.pdf"
+    anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
     audit_url = "https://weroi.net/audit"
     
-    # Email 1: Immediate
-    email_1 = get_email_1_content(name, pdf_url)
+    # Email 1: Immediate - Growth Guide
+    email_1 = get_email_1_content(name, growth_guide_pdf)
     success = await send_email_async(email, email_1["subject"], email_1["html"])
     
     if success:
