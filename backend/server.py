@@ -548,6 +548,7 @@ class AuditLeadUpdate(BaseModel):
     phone: Optional[str] = None
     email: Optional[EmailStr] = None
     company_name: Optional[str] = None
+    website: Optional[str] = None
     how_found_us: Optional[str] = None
     status: Optional[str] = None
     referrer: Optional[str] = None
