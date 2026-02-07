@@ -4158,6 +4158,17 @@ body {
   font-weight: 600;
 }
 
+.website-link {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.website-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 .no-sources {
   color: var(--text-muted);
   font-size: 14px;
