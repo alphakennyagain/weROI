@@ -1,75 +1,91 @@
 <analysis>**original_problem_statement:** 
-The user wants to build a premium, dark-mode marketing website for a business initially called WeScale, which was later rebranded to weROI.
+The user's goal is to build and iteratively remodel a premium, dark-themed marketing website for their agency, weROI. The project has evolved through several major phases:
 
-**PRODUCT REQUIREMENTS:**
-- A premium, modern dark-themed website with neon green accents and a glowing cursor effect.
-- The company name is weROI, and the logo (especially the ROI part) must have a premium, animated growth effect, overlapping the we part.
-- An animated growth chart icon should be next to the logo.
-- The homepage should feature sections for Hero, Services, Authority/Stats, and a final CTA.
-- The Authority section should feature animated statistics that count up from 0.
-- A separate  page should contain a lead qualification form.
-- The form will have two questions (business stage, investment readiness).
-- After submitting the form, all users should be shown an embedded Calendly widget.
-- The available dates on the Calendly widget must be restricted based on the user's answer to the investment readiness question.
-- All SEO and social media preview (Open Graph, Twitter Card) metadata must be correctly configured for weROI, using a specific preview image. The browser tab title should simply be weROI.
-- The final website must be ready for deployment.
+1.  **Initial Website:** A simple marketing site with a homepage and a  page featuring a Calendly embed.
+2.  **Lead Magnet Funnel:** The site was remodeled to replace the Book a Call CTA with a Unlock Your Free Custom Growth Guide CTA. This led to a survey, which then redirected to a page with an embedded PDF viewer for the guide.
+3.  **Lead Generation Architecture:** The funnel was further advanced with the introduction of a backend (FastAPI + MongoDB). Key features included:
+    *   A new primary CTA: Claim Your Free AI Growth Audit, leading to a multi-step form.
+    *   An exit-intent popup to capture leads for the Growth Guide.
+    *   A 3-part automated email sequence via Resend for guide downloaders.
+    *   A Thank You page with a video placeholder.
+4.  **Platform Finalization & Admin Dashboard:** The final phase focused on adding a private, password-protected  to view and manage leads, adding mobile-specific UI optimizations, and refining the email automation with a new from address and additional confirmation emails.
+5.  **Current Request:** The user wants to enhance the admin dashboard with full CRUD (edit/clear/delete) functionality for leads, implement more granular analytics tracking (unique visitors, conversion rates, source tracking), update the initial email's PDF attachment, change the admin password, and ensure the admin UI is mobile-friendly.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A fully developed frontend-only React application for the weROI marketing website. The application is built with a dark theme and neon green accents, following a specific design playbook. It includes a homepage and a separate  page. The booking page has a qualification form that dynamically filters the available dates on the embedded Calendly widget. The site is styled with advanced CSS for a premium feel, including numerous animations. All SEO and social media preview metadata have been configured in .
+A full-stack application with a React frontend and a FastAPI backend using a MongoDB database. The website is a sophisticated lead generation platform with a Luxury Tech dark-mode aesthetic.
+
+-   **Frontend:** A multi-page React app featuring a homepage with animated service cards and a Trust Ticker, a multi-step AI Growth Audit form, an exit-intent popup for guide downloads, and a password-protected admin dashboard.
+-   **Backend:** A FastAPI server that handles:
+    -   Lead submissions from both the audit form and the exit-intent popup, storing them in MongoDB.
+    -   A multi-part automated email sequence using the Resend API.
+    -   API endpoints to serve lead data and analytics to the admin dashboard.
+    -   An endpoint to export leads to a CSV file.
+-   **Admin Panel:** A functional dashboard at  that currently displays lead data in a table and shows some basic analytics.
 
 **Last working item**:
-- **Last item agent was working:** The agent's last task was to update the browser tab title to simply weROI and confirm that all social media preview settings were correctly configured to ensure the preview image would be visible on all platforms after deployment.
-- **Status:** USER VERIFICATION PENDING
-- **Agent Testing Done:** Y
-- **Which testing method agent to use?** manual testing by curl
+- **Last item agent was working:** Implementing the user's request to add advanced features to the admin dashboard and enhance analytics tracking. The agent had just overwritten  to add delete logic and new analytics endpoints, and  to add the corresponding UI. The agent was in the process of updating the rest of the frontend to track the new analytics events (form starts, popup views) and capture the referrer URL.
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** both
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** Pass Form Answers to Calendly (P0)
+-   **Issue 1:** Complete the Admin Panel & Analytics Overhaul (P0)
 
 **Issues Detail:**
-- **Issue 1: Pass Form Answers to Calendly**
-    - **Description:** The original request required that the user's answers from the qualification form (business stage, investment readiness) be passed to Calendly as custom fields or hidden form fields for review before the call. The current implementation only passes date restrictions to the Calendly URL but does not include the answers to the questions.
-    - **Attempted fixes:** None. The agent missed this part of the requirement.
-    - **Next debug checklist:**
-        - Modify .
-        - When constructing the , append the selected values from  and  as URL parameters.
-        - Example: .
-        - This assumes the user has configured  and  as custom questions in their Calendly event settings. The agent should inform the user of this prerequisite.
-    - **Why fix this issue and what will be achieved with the fix?** To fulfill a core requirement of the booking flow, which is to provide the business owner with the lead's qualification answers directly within the Calendly meeting details.
-    - **Status:** NOT STARTED
-    - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** Frontend
-    - **Blocked on other issue:** None
+-   **Issue 1: Complete the Admin Panel & Analytics Overhaul**
+    -   **Description:** The agent was mid-way through implementing a large set of new features requested by the user for the admin panel and analytics system.
+    -   **Attempted fixes:** The agent successfully updated the admin password in , added lead deletion logic to the backend, and updated the  component.
+    -   **Next debug checklist:**
+        1.  **Implement Frontend Analytics Tracking:** Modify frontend components (, , ) to send data to the new backend analytics endpoints. This includes:
+            -   Tracking form started events.
+            -   Tracking popup shown events.
+            -   Capturing and sending the  as the lead source.
+        2.  **Implement Edit/Clear Functionality:** The user requested edit/clear/delete. Only delete was implemented.
+            -   Create backend endpoints in  ( and ).
+            -   Add UI elements (buttons, modals) in  to allow editing a lead and clearing all test logs.
+        3.  **Verify PDF Attachment Logic:** Confirm that when a guide is downloaded, the new PDF () is used and the attached filename is dynamically generated as . This logic should be in .
+        4.  **Comprehensive Testing:** After implementation, use the testing agent to perform a full-stack test covering:
+            -   Admin dashboard CRUD operations (Create via forms, Read on dashboard, Update via edit, Delete).
+            -   Correctness of the new analytics dashboard metrics.
+            -   Mobile responsiveness of the admin panel.
+            -   The updated email sequence and PDF attachment.
+    -   **Why fix this issue and what will be achieved with the fix?** This will complete the user's final set of requirements, providing them with full control over their lead data and deeper insights into their conversion funnel performance.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Both
+    -   **Blocked on other issue:** None
 
 **In progress Task List**:
 None.
 
 **Upcoming and Future Tasks**
-- **Future Tasks:**
-    - **Task 1 (P1):** Backend Integration. The application is currently frontend-only. If any data persistence is needed beyond the Calendly integration (e.g., for contact forms or analytics), a backend will need to be developed.
-    - **Task 2 (P0):** Deployment. The user has requested deployment. The application has passed the deployment health check. The next step is to initiate the deployment process.
+-   **Future Tasks:**
+    -   **Task 1 (P1):** Integrate a real case study video on the Thank You page to replace the current placeholder.
+    -   **Task 2 (P2):** Integrate a formal analytics service like Google Analytics for more robust visitor tracking.
 
 **Completed work in this session**
-- **UI/UX Development:**
-    - Built a complete multi-section marketing website based on the  design playbook.
-    - Implemented a premium dark theme with neon green accents, animated grid background, and a cursor spotlight effect.
-- **Branding & Animation:**
-    - Rebranded the site from WeScale to weROI.
-    - Created a complex, animated logo for weROI where the ROI text grows and overlaps the we prefix, featuring a smooth neon glow effect.
-    - Added an animated  icon next to the logo.
-    - Implemented a count-up animation for statistics in the Authority section.
-- **Booking Funnel:**
-    - Created a separate  page with a lead qualification form.
-    - Removed the initial rejection logic to allow all users to access the calendar.
-    - Implemented an embedded Calendly widget using .
-    - Added logic to dynamically restrict bookable dates in Calendly based on form answers.
-- **SEO & Deployment Prep:**
-    - Updated  with complete SEO metadata, including title, description, Open Graph, and Twitter Card tags for weROI.
-    - Added a custom  for social media previews.
-    - Resolved a critical deployment blocker by fixing the  file to allow  files.
+-   **Full-Stack Lead Generation Architecture:**
+    -   Developed a FastAPI backend with MongoDB to manage leads.
+    -   Integrated the Resend API for a 4-part automated email sequence (Guide Delivery, Anti-DIY Framework, Hard Pivot, and Audit Confirmation).
+    -   Created premium HTML email templates for the automation sequence.
+-   **Advanced Frontend Funnel:**
+    -   Built a multi-step, mobile-optimized AI Growth Audit form ().
+    -   Implemented a dual-trigger (time-based and exit-intent) popup () to capture leads for a downloadable guide.
+    -   Created a Thank You page () to build authority post-submission.
+-   **Private Admin Dashboard:**
+    -   Created a password-protected route at .
+    -   Built a UI to display leads in a table, view conversion stats, and export leads to CSV.
+-   **UI/UX & Branding Overhaul:**
+    -   Remodeled the homepage with a Trust Ticker, interactive service cards, and a minimal footer with social links.
+    -   Implemented extensive mobile-specific CSS for a refined mobile experience.
+    -   Consistently applied the Luxury Tech dark theme with neon green/gold accents and glow-on-hover effects.
+-   **Deployment Readiness:**
+    -   Fixed initial site issues (missing favicons, OG image optimization).
+    -   Corrected all social media handles and links ().
+    -   Configured the Resend integration with the user's verified domain ().
 
 **Earlier issues found/mentioned but not fixed**
 None.
@@ -81,62 +97,73 @@ None.
 
 
 **Key Technical Concepts**
-- **Frontend:** React, React Router ()
-- **Styling:** TailwindCSS, extensive custom CSS animations (, , ).
-- **State Management:** React Hooks (, , ).
-- **3rd Party Integration:** Calendly (via  package).
+-   **Frontend:** React, React Router, React Hooks.
+-   **Backend:** FastAPI, Pydantic.
+-   **Database:** MongoDB.
+-   **Styling:** TailwindCSS, extensive custom CSS for animations, glassmorphism, and mobile-specific overrides.
+-   **3rd Party Integrations:** Resend (for email automation), Calendly (for booking links in emails).
 
 **key DB schema**
-N/A (The application is frontend-only and does not use a database).
-
-**changes in tech stack**
-- Added  to  for embedding the Calendly widget.
+-   ** collection:**
+    -   : ObjectId (Primary Key)
+    -   uid=0(root) gid=0(root) groups=0(root): UUID (string, used externally)
+    -   : string (audit or guide)
+    -   : string
+    -   : string
+    -   : string (optional)
+    -   : string (optional)
+    -   : string (optional)
+    -   : string (optional)
+    -   : datetime
+    -   : dict (e.g., )
+    -   : string (referrer URL)
+    -   : list (e.g., )
 
 **All files of reference**
-- : The main landing page.
-- : The page containing the qualification form and Calendly embed.
-- : Contains all custom styling, including the dark theme, neon effects, and complex animations for the logo and other elements.
-- : Defines the application's routes ( and ).
-- : Contains all SEO and social media preview metadata.
-- : The image used for social media previews.
-- : Was modified to unblock deployment.
+-   : The heart of the backend, containing all API logic, database models, and email-sending functions.
+-   : Contains the MongoDB URL, Resend API key, and Admin password.
+-   : The UI for the private admin panel.
+-   : The main landing page, which includes the exit-intent popup logic.
+-   : The multi-step form for capturing audit leads.
+-   : Defines all frontend routes, including the protected admin route.
+-   : Contains all custom styles, including critical mobile-responsive overrides.
 
 **Critical Info for New Agent**
-- **Missed Requirement:** The agent did not implement passing the qualification form answers (business stage, investment readiness) to Calendly. This is a high-priority pending issue. The user expects to see this information in their meeting details.
-- **Deployment:** The application has passed the deployment agent's health check and is considered ready for deployment. The previous  issue is resolved.
-- **Aesthetics are Key:** The user is highly focused on a premium and animated feel. Any future changes must maintain or enhance this aesthetic. Pay close attention to the animations on the weROI logo and the cursor glow effect.
-- **Social Previews:** The user has repeatedly expressed concern about the social media preview image. While all necessary meta tags are in place, this can only be fully verified after the site is deployed to a public URL. Instagram, in particular, will not fetch images from a local environment.
+-   **Admin Credentials:** The admin dashboard is at  and the password is now .
+-   **Email Automation is Live:** The Resend integration is active and sends emails from . Be cautious when modifying  to avoid unintended email triggers.
+-   **Mobile-First Mentality:** The user has heavily emphasized mobile optimization. All new UI changes, especially in the admin panel, must be tested on small screen sizes.
+-   **Stateful Backend:** The backend now tracks lead status (emails sent) and granular analytics events. Any new features must correctly update this state in the MongoDB  collection.
 
 **documents and test reports created in this job**
-None.
+-   
+-   
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1. **User:** Change tab/preview title to WeROI — Real Growth. Real ROI. and use a new preview image.
-2. **Agent:** Implemented the changes.
-3. **User:** Preview image is not showing, and change title from WeROI to weROI.
-4. **Agent:** Corrected the casing to weROI and verified the image is accessible locally.
-5. **User:** The preview image is not showing on Instagram.
-6. **Agent:** Explained that Instagram cannot access localhost and the site must be deployed. Added Instagram-specific meta tags for when it goes live.
-7. **User:** Change the tab title simply to weROI. Make sure the preview image will work on all socials after deployment.
-8. **Agent:** Updated the title to weROI and confirmed all metadata is configured for post-deployment success.
-9. **User:** Wants to fix the weROI logo animation, remove some text boxes, and add count-up animations to stat boxes.
-10. **Agent:** Implemented all requested visual enhancements.
+1.  **User (msg 257):** Asks for the admin panel access link again, wants it to be quick and secure.
+2.  **Agent (msg 260):** Provides a cleanly formatted summary of the admin URL, password, and features.
+3.  **User (msg 261):** Requests major enhancements: (1) Add edit/clear/delete to admin panel. (2) Implement advanced analytics (unique visitors, conversion rates, source tracking). (3) Change admin password to . (4) Update the first email's PDF and make the filename dynamic. (5) Ensure the admin UI is mobile-friendly. (COMPLETION IN PROGRESS)
+4.  **Agent (msg 262-268):** Acknowledges the request and begins implementation, updating the password, backend server file, and admin dashboard component. Left off while working on frontend analytics tracking.
 
 **Project Health Check:**
-- **Broken:** None.
-- **Mocked:** None. The Calendly integration is live but filtered.
+-   **Broken:** None.
+-   **Mocked:** The video on the  page is a placeholder.
 
 **3rd Party Integrations**
-- **Calendly:** Integrated via the  package to embed the booking widget.
+-   **Resend:** Used for all transactional and automated marketing emails. Requires a user-provided API key.
+-   **Calendly:** Used for booking links within confirmation emails.
 
 **Testing status**
-- **Testing agent used after significant changes:** NO (Agent used screenshot tool for manual verification).
-- **Troubleshoot agent used after agent stuck in loop:** YES (Used to debug black screen issue).
-- **Test files created:** None.
-- **Known regressions:** A CSS truncation issue occurred but was fixed.
+-   **Testing agent used after significant changes:** YES (Used successfully after each major remodel).
+-   **Troubleshoot agent used after agent stuck in loop:** NO.
+-   **Test files created:** None.
+-   **Known regressions:** None.
 
 **Credentials to test flow:**
-N/A
+-   **Admin Dashboard URL:** 
+-   **Admin Password:** 
 
 **What agent forgot to execute**
-- The agent forgot to implement the logic to pass the answers from the two qualification questions in  to the Calendly widget as URL parameters. This was a specific requirement from the user to see the answers in the meeting details.</analysis>
+-   From the last user request (message 261), the agent implemented delete functionality for leads but did not implement the requested edit or clear all functionality.
+-   The agent started but did not complete the implementation of the frontend-side logic for tracking the new, more granular analytics events (form starts, popup views, referrer).</analysis>
