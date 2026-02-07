@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ArrowRight, TrendingUp, Bot, Rocket, Handshake, Target, Compass, PenTool, Send, CheckCircle2, XCircle, Instagram, Mail, Phone, Zap, BarChart3, Users, Shield } from 'lucide-react';
+import { ArrowRight, TrendingUp, Bot, Rocket, Handshake, Target, Compass, PenTool, Send, CheckCircle2, XCircle, Zap, BarChart3, Users, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ExitIntentPopup from './ExitIntentPopup';
 
 const AnimatedGrid = () => {
   return (
@@ -9,6 +10,31 @@ const AnimatedGrid = () => {
       <div className="gradient-orb orb-1"></div>
       <div className="gradient-orb orb-2"></div>
       <div className="gradient-orb orb-3"></div>
+    </div>
+  );
+};
+
+// Trust Ticker Component
+const TrustTicker = () => {
+  const tickerItems = [
+    'Measurable AI Growth',
+    'Bespoke Scaling Systems',
+    'Automated ROI Architecture',
+    'Data-Driven Decisions',
+    'Predictable Revenue',
+    'System Over Shortcuts'
+  ];
+
+  return (
+    <div className="trust-ticker">
+      <div className="ticker-track">
+        {[...tickerItems, ...tickerItems].map((item, index) => (
+          <div key={index} className="ticker-item">
+            <span className="ticker-dot"></span>
+            <span className="ticker-text">{item}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -78,6 +104,7 @@ const Home = () => {
   const [isVisible, setIsVisible] = useState({});
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [cursorOpacity, setCursorOpacity] = useState(0.05);
+  const [hoveredCard, setHoveredCard] = useState(null);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -214,6 +241,7 @@ const Home = () => {
   return (
     <div className="home-container">
       <AnimatedGrid />
+      <ExitIntentPopup />
       
       {/* Cursor Glow Effect */}
       <div 
@@ -233,15 +261,15 @@ const Home = () => {
             <span className="we-text">we</span><span className="roi-text">ROI</span>
           </div>
           <div className="nav-links">
-            <a href="#services" className="nav-link">Services</a>
-            <a href="#process" className="nav-link">Our Process</a>
+            <a href="#services" className="nav-link">What We Do</a>
+            <a href="#process" className="nav-link">How We Work</a>
             <a href="#reviews" className="nav-link">Results</a>
             <button 
               data-testid="nav-cta-btn"
-              className="btn-primary" 
-              onClick={() => navigate('/growth-survey')}
+              className="btn-primary glow-on-hover" 
+              onClick={() => navigate('/audit')}
             >
-              Get Growth Guide
+              Claim Your Free AI Growth Audit
             </button>
           </div>
         </div>
@@ -267,21 +295,24 @@ const Home = () => {
               <button 
                 data-testid="hero-cta-btn"
                 className="btn-primary btn-large glow-on-hover" 
-                onClick={() => navigate('/growth-survey')}
+                onClick={() => navigate('/audit')}
               >
-                Unlock Your Free Custom Growth Guide
+                Claim Your Free AI Growth Audit
                 <ArrowRight className="ml-2" size={20} />
               </button>
               <button 
                 className="btn-secondary btn-large" 
                 onClick={() => document.getElementById('process').scrollIntoView({ behavior: 'smooth' })}
               >
-                See Our Process
+                See How We Work
               </button>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Trust Ticker */}
+      <TrustTicker />
 
       {/* Authority Section - Stats */}
       <section className="authority-section" id="section-authority">
@@ -327,24 +358,27 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Services Section - Three Pillars */}
+      {/* Services Section - Three Pillars with Interactive Cards */}
       <section className="services-section" id="services">
         <div className="container">
           <div className="section-header" id="section-services">
             <h2 className={`section-title ${isVisible['section-services'] ? 'fade-in-up' : ''}`}>
-              Three Pillars of Growth
+              What We Do
             </h2>
             <p className={`section-subtitle ${isVisible['section-services'] ? 'fade-in-up' : ''}`}>
-              Comprehensive systems engineered for scale
+              Three pillars of growth. Comprehensive systems engineered for scale.
             </p>
           </div>
           <div className="pillars-grid">
             {servicePillars.map((pillar, index) => (
               <div 
                 key={index} 
-                className={`pillar-card glass-card ${isVisible['section-services'] ? 'fade-in-up' : ''}`}
+                className={`pillar-card glass-card interactive-card ${isVisible['section-services'] ? 'fade-in-up' : ''} ${hoveredCard === index ? 'hovered' : ''}`}
                 style={{ animationDelay: `${index * 0.15}s` }}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
               >
+                <div className="card-blur-bg"></div>
                 <div className="pillar-icon-wrapper">
                   <div className="pillar-icon">{pillar.icon}</div>
                 </div>
@@ -358,18 +392,25 @@ const Home = () => {
                     </li>
                   ))}
                 </ul>
+                <button 
+                  className="btn-ghost learn-more-btn"
+                  onClick={() => navigate('/audit')}
+                >
+                  Learn More
+                  <ArrowRight size={16} />
+                </button>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Process Section - Align -> Diagnose -> Design -> Deliver */}
+      {/* Process Section - How We Work */}
       <section className="process-section" id="process">
         <div className="container">
           <div className="section-header" id="section-process">
             <h2 className={`section-title ${isVisible['section-process'] ? 'fade-in-up' : ''}`}>
-              Our Process
+              How We Work
             </h2>
             <p className={`section-subtitle ${isVisible['section-process'] ? 'fade-in-up' : ''}`}>
               The All-Star AI Growth Framework
@@ -470,67 +511,36 @@ const Home = () => {
           <div className={`cta-card glass-card ${isVisible['section-cta'] ? 'fade-in-up' : ''}`}>
             <h2 className="cta-title">Ready to Engineer Your Growth?</h2>
             <p className="cta-subtitle">
-              Get your free custom growth guide. Discover where revenue is leaking 
+              Get a personalized AI Growth Audit. Discover exactly where revenue is leaking 
               and what systems will capture it.
             </p>
             <button 
               data-testid="cta-btn"
               className="btn-primary btn-large glow-on-hover" 
-              onClick={() => navigate('/growth-survey')}
+              onClick={() => navigate('/audit')}
             >
-              Unlock Your Free Custom Growth Guide
+              Claim Your Free AI Growth Audit
               <ArrowRight className="ml-2" size={20} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer">
+      {/* Ultra-Minimal Footer */}
+      <footer className="footer-minimal-wrapper">
         <div className="container">
-          <div className="footer-content">
-            <div className="footer-brand">
-              <div className="footer-logo">
-                <TrendingUp className="logo-icon growth-icon" size={20} />
-                <span className="we-text">we</span><span className="roi-text">ROI</span>
-              </div>
-              <p className="footer-tagline">Growth Systems Engineered for Scale</p>
-              <div className="footer-social">
-                <a href="https://instagram.com/weroi.co" target="_blank" rel="noopener noreferrer" className="social-link">
-                  <Instagram size={20} />
-                </a>
-                <a href="mailto:contact.weroi@gmail.com" className="social-link">
-                  <Mail size={20} />
-                </a>
-                <a href="https://wa.me/18761234567" target="_blank" rel="noopener noreferrer" className="social-link">
-                  <Phone size={20} />
-                </a>
-              </div>
+          <div className="footer-minimal-content">
+            <div className="footer-logo">
+              <TrendingUp className="logo-icon growth-icon" size={18} />
+              <span className="we-text">we</span><span className="roi-text">ROI</span>
             </div>
-            <div className="footer-links">
-              <div className="footer-column">
-                <h4 className="footer-heading">Services</h4>
-                <a href="#services" className="footer-link">AI Audit & Transformation</a>
-                <a href="#services" className="footer-link">Growth Systems</a>
-                <a href="#services" className="footer-link">Scale Partnerships</a>
-              </div>
-              <div className="footer-column">
-                <h4 className="footer-heading">Company</h4>
-                <a href="#process" className="footer-link">Our Process</a>
-                <a href="#reviews" className="footer-link">Results</a>
-                <button onClick={() => navigate('/growth-survey')} className="footer-link" style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, textAlign: 'left' }}>Get Growth Guide</button>
-              </div>
-              <div className="footer-column">
-                <h4 className="footer-heading">Contact</h4>
-                <div className="footer-contact">
-                  <p className="footer-link">@weroi.co</p>
-                  <p className="footer-link">contact.weroi@gmail.com</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>© 2025 weROI. Engineered for Growth.</p>
+            <p className="footer-copyright">© 2025 weROI. Engineered for Growth.</p>
+            <button 
+              className="btn-primary footer-cta glow-on-hover"
+              onClick={() => navigate('/audit')}
+            >
+              Claim Your Free Audit
+            </button>
           </div>
         </div>
       </footer>
