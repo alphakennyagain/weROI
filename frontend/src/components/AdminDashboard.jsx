@@ -263,6 +263,15 @@ const AdminDashboard = () => {
                     />
                   </div>
                   <div className="edit-field">
+                    <label>Website / Business Page</label>
+                    <input
+                      type="url"
+                      value={editFormData.website}
+                      onChange={(e) => setEditFormData({ ...editFormData, website: e.target.value })}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div className="edit-field">
                     <label>Status</label>
                     <select
                       value={editFormData.status}
