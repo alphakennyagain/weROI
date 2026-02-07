@@ -3376,7 +3376,7 @@ body {
 .footer-social h4 {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: var(--space-md);
@@ -3386,13 +3386,13 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   text-decoration: none;
   font-size: 15px;
   transition: all 0.3s ease;
   padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
 }
 
