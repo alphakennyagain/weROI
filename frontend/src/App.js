@@ -7,6 +7,7 @@ import StrugglingToScale from "./components/StrugglingToScale";
 import AuditForm from "./components/AuditForm";
 import ThankYou from "./components/ThankYou";
 import AdminDashboard from "./components/AdminDashboard";
+import Work from "./components/Work";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/audit" element={<AuditForm />} />
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/work" element={<Work />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,4 +1,15 @@
-# weROI - Lead Generation Platform PRD (Updated Feb 7, 2025)
+# weROI - Lead Generation Platform PRD (Updated Apr 24, 2026)
+
+## Latest addition (Apr 24, 2026)
+- ✅ **`/work` Portfolio Page**: Premium dark editorial page showcasing 7 concept builds
+  - Dark (#080808) / off-white (#f5f3ef) / lime (#c8f542) palette
+  - Bebas Neue + Instrument Sans (Google Fonts)
+  - Static preview images stored in `/app/frontend/public/work/` (user-supplied screenshots, no external API calls)
+  - Featured D&X Technology card spans full width
+  - Hero, stats row (7 Builds / 5+ Industries / 100% Custom / JA Based), 2-col grid (single col mobile), Instagram CTA, pulsing lime footer dot
+  - Files: `/app/frontend/src/components/Work.jsx`, `/app/frontend/src/components/Work.css`
+  - Route registered in `/app/frontend/src/App.js`
+
 
 ## Original Problem Statement
 Build a premium, high-conversion lead generation website for weROI with multi-step audit forms, exit-intent popups, email automation, and admin dashboard.
