@@ -6,73 +6,73 @@ const INSTAGRAM_URL = "https://instagram.com/weroi.co";
 
 const BUILDS = [
   {
-    slug: "dropquick-ja",
-    name: "DropQuick JA",
-    category: "E-commerce Education",
-    description: "Dropship education platform for Jamaican entrepreneurs.",
-    url: "https://dropquick-ja.preview.emergentagent.com",
-    image: "/work/dropquick.png",
-    tags: ["Education", "E-commerce", "Landing"],
+    slug: "bookit-ja",
+    name: "BookIt JA",
+    category: "Bookings & Delivery",
+    description: "Appointment booking and delivery platform for Jamaican service businesses — order management, driver dispatch and live status built in.",
+    url: "https://book-it-jamaica.preview.emergentagent.com",
+    image: "/work/bookit.png",
+    tags: ["Admin Dashboard", "Live Order Tracking", "Restaurant CMS", "Mobile-First"],
     featured: false,
   },
   {
-    slug: "resellright",
-    name: "ResellRight",
-    category: "Reselling Education",
-    description: "Step-by-step reselling guide with real proof.",
-    url: "https://dropquick-ja.preview.emergentagent.com",
-    image: "/work/resellright.png",
-    tags: ["Education", "Conversion", "Proof"],
+    slug: "shipping-district",
+    name: "The Shipping District",
+    category: "Logistics & Freight",
+    description: "Florida→Jamaica courier platform with live package tracking, customer accounts and a full back-office fleet operations dashboard.",
+    url: "https://freight-fleet-ops.preview.emergentagent.com",
+    image: "/work/shipping.png",
+    tags: ["Live Package Tracking", "Fleet Ops", "Customer Portal", "Admin Dashboard"],
     featured: false,
   },
   {
     slug: "dx-technology",
     name: "D&X Technology",
-    category: "Tech Retail",
-    description: "Cyberpunk gaming PC store built to sell.",
+    category: "Tech Retail / E-commerce",
+    description: "Cyberpunk gaming PC store built to sell. Custom build configurator, product gallery, motion-heavy brand experience and order management backend.",
     url: "https://dx-builds.preview.emergentagent.com",
     image: "/work/dx.png",
-    tags: ["E-commerce", "Retail", "3D Motion"],
+    tags: ["E-commerce", "Custom PC Configurator", "Admin Panel", "Order Management", "3D Motion"],
     featured: true,
   },
   {
     slug: "jmobile-shop",
     name: "JMobile Shop",
     category: "Mobile Retail",
-    description: "Clean storefront for a Jamaican phone retailer.",
+    description: "Premium iPhone storefront with trade-in flow, verified inventory management, customer auth and a clean Apple-grade shopping experience.",
     url: "https://jmobile-shop.preview.emergentagent.com",
     image: "/work/jmobile.png",
-    tags: ["Retail", "Shopify-Style", "Mobile"],
+    tags: ["Inventory Management", "Trade-In System", "Auth & Accounts", "Product Catalog"],
+    featured: false,
+  },
+  {
+    slug: "dropquick-ja",
+    name: "DropQuick JA",
+    category: "E-commerce Education",
+    description: "High-converting course platform teaching clothing dropshipping — payments, embedded video, social proof and a full urgency system.",
+    url: "https://dropquick-ja.preview.emergentagent.com",
+    image: "/work/dropquick.png",
+    tags: ["Course Platform", "Payments", "Urgency System", "Proof & Testimonials"],
+    featured: false,
+  },
+  {
+    slug: "resellright",
+    name: "ResellRight",
+    category: "Reselling Education",
+    description: "Supplier-access product page with a live countdown, animated social proof ticker and lifetime purchase flow optimized for conversion.",
+    url: "https://dropquick-ja.preview.emergentagent.com",
+    image: "/work/resellright.png",
+    tags: ["Supplier Access", "Countdown Urgency", "Social Proof Ticker", "Payments"],
     featured: false,
   },
   {
     slug: "weroi",
     name: "weROI",
     category: "Agency Website",
-    description: "Our own site covering lead gen, services and brand.",
+    description: "Our own site. Multi-step AI growth audit, exit-intent guide capture, automated 3-part email sequence and a private admin dashboard.",
     url: "https://weroi.net",
     image: "/work/weroi.png",
-    tags: ["Agency", "Lead Gen", "Brand"],
-    featured: false,
-  },
-  {
-    slug: "shipping-district",
-    name: "The Shipping District",
-    category: "Logistics",
-    description: "Freight and fleet operations platform.",
-    url: "https://freight-fleet-ops.preview.emergentagent.com",
-    image: "/work/shipping.png",
-    tags: ["Logistics", "Dashboard", "Tracking"],
-    featured: false,
-  },
-  {
-    slug: "bookit-ja",
-    name: "BookIt JA",
-    category: "Bookings",
-    description: "Appointment booking for Jamaican service businesses.",
-    url: "https://book-it-jamaica.preview.emergentagent.com",
-    image: "/work/bookit.png",
-    tags: ["Bookings", "Local", "Mobile-First"],
+    tags: ["Lead Gen Funnel", "Email Automation", "Admin Dashboard", "Analytics"],
     featured: false,
   },
 ];
@@ -145,6 +145,14 @@ const ProjectCard = ({ build }) => {
 export default function Work() {
   return (
     <div className="work-root" data-testid="work-page">
+      <div className="work-bg" aria-hidden="true">
+        <div className="work-bg-grid"></div>
+        <div className="work-bg-orb work-bg-orb-1"></div>
+        <div className="work-bg-orb work-bg-orb-2"></div>
+        <div className="work-bg-orb work-bg-orb-3"></div>
+        <div className="work-bg-scan"></div>
+        <div className="work-bg-noise"></div>
+      </div>
       <header className="work-header" data-testid="work-header">
         <div className="work-container work-header-inner">
           <div className="work-brand" data-testid="work-brand">we<span>ROI</span></div>

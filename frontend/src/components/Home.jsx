@@ -292,6 +292,14 @@ const Home = () => {
             <a href="#services" className="nav-link">What We Do</a>
             <a href="#process" className="nav-link">How We Work</a>
             <a href="#reviews" className="nav-link">Results</a>
+            <a
+              href="/work"
+              onClick={(e) => { e.preventDefault(); navigate('/work'); }}
+              className="nav-link"
+              data-testid="nav-our-work"
+            >
+              Our Work
+            </a>
             <button 
               data-testid="nav-cta-btn"
               className="btn-primary glow-on-hover" 
@@ -333,6 +341,14 @@ const Home = () => {
                 onClick={() => document.getElementById('process').scrollIntoView({ behavior: 'smooth' })}
               >
                 See How We Work
+              </button>
+              <button 
+                data-testid="hero-view-work-btn"
+                className="btn-secondary btn-large" 
+                onClick={() => navigate('/work')}
+              >
+                View Our Work
+                <ArrowRight className="ml-2" size={18} />
               </button>
             </div>
           </div>
