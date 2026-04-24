@@ -77,6 +77,17 @@ const BUILDS = [
   },
 ];
 
+const SERVICES = [
+  { num: "01", name: "Web Design & Development", desc: "Custom sites built to convert visitors into customers." },
+  { num: "02", name: "SEO", desc: "Get found on Google by the right people at the right time." },
+  { num: "03", name: "Lead Generation", desc: "Systems that bring in clients on autopilot." },
+  { num: "04", name: "Email Automation", desc: "Follow-up sequences that sell while you sleep." },
+  { num: "05", name: "Social Media Growth", desc: "Content strategy and account management that builds real audiences." },
+  { num: "06", name: "Sales Funnels", desc: "Full funnel builds from ad click to checkout." },
+  { num: "07", name: "Brand Identity", desc: "Logo, colors, tone and the full package." },
+  { num: "08", name: "Digital Strategy", desc: "A growth roadmap tailored specifically to your business." },
+];
+
 const STATS = [
   { num: "7", label: "Builds" },
   { num: "5+", label: "Industries" },
@@ -204,6 +215,28 @@ export default function Work() {
             These are concept builds created to demonstrate our capabilities across industries.
             This is just a sample of what we can create for you.
           </p>
+        </div>
+      </section>
+
+      <section className="work-services" data-testid="work-services">
+        <div className="work-container">
+          <div className="work-services-head">
+            <h2 className="work-services-title">How We Grow You<span className="dot">.</span></h2>
+            <div className="work-services-line" data-testid="work-services-tagline">
+              Web design, SEO, lead generation, email automation, social media growth and more.
+            </div>
+          </div>
+          <div className="work-services-grid">
+            {SERVICES.map((s) => (
+              <div key={s.num} className="work-service-card" data-testid={`work-service-${s.num}`}>
+                <div className="work-service-num">{s.num}</div>
+                <div className="work-service-body">
+                  <h3 className="work-service-name">{s.name}</h3>
+                  <p className="work-service-desc">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
