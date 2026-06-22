@@ -1,0 +1,69 @@
+{
+  "summary": "Frontend-only UI verification of weROI homepage after major redesign (lime theme, centered nav, full-screen hero, case studies section, status link replacing pill, 'Start a Project' CTA). All requested home-page features rendered correctly. Two issues found: (1) ResellRight case study card 'View Live Site' link points to the wrong URL (duplicates DropQuick JA URL), (2) Em dashes (—) still present in non-home components even though brief said 'remove all em dashes'.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Home.jsx caseStudies[5] (resellright)",
+        "issue": "View Live Site URL is a copy/paste mistake — points to https://dropquick-ja.preview.emergentagent.com instead of the actual ResellRight URL. Two cards open the same site.",
+        "selector": "[data-testid=\"case-resellright\"] .case-card-link",
+        "priority": "HIGH"
+      },
+      {
+        "component": "Work.jsx / GrowthSurvey.jsx / ThankYou.jsx / ExitIntentPopup.jsx",
+        "issue": "User explicitly asked to 'remove all em dashes (—) from text'. Home.jsx is clean (0), but other rendered components still contain em dashes: Work.jsx=5, GrowthSurvey.jsx=7, ThankYou.jsx=4, ExitIntentPopup.jsx=2. Replace with hyphen (-), comma, or sentence break.",
+        "selector": "n/a (source text)",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Exit intent popup",
+        "issue": "Could not trigger popup via synthetic mouseout events even with sessionStorage cleared. Likely the listener requires a real cursor leave above viewport (relies on mouseleave on document). Visually it could not be verified in automation, but CSS confirms lime styling (.popup-tag color, .popup-guide-icon bg, .thanks-mark bg all use var(--lime)).",
+        "affected_selectors": [".popup-overlay", ".popup-card", ".popup-tag"]
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "App.css (legacy)",
+        "issues": [
+          ".feature-icon-wrap uses background: var(--lime) with color: var(--paper) — lime + white icon has poor contrast (white on lime). Should be var(--lime-ink) (#182604) like buttons.",
+          ".thanks-mark and .popup-guide-icon also use color: var(--paper) on lime background — same low-contrast issue.",
+          ".quote-result .badge uses background: var(--lime); color: var(--paper); — white text on lime is hard to read.",
+          ".audit-input:focus and .popup-input:focus still use box-shadow rgba(87, 87, 248, 0.2) — leftover violet glow from old theme, should be lime-tinted.",
+          ".hero::before radial gradient still uses rgba(87, 87, 248, 0.04) — leftover violet tint in hero background.",
+          ".violet utility class now maps to lime (cosmetic, but confusingly named)."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix ResellRight URL in /app/frontend/src/components/Home.jsx (caseStudies array, slug 'resellright') — replace dropquick-ja URL with the real ResellRight preview URL.",
+    "Remove em dashes (—) from Work.jsx (5), GrowthSurvey.jsx (7), ThankYou.jsx (4), ExitIntentPopup.jsx (2). Replace with '-', ',', or sentence rewrite.",
+    "Update lime-on-white contrast: change icon/text color from var(--paper) to var(--lime-ink) in .feature-icon-wrap, .thanks-mark, .popup-guide-icon, .quote-result .badge.",
+    "Replace leftover violet rgba(87, 87, 248, ...) values in :focus box-shadows and .hero::before gradient with lime-tinted equivalents.",
+    "Optional: rename .violet utility class to .lime/.accent to avoid confusion."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx is 616 lines — close to the 700-line guideline; consider splitting caseStudies data and inline SVG logos into separate files.",
+    "Inline SVGs (LogoGithub, LogoReact, etc.) are large and inline JSX — extract into /components/logos/ for reuse and to reduce Home.jsx size.",
+    "caseStudies[5].url is hardcoded duplicate — suggests no validation; consider a quick unit check or lint rule for duplicate URLs in static data.",
+    "process.env.REACT_APP_BACKEND_URL has fallback `|| ''` in Home.jsx; per env rules, omit defaults so missing config fails fast.",
+    "Same `--lime` color is bound to both selection background and primary buttons; ::selection background lime with white color is low-contrast on text."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (not tested)", "frontend": "90%"},
+  "test_credentials": "N/A",
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Home page UI verified end-to-end (nav centering, hero fullscreen, floating elements, marquee 20 logos, 6 case study cards, lime theme, no em dashes on home, status link replaces pill). Two confirmed bugs: ResellRight URL duplicates DropQuick URL, and em dashes still in Work/GrowthSurvey/ThankYou/ExitIntentPopup components. Exit-intent popup could not be triggered programmatically; visual verification of lime styling pending — open with real cursor leave or temporarily force-render in dev.",
+  "rca_of_the_issue": {
+    "resellright_url": "In Home.jsx caseStudies array (line ~202), the ResellRight entry's `url` is a copy-paste of DropQuick JA's URL ('https://dropquick-ja.preview.emergentagent.com'). Fix: replace with the correct ResellRight preview URL (e.g., 'https://resellright.preview.emergentagent.com').",
+    "em_dashes": "Em dashes were stripped from Home.jsx only. Other components were not updated despite the requirement applying to all visible text. Bulk find/replace '—' → '-' (or contextual rewrite) is needed across Work.jsx, GrowthSurvey.jsx, ThankYou.jsx, ExitIntentPopup.jsx, plus comments in App.css/index.css if strictness extends to source."
+  }
+}

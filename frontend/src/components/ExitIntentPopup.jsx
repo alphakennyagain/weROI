@@ -4,251 +4,177 @@ import { useNavigate } from 'react-router-dom';
 
 const ExitIntentPopup = () => {
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(false);
-  const [hasTriggered, setHasTriggered] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: ''
-  });
+  const [visible, setVisible] = useState(false);
+  const [triggered, setTriggered] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '' });
   const [errors, setErrors] = useState({});
 
   const API_URL = process.env.REACT_APP_BACKEND_URL || '';
-  const sessionId = sessionStorage.getItem('sessionId') || (() => {
+  const sid = sessionStorage.getItem('sessionId') || (() => {
     const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     sessionStorage.setItem('sessionId', id);
     return id;
   })();
 
-  // Track analytics event
-  const trackEvent = async (eventType) => {
+  const track = async (event_type) => {
     try {
       await fetch(`${API_URL}/api/analytics/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_type: eventType,
-          page: '/',
-          referrer: document.referrer || null,
-          session_id: sessionId
-        })
+        body: JSON.stringify({ event_type, page: '/', referrer: document.referrer || null, session_id: sid }),
       });
-    } catch (err) {
-      console.log('Analytics tracking failed:', err);
-    }
+    } catch {}
   };
 
-  const showPopup = useCallback(() => {
-    if (!hasTriggered) {
-      setIsVisible(true);
-      setHasTriggered(true);
+  const show = useCallback(() => {
+    if (!triggered) {
+      setVisible(true);
+      setTriggered(true);
       sessionStorage.setItem('exitPopupShown', 'true');
-      // Track popup shown event
-      trackEvent('popup_shown');
+      track('popup_shown');
     }
-  }, [hasTriggered]);
+  }, [triggered]);
 
   useEffect(() => {
-    // Check if popup was already shown in this session
-    const popupShown = sessionStorage.getItem('exitPopupShown');
-    if (popupShown) {
-      setHasTriggered(true);
+    if (sessionStorage.getItem('exitPopupShown')) {
+      setTriggered(true);
       return;
     }
-
-    // TRIGGER 1: Time-based - Show after 5 seconds
-    const timeoutId = setTimeout(() => {
-      showPopup();
-    }, 5000);
-
-    // TRIGGER 2: Exit intent for Desktop (mouse leaves window top)
-    const handleMouseLeave = (e) => {
-      if (e.clientY <= 0) {
-        showPopup();
-      }
+    const t1 = setTimeout(show, 5000);
+    const onLeave = (e) => { if (e.clientY <= 0) show(); };
+    const onPop = () => { show(); window.history.pushState(null, '', window.location.href); };
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 50 && lastY > y && lastY - y > 30) show();
+      lastY = y;
     };
+    let touchY = 0;
+    const onTouchStart = (e) => { touchY = e.touches[0].clientY; };
+    const onTouchEnd = (e) => { if (touchY < 100 && e.changedTouches[0].clientY - touchY > 100) show(); };
 
-    // TRIGGER 3: Mobile back/swipe detection (history state)
-    const handlePopState = () => {
-      showPopup();
-      // Push state back to prevent actual navigation
-      window.history.pushState(null, '', window.location.href);
-    };
-
-    // TRIGGER 4: Mobile scroll up detection (at top of page)
-    let lastScrollY = window.scrollY;
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      // If user scrolls up aggressively at top of page
-      if (currentScrollY < 50 && lastScrollY > currentScrollY && lastScrollY - currentScrollY > 30) {
-        showPopup();
-      }
-      lastScrollY = currentScrollY;
-    };
-
-    // TRIGGER 5: Touch end at top (mobile swipe down)
-    let touchStartY = 0;
-    const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
-    };
-    const handleTouchEnd = (e) => {
-      const touchEndY = e.changedTouches[0].clientY;
-      // Swipe down from top of screen
-      if (touchStartY < 100 && touchEndY - touchStartY > 100) {
-        showPopup();
-      }
-    };
-
-    // Add history state for mobile back detection
     window.history.pushState(null, '', window.location.href);
 
-    // Add event listeners with delay
-    const listenerTimeout = setTimeout(() => {
-      document.addEventListener('mouseleave', handleMouseLeave);
-      window.addEventListener('popstate', handlePopState);
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      document.addEventListener('touchstart', handleTouchStart, { passive: true });
-      document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    const t2 = setTimeout(() => {
+      document.addEventListener('mouseleave', onLeave);
+      window.addEventListener('popstate', onPop);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      document.addEventListener('touchstart', onTouchStart, { passive: true });
+      document.addEventListener('touchend', onTouchEnd, { passive: true });
     }, 2000);
 
     return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(listenerTimeout);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchend', handleTouchEnd);
+      clearTimeout(t1); clearTimeout(t2);
+      document.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchend', onTouchEnd);
     };
-  }, [hasTriggered, showPopup]);
+  }, [show]);
 
-  const handleClose = () => {
-    setIsVisible(false);
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = 'Name is required';
+    if (!form.email.trim()) e.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email';
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Enter a valid email';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-
+    if (!validate()) return;
+    setSubmitting(true);
     try {
-      const response = await fetch(`${API_URL}/api/leads/guide`, {
+      await fetch(`${API_URL}/api/leads/guide`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          referrer: document.referrer || null
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, referrer: document.referrer || null }),
       });
-
-      if (response.ok) {
-        sessionStorage.setItem('guideFormData', JSON.stringify(formData));
-        setIsVisible(false);
-        navigate('/thank-you?type=guide');
-      } else {
-        throw new Error('Submission failed');
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      sessionStorage.setItem('guideFormData', JSON.stringify(formData));
-      setIsVisible(false);
-      navigate('/thank-you?type=guide');
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch {}
+    sessionStorage.setItem('guideFormData', JSON.stringify(form));
+    setVisible(false);
+    navigate('/thank-you?type=guide');
   };
 
-  if (!isVisible) return null;
+  if (!visible) return null;
 
   return (
-    <div className="exit-popup-overlay" onClick={handleClose}>
-      <div className="exit-popup-content glass-card" onClick={(e) => e.stopPropagation()}>
-        <button className="popup-close" onClick={handleClose} data-testid="close-popup-btn">
-          <X size={24} />
+    <div className="popup-overlay" onClick={() => setVisible(false)} data-testid="exit-popup">
+      <div className="popup-card" onClick={(e) => e.stopPropagation()}>
+        <button className="popup-close" onClick={() => setVisible(false)} data-testid="close-popup-btn" aria-label="Close">
+          <X size={16} />
         </button>
 
-        <div className="popup-layout">
-          {/* Left Side - 3D Book Mockup */}
-          <div className="popup-visual">
-            <div className="book-mockup">
-              <div className="book-cover">
-                <div className="book-spine"></div>
-                <div className="book-front">
-                  <div className="book-content">
-                    <BookOpen size={32} className="book-icon" />
-                    <h4>weROI</h4>
-                    <p>Growth Guide</p>
-                    <span className="book-subtitle">$0 to $1M Blueprint</span>
-                  </div>
-                </div>
-                <div className="book-pages"></div>
+        <div className="popup-visual">
+          <div className="popup-tag">FREE GUIDE</div>
+          <div>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 32, lineHeight: 1.0, letterSpacing: '-0.02em', margin: 0, color: 'var(--paper)' }}>
+              The $0&nbsp;→&nbsp;$1M<br />Growth Blueprint.
+            </h3>
+            <p style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)', marginTop: 12, marginBottom: 0 }}>
+              A field-tested playbook used by our partners to scale predictably — without paid traffic mistakes or vanity dashboards.
+            </p>
+          </div>
+
+          <div className="popup-guide-card">
+            <div className="popup-guide-row">
+              <div className="popup-guide-icon"><BookOpen size={18} /></div>
+              <div>
+                <div className="popup-guide-title">weROI / Growth Guide</div>
+                <div className="popup-guide-meta">v1 · 24 PAGES · PDF</div>
               </div>
-              <div className="book-shadow"></div>
             </div>
+            <ul className="popup-guide-list">
+              <li>4 phases of revenue engineering</li>
+              <li>AI workflow templates included</li>
+              <li>Live case study: 0 → $1M in 12 months</li>
+            </ul>
           </div>
+        </div>
 
-          {/* Right Side - Form */}
-          <div className="popup-form-section">
-            <h2 className="popup-headline">
-              Don't leave your growth<br />
-              <span className="gradient-text">to chance.</span>
-            </h2>
-            <p className="popup-subtext">
-              Download our Custom Tailored Guide to Scale your Business
-              <span className="highlight"> ($0 to $1M Blueprint)</span>
-            </p>
+        <div className="popup-form-section">
+          <h2 className="popup-headline">
+            Don&rsquo;t leave your growth<br />
+            <span className="accent">to chance.</span>
+          </h2>
+          <p className="popup-sub">
+            Download our custom-tailored guide to scale your business — the $0 to $1M blueprint.
+          </p>
 
-            <form onSubmit={handleSubmit} className="popup-form">
-              <div className="popup-field">
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className={`popup-input ${errors.name ? 'error' : ''}`}
-                  data-testid="popup-name-input"
-                />
-                {errors.name && <span className="error-text">{errors.name}</span>}
-              </div>
-              <div className="popup-field">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={`popup-input ${errors.email ? 'error' : ''}`}
-                  data-testid="popup-email-input"
-                />
-                {errors.email && <span className="error-text">{errors.email}</span>}
-              </div>
-              <button 
-                type="submit" 
-                className="btn-primary popup-submit glow-on-hover"
-                disabled={isSubmitting}
-                data-testid="popup-submit-btn"
-              >
-                {isSubmitting ? 'Sending...' : 'Get My Free Guide'}
-                {!isSubmitting && <ArrowRight size={18} />}
-              </button>
-            </form>
+          <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <input
+              type="text"
+              placeholder="Your name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className={`popup-input ${errors.name ? 'error' : ''}`}
+              data-testid="popup-name-input"
+            />
+            {errors.name && <span className="audit-error">{errors.name}</span>}
+            <input
+              type="email"
+              placeholder="Your work email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className={`popup-input ${errors.email ? 'error' : ''}`}
+              data-testid="popup-email-input"
+            />
+            {errors.email && <span className="audit-error">{errors.email}</span>}
+            <button
+              type="submit"
+              className="btn btn-primary btn-lg"
+              disabled={submitting}
+              data-testid="popup-submit-btn"
+              style={{ marginTop: 4 }}
+            >
+              {submitting ? 'Sending…' : 'Get my free guide'} {!submitting && <ArrowRight size={16} />}
+            </button>
+          </form>
 
-            <p className="popup-disclaimer">
-              No spam. Unsubscribe anytime.
-            </p>
-          </div>
+          <p className="popup-disclaimer">NO SPAM · UNSUBSCRIBE ANYTIME</p>
         </div>
       </div>
     </div>

@@ -1,381 +1,187 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, TrendingUp, CheckCircle, User, Phone, Mail, Building, Search, Globe } from 'lucide-react';
+import { ArrowRight, ArrowLeft, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const AuditForm = () => {
+const TOTAL_STEPS = 6;
+
+const STEPS = [
+  { key: 'NAME',    title: "What's your name?",                   field: 'name',         type: 'text',  placeholder: 'Enter your full name' },
+  { key: 'PHONE',   title: "What's your phone number?",           field: 'phone',        type: 'tel',   placeholder: 'Enter your phone number' },
+  { key: 'EMAIL',   title: "What's your email address?",          field: 'email',        type: 'email', placeholder: 'name@company.com' },
+  { key: 'COMPANY', title: "What's your company name?",           field: 'company_name', type: 'text',  placeholder: 'Enter your company name' },
+  { key: 'SITE',    title: "Your website or business page?",      field: 'website',      type: 'url',   placeholder: 'https://yourwebsite.com (optional)', hint: 'Website, Instagram or any business page — optional but helpful.' },
+  { key: 'SOURCE',  title: "How did you hear about us?",          field: 'how_found_us', type: 'options' },
+];
+
+const SOURCE_OPTIONS = [
+  'Google Search',
+  'Social Media (Instagram, LinkedIn, etc.)',
+  'Referral from a friend or colleague',
+  'Podcast or YouTube',
+  'Online Advertisement',
+  'Other',
+];
+
+export default function AuditForm() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    company_name: '',
-    website: '',
-    how_found_us: ''
-  });
+  const [submitting, setSubmitting] = useState(false);
+  const [data, setData] = useState({ name: '', phone: '', email: '', company_name: '', website: '', how_found_us: '' });
   const [errors, setErrors] = useState({});
 
-  const totalSteps = 6;
-
   const API_URL = process.env.REACT_APP_BACKEND_URL || '';
-  const sessionId = sessionStorage.getItem('sessionId') || (() => {
+  const sid = (() => {
+    const e = sessionStorage.getItem('sessionId');
+    if (e) return e;
     const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     sessionStorage.setItem('sessionId', id);
     return id;
   })();
 
-  // Track analytics event
-  const trackEvent = async (eventType) => {
-    try {
-      await fetch(`${API_URL}/api/analytics/event`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_type: eventType,
-          page: '/audit',
-          referrer: document.referrer || null,
-          session_id: sessionId
-        })
-      });
-    } catch (err) {
-      console.log('Analytics tracking failed:', err);
-    }
+  const track = (event_type) => {
+    fetch(`${API_URL}/api/analytics/event`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_type, page: '/audit', referrer: document.referrer || null, session_id: sid }),
+    }).catch(() => {});
   };
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // Track audit form start
-    trackEvent('audit_form_start');
-    trackEvent('page_view');
+    track('audit_form_start');
+    track('page_view');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const howFoundOptions = [
-    'Google Search',
-    'Social Media (Instagram, LinkedIn, etc.)',
-    'Referral from a friend or colleague',
-    'Podcast or YouTube',
-    'Online Advertisement',
-    'Other'
-  ];
+  const current = STEPS[step - 1];
 
-  const validateStep = (currentStep) => {
-    const newErrors = {};
-    
-    switch (currentStep) {
-      case 1:
-        if (!formData.name.trim()) newErrors.name = 'Name is required';
-        break;
-      case 2:
-        if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
-        else if (!/^[\d\s\-\+\(\)]{10,}$/.test(formData.phone)) newErrors.phone = 'Enter a valid phone number';
-        break;
-      case 3:
-        if (!formData.email.trim()) newErrors.email = 'Email is required';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Enter a valid email';
-        break;
-      case 4:
-        if (!formData.company_name.trim()) newErrors.company_name = 'Company name is required';
-        break;
-      case 5:
-        // Website is optional, no validation needed
-        break;
-      case 6:
-        if (!formData.how_found_us) newErrors.how_found_us = 'Please select an option';
-        break;
-      default:
-        break;
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validate = () => {
+    const e = {};
+    const v = data[current.field];
+    if (current.field === 'name' && !v.trim()) e.name = 'Name is required';
+    if (current.field === 'phone' && (!v.trim() || !/^[\d\s\-+()]{10,}$/.test(v))) e.phone = 'Enter a valid phone number';
+    if (current.field === 'email' && (!v.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))) e.email = 'Enter a valid email';
+    if (current.field === 'company_name' && !v.trim()) e.company_name = 'Company name is required';
+    if (current.field === 'how_found_us' && !v) e.how_found_us = 'Please select an option';
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const handleNext = () => {
-    if (validateStep(step)) {
-      if (step < totalSteps) {
-        setStep(step + 1);
-      }
-    }
-  };
+  const next = () => { if (validate()) setStep(Math.min(step + 1, TOTAL_STEPS)); };
+  const prev = () => setStep(Math.max(step - 1, 1));
 
-  const handlePrev = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!validateStep(step)) return;
-    
-    setIsSubmitting(true);
-    
+  const submit = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
     try {
-      const response = await fetch(`${API_URL}/api/leads/audit`, {
+      const r = await fetch(`${API_URL}/api/leads/audit`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          referrer: document.referrer || null
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, referrer: document.referrer || null }),
       });
-      
-      if (response.ok) {
-        // Store data for thank you page
-        sessionStorage.setItem('auditFormData', JSON.stringify(formData));
-        navigate('/thank-you?type=audit');
-      } else {
-        throw new Error('Submission failed');
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      // Still navigate on error for demo purposes
-      sessionStorage.setItem('auditFormData', JSON.stringify(formData));
-      navigate('/thank-you?type=audit');
-    } finally {
-      setIsSubmitting(false);
+      if (!r.ok) throw new Error('failed');
+    } catch (err) {
+      // still continue
     }
+    sessionStorage.setItem('auditFormData', JSON.stringify(data));
+    navigate('/thank-you?type=audit');
   };
 
-  const handleInputChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: '' });
+  const onChange = (field, val) => {
+    setData({ ...data, [field]: val });
+    if (errors[field]) setErrors({ ...errors, [field]: '' });
+  };
+
+  const renderField = () => {
+    if (current.type === 'options') {
+      return (
+        <div className="audit-options">
+          {SOURCE_OPTIONS.map((opt, i) => (
+            <button
+              key={opt}
+              type="button"
+              data-testid={`how-found-option-${i}`}
+              className={`audit-option ${data.how_found_us === opt ? 'selected' : ''}`}
+              onClick={() => onChange('how_found_us', opt)}
+            >
+              <span className="audit-radio" />
+              <span>{opt}</span>
+            </button>
+          ))}
+          {errors.how_found_us && <span className="audit-error">{errors.how_found_us}</span>}
+        </div>
+      );
     }
-  };
-
-  const getStepIcon = (stepNum) => {
-    const icons = {
-      1: <User size={24} />,
-      2: <Phone size={24} />,
-      3: <Mail size={24} />,
-      4: <Building size={24} />,
-      5: <Globe size={24} />,
-      6: <Search size={24} />
-    };
-    return icons[stepNum];
-  };
-
-  const getStepTitle = (stepNum) => {
-    const titles = {
-      1: "What's your name?",
-      2: "What's your phone number?",
-      3: "What's your email?",
-      4: "What's your company name?",
-      5: "What's your website or business page?",
-      6: "How did you find us?"
-    };
-    return titles[stepNum];
-  };
-
-  const renderStepContent = () => {
-    switch (step) {
-      case 1:
-        return (
-          <div className="form-field">
-            <input
-              type="text"
-              data-testid="audit-name-input"
-              placeholder="Enter your full name"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleNext()}
-              className={`form-input ${errors.name ? 'error' : ''}`}
-              autoFocus
-            />
-            {errors.name && <span className="error-text">{errors.name}</span>}
-          </div>
-        );
-      case 2:
-        return (
-          <div className="form-field">
-            <input
-              type="tel"
-              data-testid="audit-phone-input"
-              placeholder="Enter your phone number"
-              value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleNext()}
-              className={`form-input ${errors.phone ? 'error' : ''}`}
-              autoFocus
-            />
-            {errors.phone && <span className="error-text">{errors.phone}</span>}
-          </div>
-        );
-      case 3:
-        return (
-          <div className="form-field">
-            <input
-              type="email"
-              data-testid="audit-email-input"
-              placeholder="Enter your email address"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleNext()}
-              className={`form-input ${errors.email ? 'error' : ''}`}
-              autoFocus
-            />
-            {errors.email && <span className="error-text">{errors.email}</span>}
-          </div>
-        );
-      case 4:
-        return (
-          <div className="form-field">
-            <input
-              type="text"
-              data-testid="audit-company-input"
-              placeholder="Enter your company name"
-              value={formData.company_name}
-              onChange={(e) => handleInputChange('company_name', e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleNext()}
-              className={`form-input ${errors.company_name ? 'error' : ''}`}
-              autoFocus
-            />
-            {errors.company_name && <span className="error-text">{errors.company_name}</span>}
-          </div>
-        );
-      case 5:
-        return (
-          <div className="form-field">
-            <input
-              type="url"
-              data-testid="audit-website-input"
-              placeholder="https://yourwebsite.com (optional)"
-              value={formData.website}
-              onChange={(e) => handleInputChange('website', e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleNext()}
-              className={`form-input ${errors.website ? 'error' : ''}`}
-              autoFocus
-            />
-            <span className="field-hint">Enter your website, Instagram, or any business page</span>
-            {errors.website && <span className="error-text">{errors.website}</span>}
-          </div>
-        );
-      case 6:
-        return (
-          <div className="form-field">
-            <div className="how-found-options">
-              {howFoundOptions.map((option, index) => (
-                <button
-                  key={index}
-                  data-testid={`how-found-option-${index}`}
-                  className={`how-found-option ${formData.how_found_us === option ? 'selected' : ''}`}
-                  onClick={() => handleInputChange('how_found_us', option)}
-                >
-                  <span className="option-radio">
-                    {formData.how_found_us === option && <span className="radio-dot"></span>}
-                  </span>
-                  {option}
-                </button>
-              ))}
-            </div>
-            {errors.how_found_us && <span className="error-text">{errors.how_found_us}</span>}
-          </div>
-        );
-      default:
-        return null;
-    }
+    return (
+      <>
+        <input
+          type={current.type}
+          data-testid={`audit-${current.field.replace('_','-')}-input`}
+          className={`audit-input ${errors[current.field] ? 'error' : ''}`}
+          placeholder={current.placeholder}
+          value={data[current.field]}
+          onChange={(e) => onChange(current.field, e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); step === TOTAL_STEPS ? submit() : next(); } }}
+          autoFocus
+        />
+        {current.hint && <span className="audit-hint">{current.hint}</span>}
+        {errors[current.field] && <span className="audit-error">{errors[current.field]}</span>}
+      </>
+    );
   };
 
   return (
-    <div className="audit-form-page">
-      {/* Animated Background */}
-      <div className="animated-grid-bg">
-        <div className="grid-overlay"></div>
-        <div className="gradient-orb orb-1"></div>
-        <div className="gradient-orb orb-2"></div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="nav-bar">
-        <div className="container nav-content">
-          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <TrendingUp className="logo-icon growth-icon" size={20} />
-            <span className="we-text">we</span><span className="roi-text">ROI</span>
+    <div className="audit-page" data-testid="audit-page">
+      <nav className="nav">
+        <div className="container nav-inner">
+          <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <span className="brand-mark"><TrendingUp /></span>
+            weROI
+          </div>
+          <div className="nav-links">
+            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="nav-link">← Home</a>
           </div>
         </div>
       </nav>
 
-      <div className="audit-form-container">
-        <div className="container">
-          {/* Progress Bar */}
-          <div className="form-progress">
-            <div className="progress-bar-wrapper">
-              <div 
-                className="progress-bar-fill" 
-                style={{ width: `${(step / totalSteps) * 100}%` }}
-              ></div>
-            </div>
-            <div className="progress-steps">
-              {[1, 2, 3, 4, 5, 6].map((s) => (
-                <div 
-                  key={s} 
-                  className={`progress-step ${s <= step ? 'active' : ''} ${s < step ? 'completed' : ''}`}
-                >
-                  {s < step ? <CheckCircle size={16} /> : s}
-                </div>
-              ))}
-            </div>
+      <div className="audit-wrap">
+        <span className="pill audit-pill">
+          <span className="pill-dot" />
+          <span className="pill-mono">FREE AI GROWTH AUDIT</span>
+        </span>
+
+        <div className="audit-progress">
+          <div className="audit-bar">
+            <div className="audit-bar-fill" style={{ width: `${(step / TOTAL_STEPS) * 100}%` }} />
           </div>
+          <span className="audit-count">Step {String(step).padStart(2,'0')} / {String(TOTAL_STEPS).padStart(2,'0')}</span>
+        </div>
 
-          {/* Form Content */}
-          <div className="form-content glass-card fade-in-up">
-            <div className="step-indicator">
-              <div className="step-icon">{getStepIcon(step)}</div>
-              <span className="step-count">Step {step} of {totalSteps}</span>
-            </div>
-            
-            <h1 className="form-title">{getStepTitle(step)}</h1>
-            
-            {renderStepContent()}
+        <div className="audit-card">
+          <div className="audit-step-key">{current.key}</div>
+          <h1 className="audit-step-title">{current.title}</h1>
+          {renderField()}
 
-            {/* Navigation Buttons */}
-            <div className="form-navigation">
-              {step > 1 && (
-                <button 
-                  className="btn-ghost form-btn-prev"
-                  onClick={handlePrev}
-                  data-testid="prev-step-btn"
-                >
-                  <ArrowLeft size={20} />
-                  Back
-                </button>
-              )}
-              
-              {step < totalSteps ? (
-                <button 
-                  className="btn-primary form-btn-next glow-on-hover"
-                  onClick={handleNext}
-                  data-testid="next-step-btn"
-                >
-                  Continue
-                  <ArrowRight size={20} />
-                </button>
-              ) : (
-                <button 
-                  className={`btn-primary form-btn-submit glow-on-hover ${isSubmitting ? 'loading' : ''}`}
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  data-testid="submit-audit-btn"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Claim My Free Audit'}
-                  {!isSubmitting && <ArrowRight size={20} />}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Trust Badge */}
-          <div className="trust-badge fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <CheckCircle size={16} className="trust-icon" />
-            <span>100% Free • No Obligation • Results in 48 Hours</span>
+          <div className="audit-nav">
+            {step > 1 ? (
+              <button className="btn btn-ghost" onClick={prev} data-testid="prev-step-btn">
+                <ArrowLeft size={16} /> Back
+              </button>
+            ) : <span />}
+            {step < TOTAL_STEPS ? (
+              <button className="btn btn-primary" onClick={next} data-testid="next-step-btn">
+                Continue <ArrowRight size={16} />
+              </button>
+            ) : (
+              <button className="btn btn-primary" onClick={submit} disabled={submitting} data-testid="submit-audit-btn">
+                {submitting ? 'Submitting…' : 'Claim my free audit'} {!submitting && <ArrowRight size={16} />}
+              </button>
+            )}
           </div>
         </div>
+
+        <div className="audit-trust">100% FREE · NO OBLIGATION · 48-HOUR TURNAROUND</div>
       </div>
     </div>
   );
-};
-
-export default AuditForm;
+}
