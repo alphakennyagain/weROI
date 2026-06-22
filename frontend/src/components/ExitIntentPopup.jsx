@@ -115,7 +115,7 @@ const ExitIntentPopup = () => {
               The $0&nbsp;→&nbsp;$1M<br />Growth Blueprint.
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)', marginTop: 12, marginBottom: 0 }}>
-              A field-tested playbook used by our partners to scale predictably — without paid traffic mistakes or vanity dashboards.
+              A field-tested playbook used by our partners to scale predictably, without paid traffic mistakes or vanity dashboards.
             </p>
           </div>
 
@@ -141,7 +141,7 @@ const ExitIntentPopup = () => {
             <span className="accent">to chance.</span>
           </h2>
           <p className="popup-sub">
-            Download our custom-tailored guide to scale your business — the $0 to $1M blueprint.
+            Download our custom-tailored guide to scale your business. The $0 to $1M blueprint.
           </p>
 
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

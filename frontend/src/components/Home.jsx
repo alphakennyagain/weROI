@@ -199,7 +199,7 @@ const caseStudies = [
       { value: '260%', label: 'Website Leads' },
       { value: '£420K', label: 'Revenue Growth' }
     ],
-    url: 'https://dropquick-ja.preview.emergentagent.com'
+    url: 'https://resellright.preview.emergentagent.com'
   },
 ];
 

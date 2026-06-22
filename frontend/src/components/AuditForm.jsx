@@ -9,7 +9,7 @@ const STEPS = [
   { key: 'PHONE',   title: "What's your phone number?",           field: 'phone',        type: 'tel',   placeholder: 'Enter your phone number' },
   { key: 'EMAIL',   title: "What's your email address?",          field: 'email',        type: 'email', placeholder: 'name@company.com' },
   { key: 'COMPANY', title: "What's your company name?",           field: 'company_name', type: 'text',  placeholder: 'Enter your company name' },
-  { key: 'SITE',    title: "Your website or business page?",      field: 'website',      type: 'url',   placeholder: 'https://yourwebsite.com (optional)', hint: 'Website, Instagram or any business page — optional but helpful.' },
+  { key: 'SITE',    title: "Your website or business page?",      field: 'website',      type: 'url',   placeholder: 'https://yourwebsite.com (optional)', hint: 'Website, Instagram or any business page. Optional but helpful.' },
   { key: 'SOURCE',  title: "How did you hear about us?",          field: 'how_found_us', type: 'options' },
 ];
 

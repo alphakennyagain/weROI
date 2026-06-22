@@ -10,7 +10,7 @@ const BUILDS = [
     slug: "bookit-ja",
     name: "BookIt JA",
     category: "Bookings & Delivery",
-    description: "Appointment booking and delivery platform for Jamaican service businesses — order management, driver dispatch and live status built in.",
+    description: "Appointment booking and delivery platform for Jamaican service businesses. Order management, driver dispatch and live status built in.",
     url: "https://book-it-jamaica.preview.emergentagent.com",
     image: "/work/bookit.png",
     tags: ["Admin Dashboard", "Live Order Tracking", "Restaurant CMS", "Mobile-First"],
@@ -20,7 +20,7 @@ const BUILDS = [
     slug: "shipping-district",
     name: "The Shipping District",
     category: "Logistics & Freight",
-    description: "Florida→Jamaica courier platform with live package tracking, customer accounts and a full back-office fleet operations dashboard.",
+    description: "Florida to Jamaica courier platform with live package tracking, customer accounts and a full back-office fleet operations dashboard.",
     url: "https://freight-fleet-ops.preview.emergentagent.com",
     image: "/work/shipping.png",
     tags: ["Live Package Tracking", "Fleet Ops", "Customer Portal", "Admin Dashboard"],
@@ -50,7 +50,7 @@ const BUILDS = [
     slug: "dropquick-ja",
     name: "DropQuick JA",
     category: "E-commerce Education",
-    description: "High-converting course platform teaching clothing dropshipping — payments, embedded video, social proof and a full urgency system.",
+    description: "High-converting course platform teaching clothing dropshipping. Payments, embedded video, social proof and a full urgency system.",
     url: "https://dropquick-ja.preview.emergentagent.com",
     image: "/work/dropquick.png",
     tags: ["Course Platform", "Payments", "Urgency System", "Proof & Testimonials"],
@@ -61,7 +61,7 @@ const BUILDS = [
     name: "ResellRight",
     category: "Reselling Education",
     description: "Supplier-access product page with a live countdown, animated social proof ticker and lifetime purchase flow optimized for conversion.",
-    url: "https://dropquick-ja.preview.emergentagent.com",
+    url: "https://resellright.preview.emergentagent.com",
     image: "/work/resellright.png",
     tags: ["Supplier Access", "Countdown Urgency", "Social Proof Ticker", "Payments"],
     featured: false,
@@ -163,7 +163,7 @@ export default function Work() {
         <div className="work-container">
           <span className="pill" style={{ marginBottom: 24 }}>
             <span className="pill-dot"></span>
-            <span className="pill-mono">CONCEPTS &amp; BUILDS · 2024 — 2026</span>
+            <span className="pill-mono">CONCEPTS &amp; BUILDS · 2024 - 2026</span>
           </span>
           <h1 className="work-hero-title">
             What we&rsquo;re<br />
@@ -171,7 +171,7 @@ export default function Work() {
           </h1>
           <p className="work-hero-sub">
             A showcase of websites and digital platforms we&rsquo;ve designed and built.
-            These are examples — the possibilities go further.
+            These are examples. The possibilities go further.
           </p>
         </div>
       </section>
@@ -204,7 +204,7 @@ export default function Work() {
 
         <div className="work-notes" data-testid="work-notes">
           <p className="work-note">
-            <strong>Note —</strong> Previews are hosted on demo servers and may take a few seconds to load. If a preview isn&rsquo;t showing, click the card to wake the server then come back.
+            <strong>Note:</strong> Previews are hosted on demo servers and may take a few seconds to load. If a preview isn&rsquo;t showing, click the card to wake the server then come back.
           </p>
           <p className="work-note">
             These are concept builds created to demonstrate our capabilities across industries. This is just a sample of what we can create for you.

@@ -1,139 +1,104 @@
-# weROI - Lead Generation Platform PRD (Updated Apr 24, 2026)
+# weROI - Lead Generation Platform PRD (Updated Jun 22, 2026)
 
-## Latest addition (Apr 24, 2026)
-- ✅ **`/work` Portfolio Page**: Premium dark editorial page showcasing 7 concept builds
-  - Dark (#080808) / off-white (#f5f3ef) / lime (#c8f542) palette
-  - Bebas Neue + Instrument Sans (Google Fonts)
-  - Static preview images stored in `/app/frontend/public/work/` (user-supplied screenshots, no external API calls)
-  - Featured D&X Technology card spans full width
-  - Hero, stats row (7 Builds / 5+ Industries / 100% Custom / JA Based), 2-col grid (single col mobile), Instagram CTA, pulsing lime footer dot
-  - Files: `/app/frontend/src/components/Work.jsx`, `/app/frontend/src/components/Work.css`
-  - Route registered in `/app/frontend/src/App.js`
+## Latest addition (Jun 22, 2026)
+- ✅ **Complete UI Redesign to Light/Engineering Blueprint Theme**
+  - White/frost (#f5f5f5) background with lime (#c8f542) accents and ink (#202020) borders
+  - Space Grotesk (display) + Inter (body) + JetBrains Mono (code) typography
+  - Hairline borders, no shadows, engineering/blueprint aesthetic
+  - Full-screen hero with floating code snippets and subtle grid pattern
+  - Centered navigation links (Services, Process, Work, Results)
+  - "Start a Project" CTA replaces "Free Growth Audit"
+  - Status link replaces circular pill badge
+  - Logo marquee with GitHub, React, Node, Vercel, Figma, Stripe, AWS logos
+  - Removed all em dashes (—) from text across all components
+  - Fixed lime-on-white contrast issues (icons now use lime-ink color)
 
+- ✅ **Case Studies Section on Homepage**
+  - Dark (#151515) cards on ink background section
+  - 6 project cards: BookIt JA, Shipping District, D&X Technology, JMobile Shop, DropQuick JA, ResellRight
+  - Each card shows: image, category label (lime), title, description, metrics (with ↑ arrows), "View Live Site" link
+  - Responsive 3→2→1 column grid
+  - "View All Case Studies" CTA button
+
+## Previous Updates
+
+### Apr 24, 2026 - Portfolio Page
+- ✅ **`/work` Portfolio Page**: Premium editorial page showcasing 7 concept builds
+  - Static preview images in `/app/frontend/public/work/`
+  - Featured D&X Technology card
+  - Services grid with 6 service categories
 
 ## Original Problem Statement
 Build a premium, high-conversion lead generation website for weROI with multi-step audit forms, exit-intent popups, email automation, and admin dashboard.
 
-## ✅ All Requirements Completed
+## ✅ All Core Features Completed
 
 ### Phase 1: Initial Website & Lead Funnel
-- ✅ Premium dark-themed "Luxury Tech" website
-- ✅ Multi-step AI Growth Audit form (6 steps including website/business page)
+- ✅ Premium light-themed website with lime accents
+- ✅ Multi-step AI Growth Audit form (6 steps)
 - ✅ Exit-intent popup for guide downloads
 - ✅ Thank You page with video placeholder
-- ✅ Trust Ticker with animated scroll
-- ✅ Interactive service cards
+- ✅ Interactive service cards with pillars
 
 ### Phase 2: Email Automation (FULLY AUTOMATIC)
 - ✅ Resend API integration from `growth@weroi.net`
-- ✅ **Email 1 (Immediate)**: "Your Scaling Blueprint Has Arrived" with personalized PDF
-- ✅ **Email 2 (24h later)**: "Why DIY Scaling Usually Fails" with Anti-DIY Framework - **AUTO-SENT**
-- ✅ **Email 3 (48h later)**: "A Custom Roadmap for [Company]?" - **AUTO-SENT**
-- ✅ Audit confirmation email with Calendly booking link
-- ✅ **Built-in APScheduler** runs every 15 minutes to process follow-up emails
+- ✅ **Email 1 (Immediate)**: Guide delivery
+- ✅ **Email 2 (24h later)**: Value-add email - **AUTO-SENT**
+- ✅ **Email 3 (48h later)**: Roadmap offer - **AUTO-SENT**
+- ✅ APScheduler runs every 15 minutes
 
-### Phase 3: Admin Dashboard (Feb 7, 2025)
+### Phase 3: Admin Dashboard
 - ✅ Password-protected at `/admin-dashboard`
 - ✅ **Password**: `TylerandZach2025!`
-- ✅ **Stats Overview**: Unique Visitors, Audit Leads, Guide Downloads, Total Leads
-- ✅ **Lead Log Tab**: Full table with Edit/Delete per lead, Website column
-- ✅ **Analytics Tab**: Conversion Funnels (Audit Form, Popup Capture)
-- ✅ **Sources Tab**: Top Referrers with traffic source data
-- ✅ **CRUD Operations**: Edit leads, Delete single leads, Clear All by type
-- ✅ **CSV Export**: Download all leads (includes website field)
-- ✅ **Mobile Responsive**: Works at 375px width
+- ✅ Stats Overview, Lead Log, Analytics, Sources tabs
+- ✅ CRUD Operations + CSV Export
 
-### Phase 4: Enhanced Analytics Tracking (Feb 7, 2025)
+### Phase 4: Analytics Tracking
 - ✅ Session-based unique visitor tracking
-- ✅ `audit_form_start` event tracking when form loads
-- ✅ `popup_shown` event tracking when exit popup appears
-- ✅ `page_view` tracking on Home page
-- ✅ `document.referrer` capture for source attribution
-- ✅ Conversion rate calculations (form views → submissions)
+- ✅ Event tracking for audit form, popup, page views
 
 ## Architecture
+
 ```
 /app
-├── frontend/
-│   └── src/components/
-│       ├── Home.jsx           # Homepage with analytics tracking
-│       ├── AuditForm.jsx      # 6-step form (now includes website field)
-│       ├── ExitIntentPopup.jsx # Popup with popup_shown tracking
-│       ├── ThankYou.jsx       # Post-submission page
-│       └── AdminDashboard.jsx # Full CRUD admin with analytics
-└── backend/
-    └── server.py              # All APIs, email, admin, analytics + APScheduler
+├── backend
+│   ├── server.py        # FastAPI server with APScheduler
+│   └── .env             # MONGO_URL, DB_NAME, RESEND_API_KEY
+└── frontend
+    ├── src
+    │   ├── components
+    │   │   ├── Home.jsx           # Homepage with case studies
+    │   │   ├── Work.jsx           # Portfolio page
+    │   │   ├── AuditForm.jsx      # Multi-step form
+    │   │   ├── ExitIntentPopup.jsx
+    │   │   ├── ThankYou.jsx
+    │   │   ├── AdminDashboard.jsx
+    │   │   └── BookCall.jsx
+    │   ├── App.css               # Global styles with lime theme
+    │   └── App.js
+    └── public/work/              # Portfolio images
 ```
 
-## Email Sequence Timeline
-| Email | Trigger | Content |
-|-------|---------|---------|
-| Email 1 | Immediate on guide download | Growth Guide PDF delivery |
-| Email 2 | 24 hours after Email 1 | Anti-DIY Framework |
-| Email 3 | 48 hours after Email 1 | Custom Roadmap CTA |
-| Audit Confirmation | Immediate on audit form | Calendly booking link |
+## Key API Endpoints
+- `POST /api/leads/audit` - Submit audit form
+- `POST /api/leads/guide` - Guide download capture
+- `POST /api/analytics/event` - Track events
+- `GET /api/admin/leads` - Get all leads
+- `GET /api/admin/stats` - Dashboard stats
 
-**Note:** Emails 2 & 3 are processed automatically by the built-in scheduler every 15 minutes.
+## Database Schema
+- **leads**: {id, type, name, email, phone, company_name, how_found, revenue_goal, website, created_at, status, source, events}
+- **analytics_events**: {event_type, page, session_id, timestamp}
 
-## API Endpoints
+## Backlog / Future Tasks
+- P1: Integrate real case study video on Thank You page
+- P2: Google Analytics integration
+- P2: Lead scoring system
+- P2: Apply light theme to AdminDashboard.jsx and BookCall.jsx (minor refinement)
 
-### Leads
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/leads/audit` | POST | Submit audit form (includes website) |
-| `/api/leads/audit` | GET | List audit leads |
-| `/api/leads/audit/{id}` | PUT | Update audit lead |
-| `/api/leads/audit/{id}` | DELETE | Delete audit lead |
-| `/api/leads/guide` | POST | Submit guide download |
-| `/api/leads/guide` | GET | List guide leads |
-| `/api/leads/guide/{id}` | PUT | Update guide lead |
-| `/api/leads/guide/{id}` | DELETE | Delete guide lead |
-| `/api/leads/clear-all` | DELETE | Clear all leads by type |
-| `/api/leads/export/csv` | GET | Download all leads as CSV |
+## Credentials
+- Admin Dashboard: `/admin-dashboard` → Password: `TylerandZach2025!`
+- Resend API: Requires user-provided key in backend/.env
 
-### Admin
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/admin/auth` | POST | Authenticate |
-| `/api/admin/dashboard-data` | GET | Get all dashboard data |
-
-### Analytics
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/analytics/event` | POST | Track events |
-| `/api/analytics/stats` | GET | Get conversion stats |
-
-### Email (Manual trigger if needed)
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/emails/process-scheduled` | POST | Manually process scheduled emails |
-
-## Important Credentials
-- **Admin Password**: `TylerandZach2025!`
-- **Admin URL**: `/admin-dashboard`
-- **Sender Email**: `growth@weroi.net`
-
-## Audit Form Fields (6 Steps)
-1. Name
-2. Phone
-3. Email
-4. Company Name
-5. Website / Business Page (optional)
-6. How did you find us?
-
-## What's Implemented
-- [x] Premium "Luxury Tech" dark theme
-- [x] 6-step audit form with website field
-- [x] Dual-trigger exit-intent popup
-- [x] MongoDB lead storage with full CRUD
-- [x] Resend 4-email automation sequence
-- [x] **APScheduler for automatic Email 2 & 3 delivery**
-- [x] Admin dashboard with stats, leads, analytics, sources
-- [x] Website column in leads table (clickable links)
-- [x] Session-based visitor tracking
-- [x] CSV export with website field
-- [x] Mobile-optimized admin UI
-
-## Backlog (P1-P2)
-- [ ] Integrate real case study video on Thank You page
-- [ ] Google Analytics integration for robust tracking
+## Preview URL
+https://weroi-preview.preview.emergentagent.com

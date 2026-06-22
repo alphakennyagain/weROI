@@ -24,9 +24,9 @@ const ThankYou = () => {
     { num: '02', title: 'Discovery call',     desc: 'We schedule a 30-minute deep dive into your business.', time: 'WITHIN 48H' },
     { num: '03', title: 'Custom roadmap',     desc: 'Receive your personalized AI Growth Audit report.',    time: 'WEEK 1' },
   ] : [
-    { num: '01', title: 'Email 1 — Your guide',       desc: 'The $0 to $1M Blueprint is landing in your inbox now.',    time: 'NOW' },
-    { num: '02', title: 'Email 2 — The value add',    desc: 'Why DIY scaling usually fails + our exact solution.',     time: '+24H' },
-    { num: '03', title: 'Email 3 — Your roadmap',     desc: 'Exclusive offer for a Free AI Growth Audit.',             time: '+48H' },
+    { num: '01', title: 'Email 1: Your guide',       desc: 'The $0 to $1M Blueprint is landing in your inbox now.',    time: 'NOW' },
+    { num: '02', title: 'Email 2: The value add',    desc: 'Why DIY scaling usually fails + our exact solution.',     time: '+24H' },
+    { num: '03', title: 'Email 3: Your roadmap',     desc: 'Exclusive offer for a Free AI Growth Audit.',             time: '+48H' },
   ];
 
   return (
@@ -79,7 +79,7 @@ const ThankYou = () => {
         <div className="thanks-actions">
           {!isAudit && (
             <button className="btn btn-primary btn-lg" onClick={() => navigate('/audit')} data-testid="claim-audit-btn">
-              Skip the line — claim your audit <ArrowRight size={16} />
+              Skip the line, claim your audit <ArrowRight size={16} />
             </button>
           )}
           <button className="btn btn-ghost btn-lg" onClick={() => navigate('/')} data-testid="back-home-btn">
