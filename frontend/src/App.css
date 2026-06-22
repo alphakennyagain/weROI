@@ -1767,3 +1767,384 @@ img, svg { display: block; max-width: 100%; }
   letter-spacing: 0.08em;
   margin-bottom: 12px;
 }
+
+
+/* =============================================================
+   Premium Hero with Radial Gradient
+   ============================================================= */
+.hero-premium {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--spacing-48) 0;
+  position: relative;
+  overflow: hidden;
+  background: 
+    radial-gradient(
+      ellipse 80% 60% at 25% 35%,
+      rgba(190, 242, 100, 0.14) 0%,
+      rgba(190, 242, 100, 0.06) 30%,
+      rgba(255, 255, 255, 0) 65%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 75% 65%,
+      rgba(200, 245, 66, 0.08) 0%,
+      transparent 50%
+    ),
+    linear-gradient(180deg, #FAFAFA 0%, #ffffff 100%);
+}
+
+.hero-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(32, 32, 32, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(32, 32, 32, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-premium .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Premium headline with subtle glow */
+.hero-headline-premium {
+  text-shadow: 
+    0 0 30px rgba(190, 242, 100, 0.08),
+    0 0 60px rgba(190, 242, 100, 0.04);
+}
+
+.hero-headline-premium .accent {
+  background: linear-gradient(180deg, #A3E635 0%, #65A30D 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+/* Ensure hero fills large screens */
+@media (min-height: 900px) {
+  .hero-premium {
+    min-height: 100vh;
+    padding: var(--spacing-80) 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-premium {
+    min-height: auto;
+    padding: var(--spacing-48) 0 var(--spacing-40);
+  }
+}
+
+/* =============================================================
+   3D Card Styles for Case Studies
+   ============================================================= */
+.case-studies-grid-3d {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-32);
+  perspective: 1200px;
+}
+
+@media (max-width: 1100px) {
+  .case-studies-grid-3d {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-24);
+  }
+}
+
+@media (max-width: 680px) {
+  .case-studies-grid-3d {
+    grid-template-columns: 1fr;
+    perspective: none;
+  }
+}
+
+.card-3d {
+  height: 420px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 0.3s ease;
+}
+
+.card-3d:hover {
+  box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.6);
+}
+
+.card-3d-inner {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-3d-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.card-3d-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.card-3d:hover .card-3d-image img {
+  transform: scale(1.05);
+}
+
+.card-3d-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.1) 30%,
+    rgba(0, 0, 0, 0.5) 70%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+  z-index: 1;
+}
+
+.card-3d-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: var(--spacing-24);
+  color: var(--paper);
+}
+
+.card-3d-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-3d-category {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lime);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.card-3d-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--paper);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.card-3d-link-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--paper);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.2s ease;
+}
+
+.card-3d-link-icon:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.card-3d-metrics {
+  display: flex;
+  gap: var(--spacing-24);
+  margin-bottom: var(--spacing-16);
+}
+
+.card-3d-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-3d-metric-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--lime);
+}
+
+.card-3d-metric-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.card-3d-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.card-3d-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* =============================================================
+   Infinite Logo Slider (No gaps)
+   ============================================================= */
+.logo-slider-section {
+  padding: var(--spacing-48) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.logo-slider-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: var(--spacing-24);
+}
+
+.logo-slider-wrapper {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.logo-slider-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  opacity: 0.65;
+  transition: opacity 0.3s ease;
+}
+
+.logo-slider-item:hover {
+  opacity: 1;
+}
+
+.logo-slider-item svg,
+.logo-slider-item img {
+  height: 100%;
+  width: auto;
+  color: var(--ink);
+}
+
+/* =============================================================
+   Glow Button Styles
+   ============================================================= */
+.glow-btn {
+  position: relative;
+  overflow: visible;
+}
+
+.glow-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: var(--lime);
+  border-radius: inherit;
+  opacity: 0;
+  filter: blur(15px);
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.glow-btn:hover::before {
+  opacity: 0.4;
+}
+
+/* =============================================================
+   Shiny Text Animation
+   ============================================================= */
+.shiny-text {
+  display: inline-block;
+}
+
+/* =============================================================
+   Mobile Optimizations
+   ============================================================= */
+@media (max-width: 768px) {
+  .hero-premium .hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-32);
+  }
+
+  .hero-meta {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: var(--spacing-24);
+  }
+
+  .card-3d {
+    height: 380px;
+  }
+
+  .card-3d-title {
+    font-size: 20px;
+  }
+
+  .case-studies-header .heading {
+    font-size: clamp(28px, 5vw, 36px);
+  }
+
+  .nav-center {
+    display: none;
+  }
+
+  .hero-floating-elements {
+    display: none;
+  }
+}
+
+/* =============================================================
+   Scroll Reveal Animation
+   ============================================================= */
+.scroll-reveal {
+  margin: 20px 0;
+}
+
+.scroll-reveal-text {
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.scroll-reveal .word {
+  display: inline-block;
+}
