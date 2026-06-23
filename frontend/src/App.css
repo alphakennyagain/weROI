@@ -3045,6 +3045,21 @@ html[data-theme="dark"] .audit-form-card--quote {
   transform-style: preserve-3d;
 }
 
+.case-study-card-link {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  border-radius: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.case-study-card-link:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+
 .case-study-border-glow .border-glow-inner {
   transform-style: preserve-3d;
   overflow: visible;
@@ -3080,6 +3095,10 @@ html[data-theme="dark"] .audit-form-card--quote {
 
 .case-study-card--tilt {
   transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.case-study-card--tilt .case-study-card {
   will-change: transform;
 }
 

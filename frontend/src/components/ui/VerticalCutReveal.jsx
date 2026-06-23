@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 
 const VerticalCutReveal = forwardRef(({
   children,
@@ -23,6 +23,8 @@ const VerticalCutReveal = forwardRef(({
   const containerRef = useRef(null);
   const text = typeof children === "string" ? children : children?.toString() || "";
   const [isAnimating, setIsAnimating] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const isInView = useInView(containerRef, { once: true, margin: "-10% 0px" });
 
   const splitIntoCharacters = (text) => {
     if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
@@ -75,10 +77,14 @@ const VerticalCutReveal = forwardRef(({
   }));
 
   useEffect(() => {
-    if (autoStart) {
+    if (prefersReducedMotion) {
+      setIsAnimating(true);
+      return;
+    }
+    if (autoStart && isInView) {
       startAnimation();
     }
-  }, [autoStart, startAnimation]);
+  }, [autoStart, isInView, prefersReducedMotion, startAnimation]);
 
   const variants = {
     hidden: { y: reverse ? "-100%" : "100%" },
@@ -133,6 +139,7 @@ const VerticalCutReveal = forwardRef(({
                       : undefined
                   }
                   className="inline-block"
+                  style={{ willChange: isAnimating ? 'transform' : 'auto' }}
                 >
                   {char}
                 </motion.span>

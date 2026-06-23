@@ -14,7 +14,7 @@ BRAND_LIME = "#c8f542"
 BRAND_DARK = "#111113"
 BRAND_MUTED = "#666666"
 LOGO_URL = "https://weroi.net/logo192.png"
-SITE_URL = "https://weroi.net"
+SITE_URL = "https://www.weroi.net"
 CALENDLY_URL = "https://calendly.com/contact-weroi/30min"
 UNSUBSCRIBE_URL = f"{SITE_URL}/unsubscribe"
 
@@ -191,7 +191,7 @@ Talk soon,
 The weROI Team
 """
     return {
-        "subject": f"Your free growth audit is on the way, {name}",
+        "subject": f"We received your growth audit request, {name}",
         "html": get_premium_email_template(
             content,
             headline="We received your request",
@@ -382,10 +382,10 @@ Talk soon,
 The weROI Team
 """
     return {
-        "subject": "Your Scaling Blueprint Has Arrived",
+        "subject": "Your growth guide from weROI",
         "html": get_premium_email_template(
             content,
-            headline="Your $0 to $1M Blueprint",
+            headline="Your Growth Guide",
             cta_text=f"Download {name}'s Growth Guide",
             cta_link=GROWTH_GUIDE_PDF,
             preheader="Your growth guide is ready to download.",
@@ -417,7 +417,7 @@ Download the Anti-DIY Framework: {framework_pdf_url}
 The weROI Team
 """
     return {
-        "subject": "Why DIY Scaling Usually Fails",
+        "subject": "The trust gap most founders miss",
         "html": get_premium_email_template(
             content,
             headline="The Hidden Cost of Trust Leaks",
@@ -435,9 +435,8 @@ def get_email_3_content(name: str, company_name: str, audit_url: str = AUDIT_URL
     <p style="margin: 0 0 20px 0;">By now, you have seen the blueprint.</p>
     <p style="margin: 0 0 20px 0;">But here is the truth: <strong style="color: {BRAND_DARK};">a map is useless without an engine.</strong></p>
     {_section_box(
-        "Limited Availability",
-        '<span style="font-size: 24px; font-weight: 600;">2 Spots Open</span><br>'
-        '<span style="font-size: 14px;">This month\'s Free AI Growth Audits</span>',
+        "Free growth audit",
+        "We review your website, funnel, and marketing setup — then share practical next steps for your business.",
     )}
     <p style="margin: 0 0 20px 0;">We will dive into <strong style="color: {BRAND_DARK};">{_e(company_display)}</strong>'s specific bottlenecks and hand you a ready-to-implement roadmap.</p>
     <p style="margin: 0 0 8px 0; font-weight: 500; color: {BRAND_DARK};">What you will receive:</p>
@@ -456,11 +455,11 @@ Claim your free audit: {audit_url}
 The weROI Team
 """
     return {
-        "subject": f"A Custom Roadmap for {company_display}?",
+        "subject": f"Ready for a growth audit, {name}?",
         "html": get_premium_email_template(
             content,
-            headline="Your Engine Awaits",
-            cta_text="Claim Your Free Audit",
+            headline="Your Next Step",
+            cta_text="Book Your Free Audit",
             cta_link=audit_url,
             preheader=f"Free growth audit spots open for {company_display}.",
         ),

@@ -36,10 +36,26 @@
 
 ### Deliverability checklist
 - From name: `weROI <growth@weroi.net>`
+- Reply-To: `contact.weroi@gmail.com` (set `REPLY_TO_EMAIL` in Railway if different)
 - Plain-text alternative included on all templates
-- `reply_to` set to `growth@weroi.net`
 - List-Unsubscribe headers on drip sequence emails (guide funnel)
-- Avoid spam trigger words in subject lines
+- Avoid spam trigger words in subject lines ($ amounts, urgency, ALL CAPS)
+
+### DNS records (add at your domain registrar)
+
+| Type | Name | Purpose |
+|------|------|---------|
+| TXT | `@` | SPF — Resend provides the value |
+| CNAME | `resend._domainkey` | DKIM |
+| CNAME | `resend2._domainkey` | DKIM |
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:contact.weroi@gmail.com` |
+
+After domain verifies in Resend, add a **DMARC** record (start with `p=none`, move to `quarantine` once deliverability is stable). Optionally add a **BIMI** record later for brand logo in Gmail.
+
+### Gmail inbox tips
+- Ask new leads to drag the first email to Primary and click "Yes" when Gmail asks if they want future messages in Primary
+- Keep `SENDER_EMAIL` on your verified domain (`growth@weroi.net`), never `@gmail.com`
+- Transactional audit emails use Reply-To `contact.weroi@gmail.com` so replies land in your inbox
 
 ---
 
@@ -52,6 +68,7 @@ MONGO_URL=mongodb+srv://user:pass@cluster.mongodb.net/weroi
 DB_NAME=weroi
 RESEND_API_KEY=re_xxxxxxxx
 SENDER_EMAIL=growth@weroi.net
+REPLY_TO_EMAIL=contact.weroi@gmail.com
 ADMIN_EMAIL=contact.weroi@gmail.com
 ADMIN_PASSWORD=your-secure-password
 CORS_ORIGINS=https://weroi.net,https://www.weroi.net,https://your-vercel-app.vercel.app

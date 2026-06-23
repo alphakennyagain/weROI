@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useId, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -99,7 +100,7 @@ export default function SiteHeader({
 
   return (
     <header
-      className={`site-header${dark ? ' site-header--dark' : ''} ${className}`.trim()}
+      className={`site-header${dark ? ' site-header--dark' : ''}${open ? ' site-header--menu-open' : ''} ${className}`.trim()}
       {...(headerTestId ? { 'data-testid': headerTestId } : {})}
     >
       <nav className="nav" data-testid={navTestId}>
@@ -150,58 +151,62 @@ export default function SiteHeader({
         {children}
       </nav>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.button
-              type="button"
-              className="nav-mobile-backdrop"
-              aria-label="Close menu"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              onClick={closeMenu}
-            />
-            <motion.div
-              id={panelId}
-              className="nav-mobile-panel is-open"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Site navigation"
-              initial={{ opacity: 0, x: '100%' }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: '100%' }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <nav className="nav-mobile-links" aria-label="Mobile navigation">
-                {SITE_NAV_LINKS.map((link, i) => (
-                  <motion.a
-                    key={link.id}
-                    href={resolveLinkHref(link, isHome)}
-                    className="nav-mobile-link"
-                    onClick={(e) => handleNavClick(e, link)}
-                    initial={{ opacity: 0, x: 24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 + i * 0.05, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    {link.label}
-                    <ArrowUpRight size={18} aria-hidden="true" />
-                  </motion.a>
-                ))}
-              </nav>
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <>
+                <motion.button
+                  type="button"
+                  className="nav-mobile-backdrop"
+                  aria-label="Close menu"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  onClick={closeMenu}
+                />
+                <motion.div
+                  id={panelId}
+                  className="nav-mobile-panel is-open"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Site navigation"
+                  initial={{ opacity: 0, x: '100%' }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: '100%' }}
+                  transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <nav className="nav-mobile-links" aria-label="Mobile navigation">
+                    {SITE_NAV_LINKS.map((link, i) => (
+                      <motion.a
+                        key={link.id}
+                        href={resolveLinkHref(link, isHome)}
+                        className="nav-mobile-link"
+                        onClick={(e) => handleNavClick(e, link)}
+                        initial={{ opacity: 0, x: 24 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.05 + i * 0.05, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        {link.label}
+                        <ArrowUpRight size={18} aria-hidden="true" />
+                      </motion.a>
+                    ))}
+                  </nav>
 
-              {showCta && (
-                <div className="nav-mobile-footer">
-                  <GlowButton onClick={goAudit} size="lg" className="nav-mobile-cta-btn" data-testid="nav-mobile-cta-btn">
-                    {ctaLabel} <ArrowRight size={18} />
-                  </GlowButton>
-                </div>
-              )}
-            </motion.div>
-          </>
+                  {showCta && (
+                    <div className="nav-mobile-footer">
+                      <GlowButton onClick={goAudit} size="lg" className="nav-mobile-cta-btn" data-testid="nav-mobile-cta-btn">
+                        {ctaLabel} <ArrowRight size={18} />
+                      </GlowButton>
+                    </div>
+                  )}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </header>
   );
 }

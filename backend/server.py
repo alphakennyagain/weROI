@@ -68,6 +68,7 @@ db = _MongoProxy()
 # Resend configuration
 resend.api_key = os.environ.get('RESEND_API_KEY', '')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'growth@weroi.net')
+REPLY_TO_EMAIL = os.environ.get('REPLY_TO_EMAIL', 'contact.weroi@gmail.com')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'contact.weroi@gmail.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'TylerandZach2025!')
 
@@ -210,7 +211,7 @@ async def send_email_async(
             "to": [to_email],
             "subject": subject,
             "html": html_content,
-            "reply_to": reply_to or SENDER_EMAIL,
+            "reply_to": reply_to or REPLY_TO_EMAIL,
         }
         if text_content:
             params["text"] = text_content

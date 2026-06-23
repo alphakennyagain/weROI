@@ -95,56 +95,59 @@ const CaseStudyCard = ({
       animated={glowAnimated}
       {...CASE_STUDY_GLOW}
     >
-      <motion.article
-        className={`case-study-card${tiltEnabled ? ' case-study-card--tilt' : ''}`}
+      <LinkTag
+        {...linkProps}
+        className={`case-study-card-link${tiltEnabled ? ' case-study-card--tilt' : ''}`}
         data-testid={testId}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={tiltStyle}
+        aria-label={`${title} — ${actionText}`}
       >
-        <div className="case-study-card-image">
-          {!imgFailed ? (
-            <img
-              src={imgSrc}
-              alt={title}
-              loading="lazy"
-              onError={() => setImgFailed(true)}
-            />
-          ) : (
-            <div className="case-study-card-fallback" aria-hidden="true">
-              <span className="case-study-card-fallback-title">{title}</span>
-            </div>
-          )}
-        </div>
+        <motion.article
+          className="case-study-card"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={tiltStyle}
+        >
+          <div className="case-study-card-image">
+            {!imgFailed ? (
+              <img
+                src={imgSrc}
+                alt=""
+                loading="lazy"
+                onError={() => setImgFailed(true)}
+              />
+            ) : (
+              <div className="case-study-card-fallback" aria-hidden="true">
+                <span className="case-study-card-fallback-title">{title}</span>
+              </div>
+            )}
+          </div>
 
-        <div className="case-study-card-body">
-          <span className="case-study-category">{category}</span>
-          <h3 className="case-study-title">{title}</h3>
-          <p className="case-study-desc">{description}</p>
+          <div className="case-study-card-body">
+            <span className="case-study-category">{category}</span>
+            <h3 className="case-study-title">{title}</h3>
+            <p className="case-study-desc">{description}</p>
 
-          {metrics.length > 0 && (
-            <div className="case-study-metrics">
-              {metrics.map((metric) => (
-                <div key={`${metric.label}-${metric.value}`} className="case-study-metric">
-                  <span className="case-study-metric-value">
-                    <span className="case-study-metric-arrow" aria-hidden="true">↑</span>
-                    {metric.value}
-                  </span>
-                  <span className="case-study-metric-label">{metric.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
+            {metrics.length > 0 && (
+              <div className="case-study-metrics">
+                {metrics.map((metric) => (
+                  <div key={`${metric.label}-${metric.value}`} className="case-study-metric">
+                    <span className="case-study-metric-value">
+                      <span className="case-study-metric-arrow" aria-hidden="true">↑</span>
+                      {metric.value}
+                    </span>
+                    <span className="case-study-metric-label">{metric.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
-          <LinkTag
-            {...linkProps}
-            className="case-study-link"
-          >
-            {actionText}
-            <ArrowUpRight size={14} />
-          </LinkTag>
-        </div>
-      </motion.article>
+            <span className="case-study-link">
+              {actionText}
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </span>
+          </div>
+        </motion.article>
+      </LinkTag>
     </BorderGlow>
   );
 };

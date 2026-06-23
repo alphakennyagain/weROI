@@ -68,8 +68,9 @@ const ScrollReveal = ({
     }
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const effectiveBlur = enableBlur ? (blurStrength ?? (isMobile ? 1.5 : 4)) : null;
+    const effectiveBlur = enableBlur && !isMobile ? (blurStrength ?? 4) : null;
     const scroller = scrollContainerRef?.current ?? undefined;
+    const useScrub = !isMobile;
 
     let ctx;
     let rafId = 0;
@@ -83,8 +84,10 @@ const ScrollReveal = ({
           scroller,
           start,
           end,
-          scrub,
           invalidateOnRefresh: true,
+          ...(useScrub
+            ? { scrub }
+            : { toggleActions: 'play none none none', once: true }),
         };
 
         if (baseRotation) {
@@ -92,8 +95,9 @@ const ScrollReveal = ({
             el,
             { transformOrigin: '0% 50%', rotate: baseRotation },
             {
-              ease: 'none',
+              ease: useScrub ? 'none' : 'power2.out',
               rotate: 0,
+              duration: useScrub ? undefined : 0.6,
               scrollTrigger: triggerConfig,
             }
           );
@@ -104,8 +108,9 @@ const ScrollReveal = ({
           { opacity: baseOpacity, willChange: 'opacity' },
           {
             opacity: 1,
-            ease: 'none',
-            stagger,
+            ease: useScrub ? 'none' : 'power2.out',
+            duration: useScrub ? undefined : 0.5,
+            stagger: isMobile ? stagger * 0.6 : stagger,
             scrollTrigger: { ...triggerConfig },
           }
         );
