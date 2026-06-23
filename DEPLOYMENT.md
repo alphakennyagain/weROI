@@ -7,7 +7,9 @@
 | Frontend (CRA) | **Vercel** | `frontend/` — static React build |
 | Backend (FastAPI) | **Railway / Render / Fly.io** | `backend/server.py` — needs MongoDB + env vars |
 | Email | **Resend** | Transactional email from `growth@weroi.net` |
-| Database | **MongoDB Atlas** | Connection string in `MONGO_URL` |
+| Database | **MongoDB Atlas** | Connection string in `MONGO_URL` (see [§2](#2-backend-deployment)) |
+
+> **Note:** `backend/data/weroi.db` is a legacy SQLite file and is **not** used by the API. The backend is MongoDB-only; switching to SQLite would require rewriting all data access.
 
 ---
 
@@ -56,17 +58,88 @@ CORS_ORIGINS=https://weroi.net,https://www.weroi.net,https://your-vercel-app.ver
 ```
 
 ### Railway (recommended)
-1. Connect GitHub repo
-2. Set root directory to `backend`
-3. Start command: `uvicorn server:app --host 0.0.0.0 --port $PORT`
-4. Add all env vars above
+
+**Critical settings**
+
+| Setting | Value |
+|---------|-------|
+| Root directory | `backend` |
+| Start command | `uvicorn server:app --host 0.0.0.0 --port $PORT` |
+| Health check path | `/api/health` |
+| Python version | 3.12 (`runtime.txt`) |
+
+**Deploy steps**
+
+1. Connect GitHub repo in [Railway](https://railway.app)
+2. Open the service → **Settings** → set **Root Directory** to `backend`
+3. **Variables** → add every variable from the table below (no quotes around values)
+4. Deploy and open **Deployments** → **View logs**
 5. Copy the public URL (e.g. `https://weroi-api.up.railway.app`)
+6. Hit `https://YOUR-URL/api/health` — expect `{"status":"ok","database":"connected",...}`
+
+**Railway variables checklist**
+
+| Variable | Required at startup | Example / notes |
+|----------|---------------------|-----------------|
+| `MONGO_URL` | Yes (for lead routes) | `mongodb+srv://USER:PASS@cluster.mongodb.net/weroi?retryWrites=true&w=majority` |
+| `DB_NAME` | Yes | `weroi` — must match the database name in Atlas |
+| `RESEND_API_KEY` | No | `re_xxxx` — emails skip silently if missing |
+| `SENDER_EMAIL` | No | `growth@weroi.net` (verified domain in Resend) |
+| `ADMIN_EMAIL` | No | `contact.weroi@gmail.com` |
+| `ADMIN_PASSWORD` | No | Strong password for `/admin` dashboard |
+| `CORS_ORIGINS` | No | `https://weroi.net,https://www.weroi.net,https://your-app.vercel.app` |
+
+**MongoDB Atlas checklist**
+
+1. **Database user** — username + password with read/write on `weroi`
+2. **Network Access** → **Add IP Address** → **Allow Access from Anywhere** (`0.0.0.0/0`)  
+   Railway has no fixed outbound IP; without this, deploy may pass health check timing but lead forms return 503.
+3. **Password URL encoding** — special characters in the password must be percent-encoded in `MONGO_URL`:
+   - `@` → `%40`
+   - `#` → `%23`
+   - `/` → `%2F`
+   - Example: password `Zachattack01@` → `Zachattack01%40`
+4. Put the database name in the URI path *or* set `DB_NAME`; both should be `weroi`.
+
+**If deploy still fails — read the logs**
+
+| Log symptom | Likely cause | Fix |
+|-------------|--------------|-----|
+| `KeyError: 'MONGO_URL'` (older builds) | Variable not set on Railway | Add `MONGO_URL` + `DB_NAME`, redeploy |
+| `MONGO_URL is not set` | Same | Add variables, redeploy |
+| Build fails on `jq` / `pandas` | Bloated `requirements.txt` | Use `requirements-prod.txt` (configured in `railway.toml`) |
+| `No module named 'server'` | Wrong root directory | Set root directory to `backend` |
+| Health check timeout | App never bound to `$PORT` | Check start command uses `$PORT`, not `8000` |
+| `MongoDB ping failed` / `ServerSelectionTimeout` | Atlas firewall or bad URI | Allow `0.0.0.0/0`, re-check encoded password |
+| Deploy OK but forms 503 | DB unreachable at runtime | Atlas network + correct `MONGO_URL` |
+
+**Test after deploy**
+
+```bash
+curl https://YOUR-RAILWAY-URL/api/health
+curl https://YOUR-RAILWAY-URL/api/
+```
 
 ### Render
 1. New Web Service → Python
-2. Build: `pip install -r requirements.txt`
-3. Start: `uvicorn server:app --host 0.0.0.0 --port $PORT`
-4. Add env vars
+2. Root directory: `backend`
+3. Build: `pip install -r requirements-prod.txt`
+4. Start: `uvicorn server:app --host 0.0.0.0 --port $PORT`
+5. Add env vars (same table as Railway)
+6. Health check path: `/api/health`
+
+### Hosting alternatives (if Railway keeps failing)
+
+| Option | Effort | Pros | Cons |
+|--------|--------|------|------|
+| **Render** (free tier) | Low | Same FastAPI + Atlas setup, simpler UI | Cold starts on free tier |
+| **Fly.io** | Medium | Global regions, persistent volumes possible | More CLI/Docker setup |
+| **Railway + Atlas** (current) | Low | Fast deploys, good DX | Needs Atlas `0.0.0.0/0` + env vars correct |
+| **SQLite on Railway volume** | High | No Atlas | Rewrite all Mongo queries; ephemeral disk without volume |
+| **Supabase Postgres** | High | Managed SQL, generous free tier | Full data layer rewrite |
+| **Vercel serverless** | High | Pairs with frontend host | APScheduler drip emails need separate cron; not a drop-in |
+
+**Recommendation:** Stay on **Railway + MongoDB Atlas** with the variables above. If Railway is the pain point, try **Render** with the same env vars — no code changes needed.
 
 ---
 

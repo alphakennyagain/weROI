@@ -32,10 +32,38 @@ from email_templates import (
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB — lazy init so uvicorn can start and serve /api/health even if vars are missing.
+_mongo_client: AsyncIOMotorClient | None = None
+_mongo_db = None
+
+
+def _db_name() -> str:
+    return os.environ.get("DB_NAME", "weroi")
+
+
+def get_db():
+    """Return the Mongo database, initializing the client on first use."""
+    global _mongo_client, _mongo_db
+    if _mongo_db is None:
+        mongo_url = os.environ.get("MONGO_URL")
+        if not mongo_url:
+            raise HTTPException(
+                status_code=503,
+                detail="Database not configured: set MONGO_URL and DB_NAME in Railway Variables",
+            )
+        _mongo_client = AsyncIOMotorClient(mongo_url)
+        _mongo_db = _mongo_client[_db_name()]
+    return _mongo_db
+
+
+class _MongoProxy:
+    """Transparent proxy so existing `db.collection` call sites stay unchanged."""
+
+    def __getattr__(self, name):
+        return getattr(get_db(), name)
+
+
+db = _MongoProxy()
 
 # Resend configuration
 resend.api_key = os.environ.get('RESEND_API_KEY', '')
@@ -257,6 +285,32 @@ async def send_email_sequence(lead_id: str, name: str, email: str, company_name:
 @api_router.get("/")
 async def root():
     return {"message": "weROI API - Lead Generation System"}
+
+
+@api_router.get("/health")
+async def health():
+    """Liveness probe for Railway — does not require MongoDB."""
+    mongo_url = os.environ.get("MONGO_URL")
+    if not mongo_url:
+        return {
+            "status": "degraded",
+            "database": "not_configured",
+            "hint": "Set MONGO_URL and DB_NAME in Railway Variables",
+        }
+
+    try:
+        database = get_db()
+        await database.command("ping")
+        return {"status": "ok", "database": "connected", "db_name": _db_name()}
+    except Exception as exc:
+        logger.warning("Health check: MongoDB ping failed: %s", exc)
+        return {
+            "status": "degraded",
+            "database": "unreachable",
+            "db_name": _db_name(),
+            "hint": "Check MongoDB Atlas Network Access allows 0.0.0.0/0 and password is URL-encoded",
+            "error": str(exc),
+        }
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -702,7 +756,8 @@ app.add_middleware(
 @app.on_event("shutdown")
 async def shutdown_db_client():
     scheduler.shutdown()
-    client.close()
+    if _mongo_client is not None:
+        _mongo_client.close()
 
 # ========================================
 # BACKGROUND EMAIL SCHEDULER
@@ -762,6 +817,24 @@ async def process_scheduled_emails_job():
 @app.on_event("startup")
 async def startup_event():
     """Start the background scheduler on app startup"""
+    mongo_url = os.environ.get("MONGO_URL")
+    if not mongo_url:
+        logger.error(
+            "MONGO_URL is not set — API will return 503 on data routes. "
+            "Add MONGO_URL and DB_NAME in Railway → Variables."
+        )
+    else:
+        try:
+            database = get_db()
+            await database.command("ping")
+            logger.info("MongoDB connected (db=%s)", _db_name())
+        except Exception as exc:
+            logger.error(
+                "MongoDB ping failed at startup: %s. "
+                "In Atlas → Network Access, allow 0.0.0.0/0 for Railway.",
+                exc,
+            )
+
     # Schedule email processing every 15 minutes
     scheduler.add_job(
         process_scheduled_emails_job,
