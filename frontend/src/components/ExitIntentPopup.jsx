@@ -128,10 +128,10 @@ const ExitIntentPopup = () => {
         <div className="popup-visual">
           <div className="popup-tag">FREE GUIDE</div>
           <div>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 32, lineHeight: 1.0, letterSpacing: '-0.02em', margin: 0, color: 'var(--paper)' }}>
+            <h3 className="popup-visual-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 32, lineHeight: 1.0, letterSpacing: '-0.02em', margin: 0, color: 'var(--paper)' }}>
               From $0 to $1M:<br />Your Growth Plan
             </h3>
-            <p style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)', marginTop: 12, marginBottom: 0 }}>
+            <p className="popup-visual-desc" style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)', marginTop: 12, marginBottom: 0 }}>
               The same plan we use with our clients. Get more customers, improve your website and systems, and stop wasting money on ads that do not pay off.
             </p>
           </div>

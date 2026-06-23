@@ -2278,7 +2278,64 @@ html[data-theme="dark"] .audit-form-card--quote {
   to   { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 760px) {
-  .popup-card { grid-template-columns: 1fr; }
+  .popup-overlay {
+    padding: var(--spacing-16);
+    align-items: center;
+  }
+
+  .popup-card {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    max-height: min(85vh, 620px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-lg);
+  }
+
+  .popup-close {
+    position: sticky;
+    top: var(--spacing-12);
+    align-self: flex-end;
+    width: 40px;
+    height: 40px;
+    margin: var(--spacing-12) var(--spacing-12) 0 auto;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(32, 32, 32, 0.12);
+  }
+
+  .popup-visual {
+    min-height: 0;
+    padding: var(--spacing-20) var(--spacing-20) var(--spacing-16);
+    gap: var(--spacing-12);
+  }
+
+  .popup-visual-title {
+    font-size: 22px !important;
+  }
+
+  .popup-visual-desc {
+    font-size: 13px !important;
+    margin-top: 8px !important;
+  }
+
+  .popup-guide-card {
+    display: none;
+  }
+
+  .popup-form-section {
+    padding: var(--spacing-20) var(--spacing-20) var(--spacing-24);
+    gap: var(--spacing-16);
+  }
+
+  .popup-headline {
+    font-size: 24px;
+  }
+
+  .popup-sub {
+    font-size: 14px;
+  }
 }
 
 .popup-close {
@@ -2379,7 +2436,6 @@ html[data-theme="dark"] .audit-form-card--quote {
   justify-content: center;
   gap: var(--spacing-20);
 }
-@media (max-width: 760px) { .popup-form-section { padding: 28px var(--spacing-24); } }
 .popup-headline {
   font-family: var(--font-display);
   font-weight: 500;
