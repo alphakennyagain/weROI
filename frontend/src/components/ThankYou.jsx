@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Check, ArrowRight, TrendingUp, Mail, Clock, Calendar } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Check, ArrowRight, Mail, Clock, Calendar } from 'lucide-react';
+import SiteHeader from './SiteHeader';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 const ThankYou = () => {
   const navigate = useNavigate();
@@ -31,14 +32,13 @@ const ThankYou = () => {
 
   return (
     <div className="thanks-page" data-testid="thanks-page">
-      <nav className="nav">
-        <div className="container nav-inner">
-          <div className="brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <span className="brand-mark"><TrendingUp /></span>
-            weROI
-          </div>
-        </div>
-      </nav>
+      <SiteHeader
+        logoTestId="thanks-logo"
+        logoOnClick={() => navigate('/')}
+        navTestId="thanks-nav"
+        showCenterLinks={false}
+        showDesktopCta={false}
+      />
 
       <div className="thanks-wrap">
         <div className="thanks-mark">
@@ -85,7 +85,7 @@ const ThankYou = () => {
           <button className="btn btn-ghost btn-lg" onClick={() => navigate('/')} data-testid="back-home-btn">
             Back to home
           </button>
-          <button className="btn btn-ghost btn-lg" onClick={() => navigate('/work')} data-testid="see-work-btn">
+          <button className="btn btn-ghost btn-lg" onClick={() => navigate('/#case-studies')} data-testid="see-work-btn">
             See our work
           </button>
         </div>
@@ -95,6 +95,11 @@ const ThankYou = () => {
         <div className="container">
           <div className="footer-bottom" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
             <span>© 2026 weROI Jamaica</span>
+            <nav className="footer-legal" aria-label="Legal">
+              <Link to="/privacy">Privacy Policy</Link>
+              <span className="footer-legal-sep" aria-hidden="true">·</span>
+              <Link to="/terms">Terms of Service</Link>
+            </nav>
             <span className="mono" style={{ fontSize: 12 }}>Engineered for growth</span>
           </div>
         </div>

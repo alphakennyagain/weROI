@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ArrowRight, TrendingUp, CheckCircle, AlertTriangle, Target, BarChart3, Users, Zap, Download, ArrowDown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight, CheckCircle, AlertTriangle, Target, BarChart3, Users, Zap, Download, ArrowDown } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import SiteHeader from './SiteHeader';
+import Logo from './brand/Logo';
 
 const StrugglingToScale = () => {
   const navigate = useNavigate();
@@ -110,21 +112,16 @@ const StrugglingToScale = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="nav-bar">
-        <div className="container nav-content">
-          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <TrendingUp className="logo-icon growth-icon" size={20} />
-            <span className="we-text">we</span><span className="roi-text">ROI</span>
-          </div>
-          <button 
-            data-testid="apply-audit-nav-btn"
-            className="btn-primary" 
-            onClick={() => navigate('/book-call')}
-          >
-            Apply for Growth Audit
-          </button>
-        </div>
-      </nav>
+      <SiteHeader
+        logoTestId="scale-logo"
+        logoSize="sm"
+        logoOnClick={() => navigate('/')}
+        navTestId="scale-nav"
+        showCenterLinks={false}
+        ctaLabel="Apply for Growth Audit"
+        ctaTestId="apply-audit-nav-btn"
+        onCtaClick={() => navigate('/book-call')}
+      />
 
       {/* Hero Section */}
       <section className="scale-hero" id="section-hero">
@@ -322,11 +319,13 @@ const StrugglingToScale = () => {
       <footer className="scale-footer">
         <div className="container">
           <div className="footer-bottom">
-            <div className="footer-logo">
-              <TrendingUp className="logo-icon growth-icon" size={20} />
-              <span className="we-text">we</span><span className="roi-text">ROI</span>
-            </div>
+            <Logo className="logo footer-logo" size="sm" onClick={() => navigate('/')} />
             <p>© 2025 weROI. Engineered for Growth.</p>
+            <nav className="footer-legal" aria-label="Legal">
+              <Link to="/privacy">Privacy Policy</Link>
+              <span className="footer-legal-sep" aria-hidden="true">·</span>
+              <Link to="/terms">Terms of Service</Link>
+            </nav>
           </div>
         </div>
       </footer>

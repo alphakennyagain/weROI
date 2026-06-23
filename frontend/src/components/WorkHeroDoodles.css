@@ -1,0 +1,60 @@
+.work-hero-doodles {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1 / 0.85;
+  margin: 0 auto;
+}
+
+.work-doodle {
+  position: absolute;
+  color: var(--ink);
+  filter: drop-shadow(0 8px 24px rgba(32, 32, 32, 0.06));
+}
+
+.work-doodle--chart {
+  top: 4%;
+  left: 0;
+  width: 72%;
+  animation: work-doodle-float 7s ease-in-out infinite;
+}
+
+.work-doodle--bars {
+  bottom: 6%;
+  right: 0;
+  width: 52%;
+  animation: work-doodle-float 6s ease-in-out infinite 0.8s;
+}
+
+.work-doodle--check {
+  top: 38%;
+  right: 8%;
+  width: 34%;
+  animation: work-doodle-float 5.5s ease-in-out infinite 1.4s;
+}
+
+.work-doodle--spark {
+  top: 10%;
+  right: 22%;
+  width: 22%;
+  opacity: 0.7;
+  animation: work-doodle-float 8s ease-in-out infinite 0.3s;
+}
+
+@keyframes work-doodle-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(0.6deg); }
+}
+
+@media (max-width: 900px) {
+  .work-hero-doodles {
+    max-width: 320px;
+    margin-top: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-doodle {
+    animation: none;
+  }
+}

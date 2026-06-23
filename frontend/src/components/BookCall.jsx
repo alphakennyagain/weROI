@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { InlineWidget } from 'react-calendly';
-import { CheckCircle, ArrowLeft, TrendingUp } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SiteHeader from './SiteHeader';
 
 const BookCall = () => {
   const navigate = useNavigate();
@@ -74,18 +75,14 @@ const BookCall = () => {
   return (
     <div className="book-call-page">
       {/* Navigation */}
-      <nav className="nav-bar">
-        <div className="container nav-content">
-          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <TrendingUp className="logo-icon growth-icon" size={20} />
-            <span className="we-text">we</span><span className="roi-text">ROI</span>
-          </div>
-          <button className="btn-ghost" onClick={() => navigate('/')}>
-            <ArrowLeft size={20} className="mr-2" />
-            Back to Home
-          </button>
-        </div>
-      </nav>
+      <SiteHeader
+        logoTestId="book-call-logo"
+        logoSize="sm"
+        logoOnClick={() => navigate('/')}
+        navTestId="book-call-nav"
+        showCenterLinks={false}
+        showDesktopCta={false}
+      />
 
       <div className="book-call-container">
         <div className="container">

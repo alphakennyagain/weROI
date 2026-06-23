@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, TrendingUp, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SiteHeader from './SiteHeader';
 
 const GrowthSurvey = () => {
   const navigate = useNavigate();
@@ -73,14 +74,14 @@ const GrowthSurvey = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="nav-bar">
-        <div className="container nav-content">
-          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <TrendingUp className="logo-icon growth-icon" size={20} />
-            <span className="we-text">we</span><span className="roi-text">ROI</span>
-          </div>
-        </div>
-      </nav>
+      <SiteHeader
+        logoTestId="survey-logo"
+        logoSize="sm"
+        logoOnClick={() => navigate('/')}
+        navTestId="survey-nav"
+        showCenterLinks={false}
+        showDesktopCta={false}
+      />
 
       <div className="survey-container">
         <div className="container">

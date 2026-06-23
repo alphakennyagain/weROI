@@ -1,0 +1,117 @@
+.work-doodles {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.work-doodles-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.work-doodles-bg {
+  fill: #f7f7f4;
+  stroke: rgba(32, 32, 32, 0.08);
+  stroke-width: 1.5;
+}
+
+.work-doodles-stroke {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.work-doodles-growth {
+  stroke: var(--lime-ink);
+  stroke-width: 2.75;
+}
+
+.work-doodles-arrow {
+  stroke: var(--lime-ink);
+  stroke-width: 2.5;
+}
+
+.work-doodles-dot {
+  fill: var(--lime);
+  stroke: var(--lime-ink);
+  stroke-width: 2;
+}
+
+.work-doodles-bar {
+  fill: rgba(32, 32, 32, 0.08);
+  stroke: var(--ink);
+  stroke-width: 1.75;
+}
+
+.work-doodles-bar--accent {
+  fill: rgba(200, 245, 66, 0.45);
+  stroke: var(--lime-ink);
+}
+
+.work-doodles-baseline {
+  stroke: rgba(32, 32, 32, 0.35);
+  stroke-width: 1.75;
+}
+
+.work-doodles-check-ring {
+  fill: rgba(200, 245, 66, 0.18);
+  stroke: var(--lime-ink);
+  stroke-width: 1.75;
+}
+
+.work-doodles-check {
+  stroke: var(--lime-ink);
+  stroke-width: 2.5;
+}
+
+.work-doodles-check-group--sm .work-doodles-check-ring {
+  fill: rgba(200, 245, 66, 0.12);
+}
+
+.work-doodles-spark {
+  stroke: var(--lime);
+  stroke-width: 2;
+  fill: rgba(200, 245, 66, 0.15);
+}
+
+.work-doodles-caption {
+  stroke: rgba(32, 32, 32, 0.2);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .work-doodles-growth {
+    stroke-dasharray: 340;
+    stroke-dashoffset: 340;
+    animation: work-doodle-draw 1.4s ease-out 0.2s forwards;
+  }
+
+  .work-doodles-check {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: work-doodle-draw 0.5s ease-out 0.9s forwards;
+  }
+
+  .work-doodles-check-group--sm .work-doodles-check {
+    animation-delay: 1.1s;
+  }
+}
+
+@keyframes work-doodle-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-doodles-growth,
+  .work-doodles-check {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+}

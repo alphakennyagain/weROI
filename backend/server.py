@@ -17,6 +17,17 @@ import io
 import urllib.parse
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from email_templates import (
+    ANTI_DIY_PDF,
+    AUDIT_URL,
+    CALENDLY_URL,
+    get_audit_confirmation_email,
+    get_audit_owner_notification_email,
+    get_email_1_content,
+    get_email_2_content,
+    get_email_3_content,
+    get_growth_audit_email,
+)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -29,6 +40,7 @@ db = client[os.environ['DB_NAME']]
 # Resend configuration
 resend.api_key = os.environ.get('RESEND_API_KEY', '')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'growth@weroi.net')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'contact.weroi@gmail.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'TylerandZach2025!')
 
 # Create the main app
@@ -68,6 +80,10 @@ class AuditLeadCreate(BaseModel):
     company_name: str
     website: Optional[str] = None
     how_found_us: str
+    business_description: Optional[str] = None
+    services_interested: List[str] = Field(default_factory=list)
+    timeline: Optional[str] = None
+    additional_details: Optional[str] = None
     referrer: Optional[str] = None
 
 class AuditLead(BaseModel):
@@ -79,6 +95,10 @@ class AuditLead(BaseModel):
     company_name: str
     website: Optional[str] = None
     how_found_us: str
+    business_description: Optional[str] = None
+    services_interested: List[str] = Field(default_factory=list)
+    timeline: Optional[str] = None
+    additional_details: Optional[str] = None
     referrer: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     status: str = "new"
@@ -123,233 +143,92 @@ class AdminAuth(BaseModel):
     password: str
 
 # ========================================
-# PREMIUM LUXURY EMAIL TEMPLATES
-# ========================================
-
-def get_premium_email_template(content: str, headline: str = "", cta_text: str = "", cta_link: str = "") -> str:
-    """Generate a premium luxury email template"""
-    cta_button = ""
-    if cta_text and cta_link:
-        cta_button = f'''
-        <table width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
-            <tr>
-                <td align="center">
-                    <a href="{cta_link}" style="display: inline-block; background-color: #111113; color: #DAFF01; padding: 16px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; border: 1px solid #111113;">
-                        {cta_text}
-                    </a>
-                </td>
-            </tr>
-        </table>
-        '''
-    
-    return f'''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>weROI</title>
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 48px 20px;">
-            <tr>
-                <td align="center">
-                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #e5e5e5;">
-                        <tr>
-                            <td style="padding: 40px 48px 32px; border-bottom: 1px solid #f0f0f0;">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td>
-                                            <span style="font-size: 24px; font-weight: 300; letter-spacing: 2px;">
-                                                <span style="color: #888888;">we</span><span style="color: #111113; font-weight: 700;">ROI</span>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 48px;">
-                                {f'<h1 style="color: #111113; font-size: 28px; margin: 0 0 24px 0; font-weight: 600; line-height: 1.3; letter-spacing: -0.5px;">{headline}</h1>' if headline else ''}
-                                <div style="color: #444444; font-size: 16px; line-height: 1.8; font-weight: 300;">
-                                    {content}
-                                </div>
-                                {cta_button}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 32px 48px; border-top: 1px solid #f0f0f0; text-align: center;">
-                                <p style="color: #999999; font-size: 12px; margin: 0; letter-spacing: 1px; text-transform: uppercase;">
-                                    Engineered for Growth
-                                </p>
-                                <p style="color: #cccccc; font-size: 11px; margin: 12px 0 0 0;">
-                                    © 2025 weROI. All rights reserved.
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </body>
-    </html>
-    '''
-
-def get_personalized_pdf_url(name: str) -> str:
-    """Generate personalized PDF download URL with person's name"""
-    # Clean name for filename
-    clean_name = name.lower().replace(' ', '_').replace("'", "")
-    # The actual PDF URL with download parameter
-    base_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/5x7g95py_xl4qmsi8_weroi_growth_guide%20%281%29.pdf"
-    return base_pdf
-
-def get_email_1_content(name: str) -> dict:
-    """Email 1: The Delivery (Immediate) - Premium Luxury Style"""
-    pdf_url = get_personalized_pdf_url(name)
-    clean_name = name.lower().replace(' ', '_').replace("'", "")
-    
-    content = f'''
-    <p style="margin: 0 0 20px 0;">{name},</p>
-    <p style="margin: 0 0 20px 0;">You made a smart move.</p>
-    <p style="margin: 0 0 20px 0;">Most businesses stay small because they lack the systems to scale—you just took the first step to changing that.</p>
-    <p style="margin: 0 0 8px 0; color: #111113; font-weight: 500;">Your blueprint is ready.</p>
-    <p style="margin: 0 0 20px 0;">Inside, pay close attention to <strong style="color: #111113;">Step 3: The Trust Architecture</strong>—it's the missing link for most of our clients.</p>
-    <p style="margin: 24px 0; padding: 20px; background-color: #fafafa; border-left: 3px solid #111113;">
-        <em style="color: #666666;">"Structure beats strategy. Systems beat talent."</em>
-    </p>
-    <p style="margin: 0;">Talk soon,<br><strong style="color: #111113;">The weROI Team</strong></p>
-    '''
-    return {
-        "subject": "Your Scaling Blueprint Has Arrived",
-        "html": get_premium_email_template(
-            content, 
-            headline="Your $0 to $1M Blueprint",
-            cta_text=f"Download {name}'s Growth Guide",
-            cta_link=pdf_url
-        )
-    }
-
-def get_email_2_content(name: str, framework_pdf_url: str) -> dict:
-    """Email 2: The Value Add (24 Hours Later) - Premium Luxury Style with Anti-DIY Framework"""
-    content = f'''
-    <p style="margin: 0 0 20px 0;">{name},</p>
-    <p style="margin: 0 0 20px 0;">Quick question:</p>
-    <p style="margin: 0 0 20px 0;">Did you get to the <strong style="color: #111113;">'Online Trust'</strong> section in the guide?</p>
-    <p style="margin: 0 0 20px 0;">Most founders try to automate growth before they've fixed their credibility. It's like pouring water into a bucket with holes.</p>
-    <p style="margin: 0 0 20px 0;">We've found that even a <strong style="color: #111113;">10% increase in trust metrics</strong> can double your conversion rate.</p>
-    <p style="margin: 24px 0; padding: 24px; background-color: #111113; color: #ffffff;">
-        <span style="display: block; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #DAFF01;">The weROI Insight</span>
-        <span style="font-size: 18px; font-weight: 300;">Trust leaks cost businesses 40-60% of potential revenue. Most don't even know where to look.</span>
-    </p>
-    <p style="margin: 0 0 20px 0;">That's why we created the <strong style="color: #111113;">Anti-DIY Framework</strong> — a blueprint for founders who are done guessing and ready to build systems that actually scale.</p>
-    <p style="margin: 0;">Download it below. It's the exact framework we use with our clients.</p>
-    '''
-    return {
-        "subject": "Why DIY Scaling Usually Fails",
-        "html": get_premium_email_template(
-            content,
-            headline="The Hidden Cost of Trust Leaks",
-            cta_text="Download The Anti-DIY Framework",
-            cta_link=framework_pdf_url
-        )
-    }
-
-def get_email_3_content(name: str, company_name: str, audit_url: str) -> dict:
-    """Email 3: The Hard Pivot (48 Hours Later) - Premium Luxury Style"""
-    company_display = company_name if company_name else "your business"
-    content = f'''
-    <p style="margin: 0 0 20px 0;">By now, you've seen the blueprint.</p>
-    <p style="margin: 0 0 20px 0;">But here's the truth: <strong style="color: #111113;">a map is useless without an engine.</strong></p>
-    <p style="margin: 24px 0; padding: 24px; border: 1px solid #e5e5e5;">
-        <span style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #999999; margin-bottom: 8px;">Limited Availability</span>
-        <span style="display: block; font-size: 24px; font-weight: 600; color: #111113;">2 Spots Open</span>
-        <span style="display: block; font-size: 14px; color: #666666; margin-top: 4px;">This month's Free AI Growth Audits</span>
-    </p>
-    <p style="margin: 0 0 20px 0;">We'll dive into <strong style="color: #111113;">{company_display}</strong>'s specific bottlenecks and hand you a ready-to-implement roadmap.</p>
-    <p style="margin: 0 0 8px 0; font-weight: 500; color: #111113;">What you'll receive:</p>
-    <ul style="margin: 0 0 20px 0; padding-left: 20px; color: #444444;">
-        <li style="margin-bottom: 8px;">Complete trust & conversion audit</li>
-        <li style="margin-bottom: 8px;">Top 5 revenue leaks identified</li>
-        <li style="margin-bottom: 8px;">Custom implementation roadmap</li>
-        <li style="margin-bottom: 8px;">ROI projection model</li>
-    </ul>
-    <p style="margin: 0; font-weight: 500; color: #111113;">No fluff. Just ROI.</p>
-    '''
-    return {
-        "subject": f"A Custom Roadmap for {company_display}?",
-        "html": get_premium_email_template(
-            content,
-            headline="Your Engine Awaits",
-            cta_text="Claim Your Free Audit",
-            cta_link=audit_url
-        )
-    }
-
-def get_audit_confirmation_email(name: str, company_name: str, calendly_url: str) -> dict:
-    """Audit Form Confirmation Email with Calendly Booking"""
-    content = f'''
-    <p style="margin: 0 0 20px 0;">{name},</p>
-    <p style="margin: 0 0 20px 0;">Your AI Growth Audit request has been received.</p>
-    <p style="margin: 24px 0; padding: 24px; background-color: #fafafa; border: 1px solid #e5e5e5;">
-        <span style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #999999; margin-bottom: 8px;">Company</span>
-        <span style="display: block; font-size: 18px; font-weight: 600; color: #111113;">{company_name}</span>
-    </p>
-    <p style="margin: 0 0 20px 0; font-weight: 500; color: #111113;">Skip the wait. Book your call now.</p>
-    <p style="margin: 0 0 20px 0;">We've reserved priority slots for new audit applicants. Secure your 30-minute discovery call and let's map out your growth opportunities together.</p>
-    <p style="margin: 24px 0; padding: 24px; background-color: #111113; color: #ffffff;">
-        <span style="display: block; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #DAFF01;">What We'll Cover</span>
-        <span style="display: block; font-size: 16px; font-weight: 300; line-height: 1.6;">
-            ✓ Your current growth bottlenecks<br>
-            ✓ Quick wins you can implement immediately<br>
-            ✓ Custom roadmap tailored to {company_name}
-        </span>
-    </p>
-    <p style="margin: 0;">To your growth,<br><strong style="color: #111113;">The weROI Team</strong></p>
-    '''
-    return {
-        "subject": f"Your AI Growth Audit — Book Your Call, {name}",
-        "html": get_premium_email_template(
-            content,
-            headline="You're In. Let's Talk Growth.",
-            cta_text="Book Your Discovery Call",
-            cta_link=calendly_url
-        )
-    }
-
-# ========================================
 # EMAIL SENDING FUNCTIONS
 # ========================================
 
-async def send_email_async(to_email: str, subject: str, html_content: str) -> bool:
-    """Send email using Resend"""
+async def send_email_async(
+    to_email: str,
+    subject: str,
+    html_content: str,
+    text_content: str = "",
+    reply_to: str | None = None,
+    include_unsubscribe: bool = False,
+) -> bool:
+    """Send email using Resend with HTML + plain-text parts."""
+    if not resend.api_key:
+        logger.warning("RESEND_API_KEY not set — skipping email to %s", to_email)
+        return False
+
     try:
-        params = {
+        params: dict = {
             "from": f"weROI <{SENDER_EMAIL}>",
             "to": [to_email],
             "subject": subject,
-            "html": html_content
+            "html": html_content,
+            "reply_to": reply_to or SENDER_EMAIL,
         }
+        if text_content:
+            params["text"] = text_content
+        if include_unsubscribe:
+            params["headers"] = {
+                "List-Unsubscribe": f"<mailto:{SENDER_EMAIL}?subject=unsubscribe>",
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            }
+
         result = await asyncio.to_thread(resend.Emails.send, params)
-        logger.info(f"Email sent successfully to {to_email}: {result}")
+        logger.info("Email sent successfully to %s: %s", to_email, result)
         return True
     except Exception as e:
-        logger.error(f"Failed to send email to {to_email}: {str(e)}")
+        logger.error("Failed to send email to %s: %s", to_email, str(e))
         return False
 
+
+async def _send_template_email(to_email: str, email_data: dict, include_unsubscribe: bool = False) -> bool:
+    return await send_email_async(
+        to_email,
+        email_data["subject"],
+        email_data["html"],
+        email_data.get("text", ""),
+        include_unsubscribe=include_unsubscribe,
+    )
+
+
 async def send_audit_confirmation(lead: AuditLead):
-    """Send audit form confirmation email with Calendly booking"""
-    calendly_url = "https://calendly.com/contact-weroi/30min"
-    email_data = get_audit_confirmation_email(lead.name, lead.company_name, calendly_url)
-    await send_email_async(lead.email, email_data["subject"], email_data["html"])
+    """Send free growth audit confirmation to the user."""
+    email_data = get_audit_confirmation_email(lead.name, lead.company_name, CALENDLY_URL)
+    await _send_template_email(lead.email, email_data)
+
+
+async def send_growth_audit_email(lead: AuditLead):
+    """Send personalized growth roadmap snapshot to the user."""
+    email_data = get_growth_audit_email(
+        lead.name,
+        lead.company_name,
+        lead.business_description,
+        lead.services_interested,
+        lead.timeline,
+        CALENDLY_URL,
+    )
+    await _send_template_email(lead.email, email_data)
+
+
+async def send_audit_owner_notification(lead: AuditLead):
+    """Notify owner of a new audit lead."""
+    email_data = get_audit_owner_notification_email(lead)
+    await _send_template_email(ADMIN_EMAIL, email_data)
+
+
+async def send_audit_emails(lead: AuditLead):
+    """Send all audit-related emails: confirmation, growth snapshot, owner alert."""
+    await send_audit_confirmation(lead)
+    await send_growth_audit_email(lead)
+    await send_audit_owner_notification(lead)
+
 
 async def send_email_sequence(lead_id: str, name: str, email: str, company_name: str = ""):
-    """Send the 3-email sequence"""
-    anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
-    audit_url = "https://weroi.net/audit"
-    
-    # Email 1: Immediate - Growth Guide (personalized)
+    """Send the 3-email guide drip sequence."""
     email_1 = get_email_1_content(name)
-    success = await send_email_async(email, email_1["subject"], email_1["html"])
+    success = await _send_template_email(email, email_1, include_unsubscribe=True)
     
     if success:
         await db.guide_leads.update_one(
@@ -487,8 +366,8 @@ async def create_audit_lead(input: AuditLeadCreate, background_tasks: Background
     await db.audit_leads.insert_one(doc)
     logger.info(f"New audit lead created: {lead_obj.email}")
     
-    # Send confirmation email in background
-    background_tasks.add_task(send_audit_confirmation, lead_obj)
+    # Send confirmation, growth snapshot, and owner notification in background
+    background_tasks.add_task(send_audit_emails, lead_obj)
     
     return lead_obj
 
@@ -550,6 +429,10 @@ class AuditLeadUpdate(BaseModel):
     company_name: Optional[str] = None
     website: Optional[str] = None
     how_found_us: Optional[str] = None
+    business_description: Optional[str] = None
+    services_interested: Optional[List[str]] = None
+    timeline: Optional[str] = None
+    additional_details: Optional[str] = None
     status: Optional[str] = None
     referrer: Optional[str] = None
 
@@ -648,7 +531,7 @@ async def export_leads_csv():
     output = io.StringIO()
     writer = csv.writer(output)
     
-    writer.writerow(['Type', 'Date', 'Name', 'Email', 'Phone', 'Company', 'Website', 'Source', 'Referrer', 'Status'])
+    writer.writerow(['Type', 'Date', 'Name', 'Email', 'Phone', 'Company', 'Website', 'Source', 'Services', 'Timeline', 'Business Description', 'Additional Details', 'Referrer', 'Status'])
     
     for lead in audit_leads:
         created = lead.get('created_at', '')
@@ -656,6 +539,9 @@ async def export_leads_csv():
             created = created.strftime('%Y-%m-%d %H:%M')
         elif isinstance(created, str):
             created = created[:16].replace('T', ' ')
+        services = lead.get('services_interested') or []
+        if isinstance(services, list):
+            services = ', '.join(services)
         writer.writerow([
             'Audit',
             created,
@@ -665,6 +551,10 @@ async def export_leads_csv():
             lead.get('company_name', ''),
             lead.get('website', ''),
             lead.get('how_found_us', ''),
+            services,
+            lead.get('timeline', ''),
+            lead.get('business_description', ''),
+            lead.get('additional_details', ''),
             lead.get('referrer', ''),
             lead.get('status', 'new')
         ])
@@ -754,8 +644,6 @@ async def get_dashboard_data(password: str = Query(...)):
 async def process_scheduled_emails():
     """Process scheduled emails"""
     now = datetime.now(timezone.utc)
-    anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
-    audit_url = "https://weroi.net/audit"
     
     processed_2 = 0
     processed_3 = 0
@@ -768,8 +656,8 @@ async def process_scheduled_emails():
     }, {"_id": 0}).to_list(100)
     
     for lead in leads_for_email_2:
-        email_2 = get_email_2_content(lead['name'], anti_diy_framework_pdf)
-        success = await send_email_async(lead['email'], email_2["subject"], email_2["html"])
+        email_2 = get_email_2_content(lead['name'], ANTI_DIY_PDF)
+        success = await _send_template_email(lead['email'], email_2, include_unsubscribe=True)
         if success:
             await db.guide_leads.update_one(
                 {"id": lead['id']},
@@ -786,8 +674,8 @@ async def process_scheduled_emails():
     
     for lead in leads_for_email_3:
         company_name = lead.get('company_name', '')
-        email_3 = get_email_3_content(lead['name'], company_name, audit_url)
-        success = await send_email_async(lead['email'], email_3["subject"], email_3["html"])
+        email_3 = get_email_3_content(lead['name'], company_name, AUDIT_URL)
+        success = await _send_template_email(lead['email'], email_3, include_unsubscribe=True)
         if success:
             await db.guide_leads.update_one(
                 {"id": lead['id']},
@@ -823,8 +711,6 @@ async def shutdown_db_client():
 async def process_scheduled_emails_job():
     """Background job to process scheduled emails (runs every 15 minutes)"""
     now = datetime.now(timezone.utc)
-    anti_diy_framework_pdf = "https://customer-assets.emergentagent.com/job_premium-scale-3/artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
-    audit_url = "https://weroi.net/audit"
     
     processed_2 = 0
     processed_3 = 0
@@ -838,8 +724,8 @@ async def process_scheduled_emails_job():
         }, {"_id": 0}).to_list(100)
         
         for lead in leads_for_email_2:
-            email_2 = get_email_2_content(lead['name'], anti_diy_framework_pdf)
-            success = await send_email_async(lead['email'], email_2["subject"], email_2["html"])
+            email_2 = get_email_2_content(lead['name'], ANTI_DIY_PDF)
+            success = await _send_template_email(lead['email'], email_2, include_unsubscribe=True)
             if success:
                 await db.guide_leads.update_one(
                     {"id": lead['id']},
@@ -857,8 +743,8 @@ async def process_scheduled_emails_job():
         
         for lead in leads_for_email_3:
             company_name = lead.get('company_name', '')
-            email_3 = get_email_3_content(lead['name'], company_name, audit_url)
-            success = await send_email_async(lead['email'], email_3["subject"], email_3["html"])
+            email_3 = get_email_3_content(lead['name'], company_name, AUDIT_URL)
+            success = await _send_template_email(lead['email'], email_3, include_unsubscribe=True)
             if success:
                 await db.guide_leads.update_one(
                     {"id": lead['id']},

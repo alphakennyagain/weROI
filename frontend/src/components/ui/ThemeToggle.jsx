@@ -1,0 +1,21 @@
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
+import './ThemeToggle.css';
+
+export default function ThemeToggle({ className = '' }) {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <button
+      type="button"
+      className={`theme-toggle ${className}`.trim()}
+      onClick={toggleTheme}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Light mode' : 'Dark mode'}
+      data-testid="theme-toggle"
+    >
+      {isDark ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+    </button>
+  );
+}

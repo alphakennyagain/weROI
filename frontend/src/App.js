@@ -1,5 +1,7 @@
 import "./App.css";
+import "./components/brand/Logo.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Home from "./components/Home";
 import BookCall from "./components/BookCall";
 import GrowthSurvey from "./components/GrowthSurvey";
@@ -8,11 +10,17 @@ import AuditForm from "./components/AuditForm";
 import ThankYou from "./components/ThankYou";
 import AdminDashboard from "./components/AdminDashboard";
 import Work from "./components/Work";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfService from "./components/TermsOfService";
+import ScrollTriggerRefresh from "./components/ScrollTriggerRefresh";
+
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        <ScrollTriggerRefresh />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/book-call" element={<BookCall />} />
@@ -22,6 +30,8 @@ function App() {
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/work" element={<Work />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
         </Routes>
       </BrowserRouter>
     </div>

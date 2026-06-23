@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Lock, Users, FileText, Download, BarChart3, Eye, ArrowUpRight, LogOut, Trash2, AlertTriangle, X, RefreshCw, Globe, MousePointer, UserPlus, Pencil, Save } from 'lucide-react';
+import { Lock, Users, FileText, Download, BarChart3, Eye, ArrowUpRight, LogOut, Trash2, AlertTriangle, X, RefreshCw, Globe, MousePointer, UserPlus, Pencil, Save } from 'lucide-react';
+import Logo from './brand/Logo';
 
 const AdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -338,8 +339,7 @@ const AdminDashboard = () => {
       <header className="admin-header">
         <div className="admin-header-content">
           <div className="admin-brand">
-            <TrendingUp size={24} className="brand-icon" />
-            <span className="brand-text"><span className="we">we</span><span className="roi">ROI</span></span>
+            <Logo size="sm" wordmark={true} />
             <span className="admin-badge">Admin</span>
           </div>
           <div className="admin-header-actions">

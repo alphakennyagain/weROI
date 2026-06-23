@@ -112,10 +112,10 @@ const ExitIntentPopup = () => {
           <div className="popup-tag">FREE GUIDE</div>
           <div>
             <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 32, lineHeight: 1.0, letterSpacing: '-0.02em', margin: 0, color: 'var(--paper)' }}>
-              The $0&nbsp;→&nbsp;$1M<br />Growth Blueprint.
+              From $0 to $1M:<br />Your Growth Plan
             </h3>
             <p style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)', marginTop: 12, marginBottom: 0 }}>
-              A field-tested playbook used by our partners to scale predictably, without paid traffic mistakes or vanity dashboards.
+              The same plan we use with our clients. Get more customers, improve your website and systems, and stop wasting money on ads that do not pay off.
             </p>
           </div>
 
@@ -123,25 +123,25 @@ const ExitIntentPopup = () => {
             <div className="popup-guide-row">
               <div className="popup-guide-icon"><BookOpen size={18} /></div>
               <div>
-                <div className="popup-guide-title">weROI / Growth Guide</div>
-                <div className="popup-guide-meta">v1 · 24 PAGES · PDF</div>
+                <div className="popup-guide-title">weROI Growth Guide</div>
+                <div className="popup-guide-meta">24 pages · PDF</div>
               </div>
             </div>
             <ul className="popup-guide-list">
-              <li>4 phases of revenue engineering</li>
-              <li>AI workflow templates included</li>
-              <li>Live case study: 0 → $1M in 12 months</li>
+              <li>4 clear steps to grow your sales</li>
+              <li>Ready to use templates for your team</li>
+              <li>Real example: $0 to $1M in 12 months</li>
             </ul>
           </div>
         </div>
 
         <div className="popup-form-section">
           <h2 className="popup-headline">
-            Don&rsquo;t leave your growth<br />
-            <span className="accent">to chance.</span>
+            Take the plan<br />
+            <span className="accent">before you go.</span>
           </h2>
           <p className="popup-sub">
-            Download our custom-tailored guide to scale your business. The $0 to $1M blueprint.
+            Enter your name and email. We will send the full guide to your inbox with clear steps to win more customers and grow your business.
           </p>
 
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -156,7 +156,7 @@ const ExitIntentPopup = () => {
             {errors.name && <span className="audit-error">{errors.name}</span>}
             <input
               type="email"
-              placeholder="Your work email"
+              placeholder="Your email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className={`popup-input ${errors.email ? 'error' : ''}`}
@@ -170,11 +170,11 @@ const ExitIntentPopup = () => {
               data-testid="popup-submit-btn"
               style={{ marginTop: 4 }}
             >
-              {submitting ? 'Sending…' : 'Get my free guide'} {!submitting && <ArrowRight size={16} />}
+              {submitting ? 'Sending…' : 'Email me the free guide'} {!submitting && <ArrowRight size={16} />}
             </button>
           </form>
 
-          <p className="popup-disclaimer">NO SPAM · UNSUBSCRIBE ANYTIME</p>
+          <p className="popup-disclaimer">No spam. Unsubscribe anytime.</p>
         </div>
       </div>
     </div>

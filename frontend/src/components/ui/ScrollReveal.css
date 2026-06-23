@@ -1,0 +1,37 @@
+.scroll-reveal {
+  margin: 0;
+}
+
+.scroll-reveal-text {
+  display: inline;
+  line-height: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+}
+
+.scroll-reveal .word {
+  display: inline-block;
+  opacity: 0.12;
+}
+
+.scroll-reveal.is-visible .word,
+.scroll-reveal.is-ready .word {
+  /* GSAP inline styles take over once initialized */
+}
+
+@media (max-width: 768px) {
+  .scroll-reveal .word {
+    /* Lighter blur on mobile is handled in JS; keep opacity reveal */
+    will-change: opacity;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal .word {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
