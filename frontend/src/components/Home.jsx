@@ -4,7 +4,7 @@ import SiteHeader, { SITE_NAV_LINKS } from './SiteHeader';
 import Logo from './brand/Logo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { CASE_STUDIES_SECTION, scrollToSection } from '../utils/scrollToSection';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import ExitIntentPopup from './ExitIntentPopup';
 import InfiniteSlider from './ui/InfiniteSlider';
 import CaseStudyCard from './ui/CaseStudyCard';
@@ -79,8 +79,21 @@ const processCellVariants = {
 function ProcessStrip() {
   const stripRef = useRef(null);
   const isInView = useInView(stripRef, { once: true, margin: '-8% 0px' });
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+  );
   const [activeIndex, setActiveIndex] = useState(null);
   const [tappedIndex, setTappedIndex] = useState(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  const showStrip = prefersReducedMotion || isMobile || isInView;
 
   const handleCellTap = (index) => {
     setTappedIndex((prev) => (prev === index ? null : index));
@@ -91,8 +104,8 @@ function ProcessStrip() {
       ref={stripRef}
       className="process-strip"
       variants={processStripVariants}
-      initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
+      initial={showStrip ? 'visible' : 'hidden'}
+      animate={showStrip ? 'visible' : 'hidden'}
     >
       {processSteps.map((p, i) => {
         const isActive = activeIndex === i || tappedIndex === i;

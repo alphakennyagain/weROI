@@ -51,7 +51,10 @@ const ScrollReveal = ({
     if (!el) return undefined;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    // Mobile: skip GSAP ScrollTrigger entirely — show text immediately for smooth scroll.
+    if (prefersReducedMotion || isMobile) {
       el.classList.add('is-visible');
       return undefined;
     }
@@ -67,10 +70,8 @@ const ScrollReveal = ({
       return undefined;
     }
 
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const effectiveBlur = enableBlur && !isMobile ? (blurStrength ?? 4) : null;
+    const effectiveBlur = enableBlur ? (blurStrength ?? 4) : null;
     const scroller = scrollContainerRef?.current ?? undefined;
-    const useScrub = !isMobile;
 
     let ctx;
     let rafId = 0;
@@ -85,9 +86,7 @@ const ScrollReveal = ({
           start,
           end,
           invalidateOnRefresh: true,
-          ...(useScrub
-            ? { scrub }
-            : { toggleActions: 'play none none none', once: true }),
+          scrub,
         };
 
         if (baseRotation) {
@@ -95,9 +94,8 @@ const ScrollReveal = ({
             el,
             { transformOrigin: '0% 50%', rotate: baseRotation },
             {
-              ease: useScrub ? 'none' : 'power2.out',
+              ease: 'none',
               rotate: 0,
-              duration: useScrub ? undefined : 0.6,
               scrollTrigger: triggerConfig,
             }
           );
@@ -108,9 +106,8 @@ const ScrollReveal = ({
           { opacity: baseOpacity, willChange: 'opacity' },
           {
             opacity: 1,
-            ease: useScrub ? 'none' : 'power2.out',
-            duration: useScrub ? undefined : 0.5,
-            stagger: isMobile ? stagger * 0.6 : stagger,
+            ease: 'none',
+            stagger,
             scrollTrigger: { ...triggerConfig },
           }
         );

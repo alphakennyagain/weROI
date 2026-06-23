@@ -23,8 +23,9 @@
 
 @media (max-width: 768px) {
   .scroll-reveal .word {
-    /* Lighter blur on mobile is handled in JS; keep opacity reveal */
-    will-change: opacity;
+    opacity: 1 !important;
+    filter: none !important;
+    will-change: auto;
   }
 }
 

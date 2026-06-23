@@ -23,8 +23,18 @@ const VerticalCutReveal = forwardRef(({
   const containerRef = useRef(null);
   const text = typeof children === "string" ? children : children?.toString() || "";
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
+  );
   const prefersReducedMotion = useReducedMotion();
   const isInView = useInView(containerRef, { once: true, margin: "-10% 0px" });
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   const splitIntoCharacters = (text) => {
     if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
@@ -77,14 +87,26 @@ const VerticalCutReveal = forwardRef(({
   }));
 
   useEffect(() => {
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || isMobile) {
       setIsAnimating(true);
       return;
     }
     if (autoStart && isInView) {
       startAnimation();
     }
-  }, [autoStart, isInView, prefersReducedMotion, startAnimation]);
+  }, [autoStart, isInView, isMobile, prefersReducedMotion, startAnimation]);
+
+  if (prefersReducedMotion || isMobile) {
+    return (
+      <span
+        className={containerClassName}
+        onClick={onClick}
+        ref={containerRef}
+      >
+        {text}
+      </span>
+    );
+  }
 
   const variants = {
     hidden: { y: reverse ? "-100%" : "100%" },
