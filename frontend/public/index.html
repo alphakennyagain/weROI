@@ -18,9 +18,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#c8f542" />
 
-        <!-- Favicon -->
+        <!-- Favicon (Google requires ≥48×48; logo192.png is primary for search) -->
+        <link rel="icon" type="image/png" sizes="192x192" href="%PUBLIC_URL%/logo192.png" />
+        <link rel="icon" href="%PUBLIC_URL%/favicon.ico" sizes="48x48" />
         <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" />
-        <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
         <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
         <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
@@ -52,34 +53,47 @@
         <link rel="canonical" href="https://www.weroi.net/" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
 
-        <!-- JSON-LD: Organization + LocalBusiness -->
+        <!-- JSON-LD: WebSite (site name in Google) + Organization -->
         <script type="application/ld+json">
         {
           "@context": "https://schema.org",
-          "@type": ["Organization", "LocalBusiness"],
-          "name": "weROI",
-          "url": "https://www.weroi.net",
-          "logo": "https://www.weroi.net/logo192.png",
-          "image": "https://www.weroi.net/og-image.png",
-          "description": "Jamaican digital growth agency specializing in websites, SEO, custom software, marketing funnels, CRM, automation, and ad systems for small businesses and scaling brands.",
-          "email": "contact.weroi@gmail.com",
-          "areaServed": {
-            "@type": "Country",
-            "name": "Jamaica"
-          },
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "JM"
-          },
-          "sameAs": [
-            "https://instagram.com/weroi.co"
-          ],
-          "knowsAbout": [
-            "Web Design",
-            "Search Engine Optimization",
-            "Custom Software Development",
-            "Marketing Automation",
-            "Lead Generation"
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://www.weroi.net/#website",
+              "url": "https://www.weroi.net/",
+              "name": "weROI",
+              "description": "Digital growth agency in Jamaica — websites, SEO, custom software, and marketing systems.",
+              "publisher": { "@id": "https://www.weroi.net/#organization" }
+            },
+            {
+              "@type": ["Organization", "LocalBusiness"],
+              "@id": "https://www.weroi.net/#organization",
+              "name": "weROI",
+              "url": "https://www.weroi.net",
+              "logo": "https://www.weroi.net/logo192.png",
+              "image": "https://www.weroi.net/og-image.png",
+              "description": "Jamaican digital growth agency specializing in websites, SEO, custom software, marketing funnels, CRM, automation, and ad systems for small businesses and scaling brands.",
+              "email": "contact.weroi@gmail.com",
+              "areaServed": {
+                "@type": "Country",
+                "name": "Jamaica"
+              },
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "JM"
+              },
+              "sameAs": [
+                "https://instagram.com/weroi.co"
+              ],
+              "knowsAbout": [
+                "Web Design",
+                "Search Engine Optimization",
+                "Custom Software Development",
+                "Marketing Automation",
+                "Lead Generation"
+              ]
+            }
           ]
         }
         </script>
