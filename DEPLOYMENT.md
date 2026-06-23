@@ -71,7 +71,7 @@ SENDER_EMAIL=growth@weroi.net
 REPLY_TO_EMAIL=contact.weroi@gmail.com
 ADMIN_EMAIL=contact.weroi@gmail.com
 ADMIN_PASSWORD=your-secure-password
-CORS_ORIGINS=https://weroi.net,https://www.weroi.net,https://your-vercel-app.vercel.app
+CORS_ORIGINS=https://weroi.net,https://your-vercel-app.vercel.app
 ```
 
 ### Railway (recommended)
@@ -104,7 +104,7 @@ CORS_ORIGINS=https://weroi.net,https://www.weroi.net,https://your-vercel-app.ver
 | `SENDER_EMAIL` | No | `growth@weroi.net` (verified domain in Resend) |
 | `ADMIN_EMAIL` | No | `contact.weroi@gmail.com` |
 | `ADMIN_PASSWORD` | No | Strong password for `/admin` dashboard |
-| `CORS_ORIGINS` | No | `https://weroi.net,https://www.weroi.net,https://your-app.vercel.app` |
+| `CORS_ORIGINS` | No | `https://weroi.net,https://your-app.vercel.app` |
 
 **MongoDB Atlas checklist**
 
@@ -192,7 +192,7 @@ Or connect GitHub for automatic deploys on push.
 
 ### Add domain in Vercel
 1. Project → **Settings** → **Domains**
-2. Add `weroi.net` and `www.weroi.net`
+2. Add `weroi.net` (apex; primary SEO canonical)
 
 ### DNS records (at your registrar — e.g. Namecheap, Cloudflare, GoDaddy)
 

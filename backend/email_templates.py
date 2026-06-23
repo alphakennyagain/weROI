@@ -14,7 +14,7 @@ BRAND_LIME = "#c8f542"
 BRAND_DARK = "#111113"
 BRAND_MUTED = "#666666"
 LOGO_URL = "https://weroi.net/logo192.png"
-SITE_URL = "https://www.weroi.net"
+SITE_URL = "https://weroi.net"
 CALENDLY_URL = "https://calendly.com/contact-weroi/30min"
 UNSUBSCRIBE_URL = f"{SITE_URL}/unsubscribe"
 

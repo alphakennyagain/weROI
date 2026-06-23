@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.weroi.net/sitemap.xml
+Sitemap: https://weroi.net/sitemap.xml
