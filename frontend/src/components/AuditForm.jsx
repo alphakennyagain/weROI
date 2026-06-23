@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, MessageCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import SiteHeader from './SiteHeader';
 import GlowButton from './ui/GlowButton';
+import { getWhatsAppBookCallUrl } from '../constants/contactLinks';
 
 const TOTAL_STEPS = 4;
 
@@ -354,6 +355,18 @@ export default function AuditForm() {
           <h1 className="audit-quote-title">Start your project with weROI</h1>
           <p className="audit-quote-subtitle">
             Tell us about your business and what you need. We will review your setup and send a free growth audit within 48 hours.
+          </p>
+          <p className="audit-alt-contact">
+            Prefer WhatsApp?{' '}
+            <a
+              href={getWhatsAppBookCallUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="audit-whatsapp-link"
+            >
+              <MessageCircle size={14} aria-hidden="true" />
+              Message us to book a 30-minute call
+            </a>
           </p>
         </header>
 

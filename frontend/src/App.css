@@ -2235,6 +2235,30 @@ html[data-theme="dark"] .audit-form-card--quote {
   max-width: 40ch;
 }
 
+.audit-alt-contact {
+  margin: var(--spacing-16) auto 0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 42ch;
+}
+
+.audit-alt-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lime);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.audit-alt-contact a:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .audit-quote-layout {
     padding: var(--spacing-20) var(--spacing-16) var(--spacing-48);

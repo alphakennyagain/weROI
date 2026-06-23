@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, Mail, Instagram, Code2, Terminal, Braces } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Mail, Instagram, Calendar, Code2, Terminal, Braces } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import SiteHeader, { SITE_NAV_LINKS } from './SiteHeader';
 import Logo from './brand/Logo';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { CASE_STUDIES_SECTION, scrollToSection } from '../utils/scrollToSection';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import ExitIntentPopup from './ExitIntentPopup';
@@ -602,6 +602,11 @@ return { roi: "proven" };`}
                   <a href="mailto:contact.weroi@gmail.com">
                     <Mail size={14} /> contact.weroi@gmail.com
                   </a>
+                </li>
+                <li data-testid="footer-book-call">
+                  <Link to="/book-call">
+                    <Calendar size={14} /> Book a 30-minute call
+                  </Link>
                 </li>
                 <li>
                   <a href="mailto:growth@weroi.net">
