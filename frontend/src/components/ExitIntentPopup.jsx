@@ -17,7 +17,7 @@ const ExitIntentPopup = () => {
     return id;
   })();
 
-  const track = async (event_type) => {
+  const track = useCallback(async (event_type) => {
     try {
       await fetch(`${API_URL}/api/analytics/event`, {
         method: 'POST',
@@ -25,7 +25,7 @@ const ExitIntentPopup = () => {
         body: JSON.stringify({ event_type, page: '/', referrer: document.referrer || null, session_id: sid }),
       });
     } catch {}
-  };
+  }, [API_URL, sid]);
 
   const show = useCallback(() => {
     if (!triggered) {
@@ -34,7 +34,7 @@ const ExitIntentPopup = () => {
       sessionStorage.setItem('exitPopupShown', 'true');
       track('popup_shown');
     }
-  }, [triggered]);
+  }, [triggered, track]);
 
   useEffect(() => {
     if (sessionStorage.getItem('exitPopupShown')) {

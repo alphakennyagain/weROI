@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Lock, Users, FileText, Download, BarChart3, Eye, ArrowUpRight, LogOut, Trash2, AlertTriangle, X, RefreshCw, Globe, MousePointer, UserPlus, Pencil, Save } from 'lucide-react';
 import Logo from './brand/Logo';
 
@@ -45,7 +45,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     const storedPassword = sessionStorage.getItem('adminAuth');
     if (!storedPassword) return;
 
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
     } finally {
       setRefreshing(false);
     }
-  };
+  }, [API_URL]);
 
   const handleExportCSV = () => {
     window.open(`${API_URL}/api/leads/export/csv`, '_blank');
@@ -161,7 +161,7 @@ const AdminDashboard = () => {
       setIsAuthenticated(true);
       fetchDashboardData();
     }
-  }, []);
+  }, [fetchDashboardData]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
