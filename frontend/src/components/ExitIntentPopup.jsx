@@ -86,17 +86,34 @@ const ExitIntentPopup = () => {
   const submit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+    if (!API_URL) {
+      setErrors({ submit: 'Form is not configured. Please email contact.weroi@gmail.com.' });
+      return;
+    }
     setSubmitting(true);
+    setErrors((prev) => ({ ...prev, submit: '' }));
     try {
-      await fetch(`${API_URL}/api/leads/guide`, {
+      const r = await fetch(`${API_URL}/api/leads/guide`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, referrer: document.referrer || null }),
       });
-    } catch {}
-    sessionStorage.setItem('guideFormData', JSON.stringify(form));
-    setVisible(false);
-    navigate('/thank-you?type=guide');
+      const contentType = r.headers.get('content-type') || '';
+      if (!r.ok || !contentType.includes('application/json')) {
+        throw new Error(`Request failed (${r.status})`);
+      }
+      await r.json();
+      sessionStorage.setItem('guideFormData', JSON.stringify(form));
+      setVisible(false);
+      navigate('/thank-you?type=guide');
+    } catch {
+      setErrors((prev) => ({
+        ...prev,
+        submit: 'We could not send the guide. Please try again or email contact.weroi@gmail.com.',
+      }));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!visible) return null;
@@ -163,6 +180,7 @@ const ExitIntentPopup = () => {
               data-testid="popup-email-input"
             />
             {errors.email && <span className="audit-error">{errors.email}</span>}
+            {errors.submit && <span className="audit-error" role="alert">{errors.submit}</span>}
             <button
               type="submit"
               className="btn btn-primary btn-lg"

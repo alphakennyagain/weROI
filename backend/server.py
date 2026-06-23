@@ -71,6 +71,23 @@ SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'growth@weroi.net')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'contact.weroi@gmail.com')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'TylerandZach2025!')
 
+
+def _email_config_status() -> dict:
+    """Surface email configuration issues without exposing secrets."""
+    warnings: list[str] = []
+    if not resend.api_key:
+        warnings.append("RESEND_API_KEY not set — transactional emails are skipped")
+    if SENDER_EMAIL.endswith("@gmail.com"):
+        warnings.append(
+            f"SENDER_EMAIL ({SENDER_EMAIL}) uses gmail.com — Resend requires a verified custom domain"
+        )
+    return {
+        "resend_configured": bool(resend.api_key),
+        "sender_email": SENDER_EMAIL,
+        "admin_email": ADMIN_EMAIL,
+        "warnings": warnings,
+    }
+
 # Create the main app
 app = FastAPI()
 
@@ -221,13 +238,13 @@ async def _send_template_email(to_email: str, email_data: dict, include_unsubscr
     )
 
 
-async def send_audit_confirmation(lead: AuditLead):
+async def send_audit_confirmation(lead: AuditLead) -> bool:
     """Send free growth audit confirmation to the user."""
     email_data = get_audit_confirmation_email(lead.name, lead.company_name, CALENDLY_URL)
-    await _send_template_email(lead.email, email_data)
+    return await _send_template_email(lead.email, email_data)
 
 
-async def send_growth_audit_email(lead: AuditLead):
+async def send_growth_audit_email(lead: AuditLead) -> bool:
     """Send personalized growth roadmap snapshot to the user."""
     email_data = get_growth_audit_email(
         lead.name,
@@ -237,20 +254,35 @@ async def send_growth_audit_email(lead: AuditLead):
         lead.timeline,
         CALENDLY_URL,
     )
-    await _send_template_email(lead.email, email_data)
+    return await _send_template_email(lead.email, email_data)
 
 
-async def send_audit_owner_notification(lead: AuditLead):
+async def send_audit_owner_notification(lead: AuditLead) -> bool:
     """Notify owner of a new audit lead."""
     email_data = get_audit_owner_notification_email(lead)
-    await _send_template_email(ADMIN_EMAIL, email_data)
+    return await _send_template_email(ADMIN_EMAIL, email_data)
 
 
-async def send_audit_emails(lead: AuditLead):
+async def send_audit_emails(lead: AuditLead) -> dict[str, bool]:
     """Send all audit-related emails: confirmation, growth snapshot, owner alert."""
-    await send_audit_confirmation(lead)
-    await send_growth_audit_email(lead)
-    await send_audit_owner_notification(lead)
+    confirmation = await send_audit_confirmation(lead)
+    growth = await send_growth_audit_email(lead)
+    owner = await send_audit_owner_notification(lead)
+    results = {
+        "confirmation": confirmation,
+        "growth_snapshot": growth,
+        "owner_notification": owner,
+    }
+    sent = sum(results.values())
+    if sent == len(results):
+        logger.info("Audit emails sent for %s (%s/%s)", lead.email, sent, len(results))
+    else:
+        logger.error(
+            "Audit email delivery incomplete for %s: %s (check RESEND_API_KEY and domain verification)",
+            lead.email,
+            results,
+        )
+    return results
 
 
 async def send_email_sequence(lead_id: str, name: str, email: str, company_name: str = ""):
@@ -290,24 +322,33 @@ async def root():
 @api_router.get("/health")
 async def health():
     """Liveness probe for Railway — does not require MongoDB."""
+    email_status = _email_config_status()
     mongo_url = os.environ.get("MONGO_URL")
     if not mongo_url:
         return {
             "status": "degraded",
             "database": "not_configured",
+            "email": email_status,
             "hint": "Set MONGO_URL and DB_NAME in Railway Variables",
         }
 
     try:
         database = get_db()
         await database.command("ping")
-        return {"status": "ok", "database": "connected", "db_name": _db_name()}
+        status = "ok" if email_status["resend_configured"] and not email_status["warnings"] else "degraded"
+        return {
+            "status": status,
+            "database": "connected",
+            "db_name": _db_name(),
+            "email": email_status,
+        }
     except Exception as exc:
         logger.warning("Health check: MongoDB ping failed: %s", exc)
         return {
             "status": "degraded",
             "database": "unreachable",
             "db_name": _db_name(),
+            "email": email_status,
             "hint": "Check MongoDB Atlas Network Access allows 0.0.0.0/0 and password is URL-encoded",
             "error": str(exc),
         }
@@ -411,7 +452,7 @@ async def get_analytics_stats():
 # ========================================
 
 @api_router.post("/leads/audit", response_model=AuditLead)
-async def create_audit_lead(input: AuditLeadCreate, background_tasks: BackgroundTasks):
+async def create_audit_lead(input: AuditLeadCreate):
     """Submit an audit form lead"""
     lead_obj = AuditLead(**input.model_dump())
     doc = lead_obj.model_dump()
@@ -420,8 +461,8 @@ async def create_audit_lead(input: AuditLeadCreate, background_tasks: Background
     await db.audit_leads.insert_one(doc)
     logger.info(f"New audit lead created: {lead_obj.email}")
     
-    # Send confirmation, growth snapshot, and owner notification in background
-    background_tasks.add_task(send_audit_emails, lead_obj)
+    # Await delivery so emails are not dropped if the worker recycles after the response.
+    await send_audit_emails(lead_obj)
     
     return lead_obj
 
@@ -834,6 +875,17 @@ async def startup_event():
                 "In Atlas → Network Access, allow 0.0.0.0/0 for Railway.",
                 exc,
             )
+
+    email_status = _email_config_status()
+    if email_status["warnings"]:
+        for warning in email_status["warnings"]:
+            logger.warning("Email config: %s", warning)
+    else:
+        logger.info(
+            "Email configured (sender=%s, admin=%s)",
+            email_status["sender_email"],
+            email_status["admin_email"],
+        )
 
     # Schedule email processing every 15 minutes
     scheduler.add_job(

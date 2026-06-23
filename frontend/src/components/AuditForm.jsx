@@ -144,19 +144,33 @@ export default function AuditForm() {
 
   const submit = async () => {
     if (!validateStep()) return;
+    if (!API_URL) {
+      setErrors({ submit: 'Form is not configured. Please email contact.weroi@gmail.com.' });
+      return;
+    }
     setSubmitting(true);
+    setErrors({});
     try {
       const r = await fetch(`${API_URL}/api/leads/audit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, referrer: document.referrer || null }),
       });
-      if (r.ok) track('audit_form_submit');
+      const contentType = r.headers.get('content-type') || '';
+      if (!r.ok || !contentType.includes('application/json')) {
+        throw new Error(`Request failed (${r.status})`);
+      }
+      await r.json();
+      track('audit_form_submit');
+      sessionStorage.setItem('auditFormData', JSON.stringify(data));
+      navigate('/thank-you?type=audit');
     } catch {
-      // still continue to thank-you
+      setErrors({
+        submit: 'We could not submit your request. Please try again or email contact.weroi@gmail.com.',
+      });
+    } finally {
+      setSubmitting(false);
     }
-    sessionStorage.setItem('auditFormData', JSON.stringify(data));
-    navigate('/thank-you?type=audit');
   };
 
   const renderContactStep = () => (
@@ -384,6 +398,9 @@ export default function AuditForm() {
               {stepContent[step - 1]()}
 
               <div className="audit-nav">
+                {errors.submit && (
+                  <p className="audit-error audit-error--submit" role="alert">{errors.submit}</p>
+                )}
                 {step > 1 ? (
                   <GlowButton
                     variant="ghost"
