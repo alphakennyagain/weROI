@@ -70,7 +70,7 @@ RESEND_API_KEY=re_xxxxxxxx
 SENDER_EMAIL=growth@weroi.net
 REPLY_TO_EMAIL=contact.weroi@gmail.com
 ADMIN_EMAIL=contact.weroi@gmail.com
-ADMIN_PASSWORD=your-secure-password
+ADMIN_PASSWORD=your-secure-production-password
 CORS_ORIGINS=https://weroi.net,https://your-vercel-app.vercel.app
 ```
 
@@ -103,7 +103,7 @@ CORS_ORIGINS=https://weroi.net,https://your-vercel-app.vercel.app
 | `RESEND_API_KEY` | No | `re_xxxx` — emails skip silently if missing |
 | `SENDER_EMAIL` | No | `growth@weroi.net` (verified domain in Resend) |
 | `ADMIN_EMAIL` | No | `contact.weroi@gmail.com` |
-| `ADMIN_PASSWORD` | No | Strong password for `/admin` dashboard |
+| `ADMIN_PASSWORD` | No | Dashboard login at `/admin`. **Set a strong value in Railway/production** — the repo default (`Zachattack01@`) is a dev fallback only; override via env var. |
 | `CORS_ORIGINS` | No | `https://weroi.net,https://your-app.vercel.app` |
 
 **MongoDB Atlas checklist**

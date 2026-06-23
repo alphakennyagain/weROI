@@ -7,7 +7,7 @@ import requests
 import os
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
-ADMIN_PASSWORD = "TylerandZach2025!"
+ADMIN_PASSWORD = "Zachattack01@"
 
 class TestAdminAuth:
     """Test admin authentication endpoint"""

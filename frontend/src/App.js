@@ -1,6 +1,6 @@
 import "./App.css";
 import "./components/brand/Logo.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Home from "./components/Home";
 import BookCall from "./components/BookCall";
@@ -28,7 +28,8 @@ function App() {
           <Route path="/struggling-to-scale" element={<StrugglingToScale />} />
           <Route path="/audit" element={<AuditForm />} />
           <Route path="/thank-you" element={<ThankYou />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
           <Route path="/work" element={<Work />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />

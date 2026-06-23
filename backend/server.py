@@ -70,7 +70,7 @@ resend.api_key = os.environ.get('RESEND_API_KEY', '')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'growth@weroi.net')
 REPLY_TO_EMAIL = os.environ.get('REPLY_TO_EMAIL', 'contact.weroi@gmail.com')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'contact.weroi@gmail.com')
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'TylerandZach2025!')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Zachattack01@')
 
 
 def _email_config_status() -> dict:

@@ -1,7 +1,7 @@
 """
 Backend API Tests for weROI Admin Dashboard - CRUD Operations
 Tests: Edit, Delete, Clear All leads, Analytics tracking
-Password: TylerandZach2025!
+Password: Zachattack01@
 """
 import pytest
 import requests
@@ -9,13 +9,13 @@ import os
 import uuid
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
-ADMIN_PASSWORD = "TylerandZach2025!"
+ADMIN_PASSWORD = "Zachattack01@"
 
 class TestAdminAuth:
     """Test admin authentication with new password"""
     
     def test_admin_auth_success(self):
-        """Test successful admin authentication with TylerandZach2025!"""
+        """Test successful admin authentication with Zachattack01@"""
         response = requests.post(f"{BASE_URL}/api/admin/auth", json={
             "password": ADMIN_PASSWORD
         })
