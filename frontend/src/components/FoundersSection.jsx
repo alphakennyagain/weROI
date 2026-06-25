@@ -44,6 +44,10 @@ export default function FoundersSection() {
             <ScrollReveal as="p" className="body" enableBlur blurStrength={3} textClassName="body">
               weROI is a two-person team in Kingston. One builds the product. One runs the numbers. No handoffs between agencies, no guessing on who owns what.
             </ScrollReveal>
+            <p className="founders-disclaimer body-sm">
+              Independent agency at weroi.net in Kingston, Jamaica. Not affiliated with Weroi Spain or European
+              B2B operations under a similar name.
+            </p>
           </div>
         </div>
 

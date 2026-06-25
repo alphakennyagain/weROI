@@ -627,6 +627,11 @@ return { roi: "proven" };`}
             </div>
           </div>
 
+          <p className="footer-disclaimer body-sm">
+            Independent Kingston, Jamaica agency at weroi.net. Not affiliated with Weroi Spain or European
+            B2B operations under a similar name.
+          </p>
+
           <div className="footer-bottom">
             <span>© 2026 weROI Jamaica. All rights reserved.</span>
             <nav className="footer-legal" aria-label="Legal">

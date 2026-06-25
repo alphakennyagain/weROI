@@ -12,6 +12,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import Work from "./components/Work";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermsOfService";
+import WebDesignJamaica from "./components/WebDesignJamaica";
 import ScrollTriggerRefresh from "./components/ScrollTriggerRefresh";
 
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -31,6 +32,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
           <Route path="/work" element={<Work />} />
+          <Route path="/web-design-jamaica" element={<WebDesignJamaica />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
         </Routes>

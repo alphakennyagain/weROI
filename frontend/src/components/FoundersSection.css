@@ -4,6 +4,12 @@
   background: var(--frost);
 }
 
+.founders-disclaimer {
+  margin-top: var(--spacing-20);
+  color: var(--muted);
+  max-width: 52ch;
+}
+
 .founders-headline .founders-highlight {
   color: var(--ink);
   background: linear-gradient(180deg, transparent 62%, var(--lime) 62%);

@@ -73,14 +73,48 @@
               "url": "https://weroi.net",
               "logo": "https://weroi.net/logo192.png",
               "image": "https://weroi.net/og-image.png",
-              "description": "Jamaican digital growth agency specializing in websites, SEO, custom software, marketing funnels, CRM, automation, and ad systems for small businesses and scaling brands.",
+              "description": "Independent Jamaican digital growth agency based in Kingston. Websites, SEO, custom software, marketing funnels, CRM, automation, and ad systems for small businesses and scaling brands. Not affiliated with Weroi Spain or European B2B operations.",
               "email": "contact.weroi@gmail.com",
-              "areaServed": {
-                "@type": "Country",
-                "name": "Jamaica"
+              "foundingLocation": {
+                "@type": "Place",
+                "name": "Kingston, Jamaica",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressLocality": "Kingston",
+                  "addressCountry": "JM"
+                }
               },
+              "areaServed": [
+                { "@type": "Country", "name": "Jamaica" },
+                {
+                  "@type": "AdministrativeArea",
+                  "name": "Kingston Parish",
+                  "containedInPlace": { "@type": "Country", "name": "Jamaica" }
+                },
+                {
+                  "@type": "AdministrativeArea",
+                  "name": "St. Andrew Parish",
+                  "containedInPlace": { "@type": "Country", "name": "Jamaica" }
+                },
+                {
+                  "@type": "AdministrativeArea",
+                  "name": "St. Catherine Parish",
+                  "containedInPlace": { "@type": "Country", "name": "Jamaica" }
+                },
+                {
+                  "@type": "City",
+                  "name": "Portmore",
+                  "containedInPlace": {
+                    "@type": "AdministrativeArea",
+                    "name": "St. Catherine Parish",
+                    "containedInPlace": { "@type": "Country", "name": "Jamaica" }
+                  }
+                }
+              ],
               "address": {
                 "@type": "PostalAddress",
+                "addressLocality": "Kingston",
+                "addressRegion": "Kingston Parish",
                 "addressCountry": "JM"
               },
               "sameAs": [

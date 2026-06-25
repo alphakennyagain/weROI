@@ -1,0 +1,85 @@
+.local-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--frost);
+  color: var(--ink);
+}
+
+.local-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--muted);
+  transition: color 0.15s ease;
+}
+
+.local-back:hover {
+  color: var(--ink);
+}
+
+.local-hero-title {
+  margin-top: var(--spacing-16);
+  max-width: 18ch;
+}
+
+.local-hero-lead {
+  margin-top: var(--spacing-24);
+  max-width: 58ch;
+}
+
+.local-disclaimer {
+  margin-top: var(--spacing-24);
+  max-width: 58ch;
+  color: var(--muted);
+}
+
+.local-services {
+  max-width: 720px;
+}
+
+.local-services-list {
+  margin: var(--spacing-24) 0 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 12px;
+}
+
+.local-services-list li {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--carbon);
+}
+
+.local-work-link {
+  margin-top: var(--spacing-32);
+}
+
+.local-work-link a {
+  color: var(--lime-ink);
+  font-weight: 500;
+}
+
+.local-cta-inner {
+  text-align: center;
+  max-width: 640px;
+}
+
+.local-cta-copy {
+  margin: var(--spacing-16) auto var(--spacing-32);
+  max-width: 52ch;
+}
+
+.local-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+.local-footer .footer-bottom {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
