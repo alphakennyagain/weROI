@@ -21,7 +21,7 @@ const FOUNDERS = [
 
 const TEAM_STATS = [
   { value: '20+', label: 'Live portfolio builds shipped' },
-  { value: 'Kingston', label: 'Based in Jamaica, serving local and regional brands' },
+  { value: 'Jamaica', label: 'Based in Kingston — islandwide & international clients' },
   { value: '2-in-1', label: 'Build and marketing under one roof' },
   { value: 'End-to-end', label: 'Sites, apps, and campaigns in one delivery' },
   { value: '2024', label: 'Founded with a focus on measurable ROI' },
@@ -42,11 +42,13 @@ export default function FoundersSection() {
           </div>
           <div className="section-head-right">
             <ScrollReveal as="p" className="body" enableBlur blurStrength={3} textClassName="body">
-              weROI is a two-person team in Kingston. One builds the product. One runs the numbers. No handoffs between agencies, no guessing on who owns what.
+              weROI is a two-person team based in Kingston, serving Jamaica islandwide and international
+              clients remotely. One builds the product. One runs the numbers. No handoffs between agencies,
+              no guessing on who owns what.
             </ScrollReveal>
             <p className="founders-disclaimer body-sm">
-              Independent agency at weroi.net in Kingston, Jamaica. Not affiliated with Weroi Spain or European
-              B2B operations under a similar name.
+              Independent Jamaican agency at weroi.net, based in Kingston. Not affiliated with Weroi Spain or
+              European B2B operations under a similar name.
             </p>
           </div>
         </div>

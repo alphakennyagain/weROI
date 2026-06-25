@@ -8,9 +8,9 @@ import CaseStudyCard from './ui/CaseStudyCard';
 import { CASE_STUDIES } from '../data/caseStudies';
 import './WebDesignJamaica.css';
 
-const PAGE_TITLE = 'Web Design Kingston & Portmore | weROI Jamaica';
+const PAGE_TITLE = 'Web Design Jamaica | Islandwide & International | weROI';
 const PAGE_DESCRIPTION =
-  'weROI builds conversion-focused websites for Kingston and Portmore businesses. Web design, SEO, apps, and growth systems from a Jamaican agency at weroi.net.';
+  'Jamaica web design from weROI — conversion-focused websites, SEO, apps, and growth systems islandwide. Based in Kingston with hubs in Portmore and St. Catherine. Remote and international clients welcome.';
 const CANONICAL = 'https://weroi.net/web-design-jamaica';
 const DEFAULT_TITLE = 'weROI | Digital Growth Agency in Jamaica';
 const DEFAULT_DESCRIPTION =
@@ -22,7 +22,7 @@ const LOCAL_CASE_STUDIES = CASE_STUDIES.filter((s) => LOCAL_SLUGS.includes(s.slu
 const SERVICES = [
   'Website design and conversion-focused redesigns',
   'Mobile-friendly builds that load fast on Jamaican networks',
-  'SEO and Google visibility for Kingston and Portmore searches',
+  'SEO and Google visibility for Jamaica-wide and local parish searches',
   'E-commerce, booking, and checkout flows',
   'CRM, automation, and integrations with your existing tools',
 ];
@@ -66,11 +66,16 @@ export default function WebDesignJamaica() {
       <main>
         <section className="local-hero section section-glow">
           <div className="container">
-            <span className="eyebrow">Kingston &amp; Portmore</span>
-            <h1 className="heading local-hero-title">Web design in Kingston &amp; Portmore</h1>
+            <span className="eyebrow">Jamaica · Islandwide</span>
+            <h1 className="heading local-hero-title">Web design across Jamaica</h1>
             <p className="body local-hero-lead">
-              weROI builds websites, apps, and growth systems for Jamaican businesses. Based in Kingston,
-              serving Portmore, St. Catherine, and brands across the island.
+              weROI builds websites, apps, and growth systems for Jamaican businesses everywhere on the
+              island — from Montego Bay and Mandeville to Spanish Town, Ocho Rios, and beyond. We are
+              based in Kingston with active hubs in Portmore and St. Catherine, not limited to them.
+            </p>
+            <p className="body local-hero-lead">
+              Remote and international clients are welcome. Same delivery standards whether you are down
+              the road or across time zones.
             </p>
             <p className="body-sm local-disclaimer">
               Independent agency at weroi.net. Not affiliated with Weroi Spain or European B2B operations
@@ -81,7 +86,7 @@ export default function WebDesignJamaica() {
 
         <section className="section section-tight">
           <div className="container local-services">
-            <h2 className="heading-sm">What we build for local businesses</h2>
+            <h2 className="heading-sm">What we build for Jamaican businesses</h2>
             <ul className="local-services-list">
               {SERVICES.map((item) => (
                 <li key={item}>{item}</li>
@@ -131,7 +136,7 @@ export default function WebDesignJamaica() {
             <h2 className="heading-sm">Ready for a site that brings in leads?</h2>
             <p className="body local-cta-copy">
               Start with a free growth audit or book a 30-minute call. We will review your site, search
-              visibility, and next steps for Kingston or Portmore customers.
+              visibility, and next steps — wherever you are in Jamaica or abroad.
             </p>
             <div className="local-cta-actions">
               <GlowButton onClick={() => navigate('/audit')} size="lg" data-testid="local-cta-audit">
@@ -151,8 +156,9 @@ export default function WebDesignJamaica() {
             <Logo size="md" to="/" />
             <span>© 2026 weROI Jamaica. All rights reserved.</span>
             <p className="footer-disclaimer body-sm">
-              Independent Kingston, Jamaica agency at weroi.net. Not affiliated with Weroi Spain or European
-              B2B operations under a similar name.
+              Independent Jamaican agency at weroi.net, based in Kingston. Serving clients islandwide and
+              internationally. Not affiliated with Weroi Spain or European B2B operations under a similar
+              name.
             </p>
             <nav className="footer-legal" aria-label="Legal">
               <Link to="/privacy">Privacy Policy</Link>
