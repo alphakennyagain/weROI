@@ -6,23 +6,23 @@ const FOUNDERS = [
   {
     initials: 'ZH',
     name: 'Zachary Hutton',
-    role: 'Designer, developer & systems builder',
-    bio: 'Zachary runs the tech behind every weROI project: websites, mobile and web apps, automations, and custom software. From first wireframe to live deployment, he builds the systems your business runs on.',
-    tags: ['Websites', 'Apps', 'Automation', 'Custom builds'],
+    role: 'Lead technologist',
+    bio: 'Zachary leads product and engineering at weROI: websites, apps, automation, and the systems clients run day to day.',
+    tags: ['Websites', 'Apps', 'Custom software'],
   },
   {
     initials: 'TS',
     name: 'Tyler Seivwright',
-    role: 'Marketer, analyst & growth lead',
-    bio: 'Tyler handles growth, data, and the money side. Campaigns, funnels, ad spend, and ROI tracking so you always know what is working and where to put your next dollar.',
-    tags: ['Growth strategy', 'Paid media', 'Analytics', 'ROI tracking'],
+    role: 'Lead growth strategist',
+    bio: 'Tyler leads marketing and analytics at weROI: funnels, paid media, and reporting tied to revenue, not vanity metrics.',
+    tags: ['SEO', 'Funnels', 'Paid media'],
   },
 ];
 
 const TEAM_STATS = [
   { value: '20+', label: 'Live portfolio builds shipped' },
-  { value: 'Jamaica', label: 'Based in Kingston — islandwide & international clients' },
-  { value: '2-in-1', label: 'Build and marketing under one roof' },
+  { value: 'Jamaica', label: 'Kingston HQ — islandwide and international clients' },
+  { value: 'One team', label: 'Build and marketing under one roof' },
   { value: 'End-to-end', label: 'Sites, apps, and campaigns in one delivery' },
   { value: '2024', label: 'Founded with a focus on measurable ROI' },
   { value: '48h', label: 'Typical audit turnaround for new clients' },
@@ -42,9 +42,9 @@ export default function FoundersSection() {
           </div>
           <div className="section-head-right">
             <ScrollReveal as="p" className="body" enableBlur blurStrength={3} textClassName="body">
-              weROI is a two-person team based in Kingston, serving Jamaica islandwide and international
-              clients remotely. One builds the product. One runs the numbers. No handoffs between agencies,
-              no guessing on who owns what.
+              weROI is a founder-led digital growth agency based in Kingston, serving Jamaica and
+              international clients remotely. We combine product development and growth strategy to build
+              systems that drive measurable ROI.
             </ScrollReveal>
             <p className="founders-disclaimer body-sm">
               Independent Jamaican agency at weroi.net, based in Kingston. Not affiliated with Weroi Spain or
