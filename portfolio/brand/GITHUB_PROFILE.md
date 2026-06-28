@@ -15,7 +15,7 @@ CS student who ships across the stack — coursework labs, personal GitHub proje
 
 - 🌐 [Portfolio](https://zachary-hutton.vercel.app)
 - 💼 [LinkedIn](https://linkedin.com/in/zachary-hutton-a2ab81415)
-- 🏢 [weROI](https://weroi.net) — contract full-stack work
+- 🏢 [weROI](https://weroi.net) — production agency platform build
 
 ## Pinned repos (suggested)
 
