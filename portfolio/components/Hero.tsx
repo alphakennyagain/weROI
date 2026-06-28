@@ -8,10 +8,10 @@ import { useResume } from "@/components/ResumeProvider";
 import { profile } from "@/content/profile";
 
 const taglines = [
-  "internship-ready · team-oriented",
-  "full-stack fundamentals",
+  "TypeScript · Python · React",
+  "building APIs & web apps",
+  "open to internships & co-ops",
   "security-aware engineering",
-  "open to co-ops & mentorship",
 ];
 
 const socialLinkClass =
@@ -26,7 +26,7 @@ export default function Hero() {
         <div className="relative mx-auto grid w-full max-w-[var(--page-max-width)] items-center gap-10 text-center lg:grid-cols-2 lg:gap-14">
           <div className="flex flex-col justify-center">
             <SectionReveal>
-              <p className="section-kicker mb-5">Portmore, Jamaica · UTech CS · GPA 3.7</p>
+              <p className="section-kicker mb-5">Full-Stack Developer · Building APIs & web apps</p>
               <h1 className="text-[clamp(2.5rem,8vw,4.5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-[var(--color-paper)]">
                 Zachary
                 <br />

@@ -11,13 +11,13 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Zachary Hutton · CS Student · Full-Stack · Security-minded",
+  title: "Zachary Hutton · Full-Stack Developer · Open to Internships",
   description:
-    "CS student at UTech (GPA 3.7) building across the stack. Coursework, security labs, and production web apps. Open to internships and co-ops.",
+    "Full-stack developer building APIs and web apps with TypeScript, Python, and React. UTech CS (GPA 3.7). Open to internships and co-ops.",
   openGraph: {
-    title: "Zachary Hutton · Portfolio",
+    title: "Zachary Hutton · Full-Stack Developer",
     description:
-      "CS student · collaborative builder · security-aware engineer. Based in Jamaica.",
+      "Full-stack developer · REST APIs · security-aware. Portmore, Jamaica. Open to internships and co-ops.",
     type: "website",
   },
 };

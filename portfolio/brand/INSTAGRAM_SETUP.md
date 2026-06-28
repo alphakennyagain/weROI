@@ -29,7 +29,7 @@ Zachary Hutton
 Optional variant (if you want the headline visible in search):
 
 ```
-Zachary Hutton · CS @ UTech
+Zachary Hutton · Full-Stack Developer
 ```
 
 ### Bio options (150 character max)
@@ -39,7 +39,7 @@ Instagram counts emoji, spaces, and line breaks toward the limit. Verify in-app 
 **Option A — internship-forward (recommended)**
 
 ```
-CS @ UTech · full-stack · security-aware
+Full-stack developer · security-aware
 React · Python · TypeScript
 Open to internships & co-ops
 Jamaica · remote OK
@@ -207,7 +207,7 @@ Launch with **6 posts** for a balanced 2x3 grid, then add up to 3 more in the fo
 ```
 New portfolio is live.
 
-CS @ UTech, full-stack projects, and case studies in one place. Built with Next.js and deployed on Vercel.
+Full-stack projects, case studies, and coursework labs in one place. Built with Next.js and deployed on Vercel.
 
 Link in bio for projects, resume, and contact.
 
@@ -353,7 +353,7 @@ Match the portfolio obsidian / electric indigo system from `app/globals.css`.
 ### Bio option A
 
 ```
-CS @ UTech · full-stack · security-aware
+Full-stack developer · security-aware
 React · Python · TypeScript
 Open to internships & co-ops
 Jamaica · remote OK
@@ -405,7 +405,7 @@ Contact
 ```
 New portfolio is live.
 
-CS @ UTech, full-stack projects, and case studies in one place. Built with Next.js and deployed on Vercel.
+Full-stack projects, case studies, and coursework labs in one place. Built with Next.js and deployed on Vercel.
 
 Link in bio for projects, resume, and contact.
 

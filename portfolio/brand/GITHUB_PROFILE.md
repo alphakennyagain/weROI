@@ -3,9 +3,9 @@
 ```markdown
 # Hi, I'm Zachary Hutton 👋
 
-**CS @ UTech (GPA 3.7)** · full-stack · security-curious · building in Jamaica
+Portmore, Jamaica · BSc Computer Science · May 2029
 
-CS student who ships across the stack — coursework labs, personal GitHub projects, and production web apps.
+Full-stack developer who ships across the stack: coursework labs, personal GitHub projects, and production web apps.
 
 ## Focus areas
 
@@ -13,7 +13,7 @@ CS student who ships across the stack — coursework labs, personal GitHub proje
 
 ## Links
 
-- 🌐 [Portfolio](https://zachary-hutton.vercel.app)
+- 🌐 [Portfolio](https://zachary-hutton-portfolio.vercel.app/)
 - 💼 [LinkedIn](https://linkedin.com/in/zachary-hutton-a2ab81415)
 - 🏢 [weROI](https://weroi.net) — production agency platform build
 
@@ -26,5 +26,5 @@ CS student who ships across the stack — coursework labs, personal GitHub proje
 
 ## Bio line
 
-CS @ UTech · full-stack · security-curious · github.com/zacharyahutton
+Full-stack developer · open to internships & co-ops · github.com/zacharyahutton
 ```

@@ -2,7 +2,7 @@
 
 ## Headline
 
-Computer Science @ UTech (GPA 3.7) | Full-Stack Developer | Cybersecurity-minded | React · Python · TypeScript
+Computer Science @ UTech (GPA 3.7) | Full-Stack Developer | Open to internships & co-ops | React · Python · TypeScript
 
 ## About
 

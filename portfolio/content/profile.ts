@@ -2,7 +2,7 @@ import type { Profile } from "./types";
 
 export const profile: Profile = {
   name: "Zachary Hutton",
-  headline: "CS student · collaborative builder · security-aware engineer",
+  headline: "Full-stack developer · internship-ready · security-aware engineering",
   tags: ["Computer Science", "Full-Stack Development", "Cybersecurity", "UTech"],
   oneLiner:
     "BSc Computer Science student at UTech (GPA 3.7, Dean's List) seeking internships and co-ops. I build with strong fundamentals, learn quickly, and work well on teams.",
