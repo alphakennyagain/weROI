@@ -3,9 +3,9 @@
 ```markdown
 # Hi, I'm Zachary Hutton 👋
 
-**CS @ UTech** · full-stack · security-curious · building in Jamaica
+**CS @ UTech (GPA 3.7)** · full-stack · security-curious · building in Jamaica
 
-CS student who ships across the stack — coursework labs, personal GitHub projects, and production web apps for real clients.
+CS student who ships across the stack — coursework labs, personal GitHub projects, and production web apps.
 
 ## Focus areas
 
@@ -14,19 +14,17 @@ CS student who ships across the stack — coursework labs, personal GitHub proje
 ## Links
 
 - 🌐 [Portfolio](https://zachary-hutton.vercel.app)
-- 💼 [LinkedIn](https://linkedin.com/in/zachary-hutton)
-- 🏢 [weROI](https://weroi.net) — agency work (one pillar, not the whole story)
+- 💼 [LinkedIn](https://linkedin.com/in/zachary-hutton-a2ab81415)
+- 🏢 [weROI](https://weroi.net) — contract full-stack work
 
-## Pinned repos (suggested mix)
+## Pinned repos (suggested)
 
-Pin 6 repos — **not all client work**:
-
-1. Best personal backend project (URL shortener / CLI tools)
-2. Coursework highlight (if public)
-3. weROI or strongest client repo (if public)
+1. weROI — React + FastAPI + MongoDB agency platform
+2. Best personal backend project
+3. Coursework highlight (if public)
 4–6. Other personal experiments
 
 ## Bio line
 
-CS @ UTech · full-stack · security-curious · building @ github.com/alphakennyagain
+CS @ UTech · full-stack · security-curious · github.com/zacharyahutton
 ```

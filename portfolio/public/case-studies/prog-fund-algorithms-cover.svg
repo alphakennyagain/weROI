@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Algorithm Analysis cover">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0a0514"/>
+      <stop offset="50%" stop-color="#1a0a2e"/>
+      <stop offset="100%" stop-color="#581c87"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Bar chart -->
+  <g opacity="0.9">
+    <rect x="120" y="380" width="80" height="120" rx="6" fill="#581c87" stroke="#a855f7" stroke-width="1"/>
+    <rect x="240" y="320" width="80" height="180" rx="6" fill="#6b21a8" stroke="#a855f7" stroke-width="1"/>
+    <rect x="360" y="260" width="80" height="240" rx="6" fill="#7e22ce" stroke="#c084fc" stroke-width="1"/>
+    <rect x="480" y="200" width="80" height="300" rx="6" fill="#9333ea" stroke="#c084fc" stroke-width="1"/>
+    <rect x="600" y="150" width="80" height="350" rx="6" fill="#a855f7" stroke="#d8b4fe" stroke-width="1"/>
+    <rect x="720" y="110" width="80" height="390" rx="6" fill="#c084fc" stroke="#e9d5ff" stroke-width="1"/>
+  </g>
+  <!-- Complexity curve -->
+  <polyline points="120,450 280,400 440,340 600,280 760,210 920,160 1080,120" fill="none" stroke="url(#line)" stroke-width="4"/>
+  <circle cx="120" cy="450" r="8" fill="#a855f7"/>
+  <circle cx="440" cy="340" r="8" fill="#c084fc"/>
+  <circle cx="760" cy="210" r="8" fill="#d8b4fe"/>
+  <circle cx="1080" cy="120" r="8" fill="#e9d5ff"/>
+  <text x="600" y="80" text-anchor="middle" fill="#fdfdfd" font-family="system-ui,sans-serif" font-size="44" font-weight="700">Algorithm Portfolio</text>
+  <text x="600" y="520" text-anchor="middle" fill="#c084fc" font-family="system-ui,sans-serif" font-size="24">Python · Sorting · Benchmarks</text>
+  <text x="200" y="530" fill="#a855f7" font-family="monospace" font-size="13">O(n²)</text>
+  <text x="720" y="530" fill="#d8b4fe" font-family="monospace" font-size="13">O(n log n)</text>
+</svg>

@@ -1,7 +1,34 @@
 export type ProjectType = "personal" | "coursework" | "professional" | "security";
 
+export interface ArchitectureSection {
+  title: string;
+  items: string[];
+}
+
+export interface KeyDecision {
+  title: string;
+  description: string;
+}
+
+export interface CaseStudyMetric {
+  value: string;
+  label: string;
+}
+
+export interface CaseStudy {
+  overview: string;
+  problem: string;
+  solution: string;
+  architecture: ArchitectureSection[];
+  keyDecisions: KeyDecision[];
+  metrics?: CaseStudyMetric[];
+  stack?: string[];
+  screenshots?: { src: string; alt: string; caption?: string }[];
+}
+
 export interface Project {
   id: string;
+  slug: string;
   title: string;
   type: ProjectType;
   problem: string;
@@ -10,6 +37,10 @@ export interface Project {
   github?: string;
   live?: string;
   featured?: boolean;
+  image?: string;
+  result?: string;
+  caseStudy?: CaseStudy;
+  caseStudyHref?: string;
 }
 
 export interface SpotlightItem {
@@ -19,7 +50,12 @@ export interface SpotlightItem {
   description: string;
   stack: string[];
   href?: string;
+  caseStudyHref?: string;
   github?: string;
+  image?: string;
+  linkLabel?: string;
+  accent: string;
+  tabIcon: string;
 }
 
 export interface SkillCategory {

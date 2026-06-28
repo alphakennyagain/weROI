@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --bg-deep: #0a100c;
-  --bg-forest: #111a14;
-  --bg-panel: #162019;
-  --fg-cream: #f2ebe0;
-  --fg-muted: #9aab9a;
-  --amber: #e8a849;
-  --amber-bright: #f5c06a;
-  --coral: #e07050;
-  --gold: #c9a05c;
-  --forest-mid: #2a4034;
+  --color-electric-indigo: #1500ff;
+  --color-obsidian: #050505;
+  --color-charcoal: #151515;
+  --color-graphite: #1e1e1e;
+  --color-paper: #fdfdfd;
+  --color-silver: #e5e5e5;
+  --color-pearl: #d4d4d4;
+  --color-slate: #2f2f2f;
+  --color-ash: #a3a3a3;
+  --color-stone: #737373;
+  --page-max-width: 1200px;
+  --section-gap: 64px;
+  --radius-cards: 14px;
+  --radius-pills: 9999px;
   --terminal-green: #5ee87a;
-  --terminal-dim: #3d6b4a;
+  --section-scroll-margin: 7rem;
+}
+
+html.light {
+  --color-obsidian: #f5f5f5;
+  --color-charcoal: #ffffff;
+  --color-graphite: #ebebeb;
+  --color-paper: #0a0a0a;
+  --color-silver: #1a1a1a;
+  --color-pearl: #2b2b2b;
+  --color-slate: #b8b8b8;
+  --color-ash: #3d3d3d;
+  --color-stone: #5c5c5c;
 }
 
 @theme inline {
-  --color-background: var(--bg-deep);
-  --color-foreground: var(--fg-cream);
-  --font-sans: var(--font-ibm-plex);
-  --font-display: var(--font-syne);
-  --font-mono: var(--font-ibm-mono);
+  --color-background: var(--color-obsidian);
+  --color-foreground: var(--color-paper);
+  --color-obsidian: #050505;
+  --color-charcoal: #151515;
+  --color-graphite: #1e1e1e;
+  --color-paper: #fdfdfd;
+  --color-pearl: #d4d4d4;
+  --color-ash: #a3a3a3;
+  --color-stone: #737373;
+  --color-slate: #2f2f2f;
+  --color-silver: #e5e5e5;
+  --color-electric-indigo: #1500ff;
+  --font-sans: var(--font-dm-sans);
+  --radius-card: 14px;
+  --radius-pill: 9999px;
 }
 
 html {
@@ -28,45 +54,96 @@ html {
 }
 
 body {
-  background: var(--bg-deep);
-  color: var(--fg-cream);
-  font-family: var(--font-ibm-plex), system-ui, sans-serif;
-}
-
-.font-display {
-  font-family: var(--font-syne), system-ui, sans-serif;
-}
-
-.font-mono {
-  font-family: var(--font-ibm-mono), ui-monospace, monospace;
+  background: var(--color-obsidian);
+  color: var(--color-paper);
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 ::selection {
-  background: rgba(232, 168, 73, 0.3);
+  background: rgba(21, 0, 255, 0.35);
   color: #fff;
 }
 
-/* Film grain overlay */
-.grain::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+.section-kicker {
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-ash);
 }
 
-/* Mesh gradient hero background */
-.mesh-hero {
-  background:
-    radial-gradient(ellipse 80% 60% at 15% 40%, rgba(224, 112, 80, 0.18), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 20%, rgba(232, 168, 73, 0.14), transparent 50%),
-    radial-gradient(ellipse 50% 40% at 70% 80%, rgba(42, 64, 52, 0.6), transparent 55%),
-    var(--bg-deep);
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-pills);
+  background: var(--color-electric-indigo);
+  color: var(--color-paper);
+  padding: 0.65rem 1.35rem;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
 }
 
-/* Skills marquee */
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-pills);
+  border: 1px solid color-mix(in srgb, var(--color-paper) 35%, transparent);
+  color: var(--color-paper);
+  padding: 0.55rem 1.15rem;
+  font-size: 13px;
+  font-weight: 500;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--color-paper);
+}
+
+html.light .btn-ghost {
+  border-color: color-mix(in srgb, var(--color-paper) 55%, transparent);
+}
+
+html.light .btn-ghost:hover {
+  background: color-mix(in srgb, var(--color-paper) 6%, transparent);
+}
+
+html.light .surface-card {
+  border-color: #a8a8a8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+html.light .section-kicker {
+  color: var(--color-stone);
+}
+
+.page-section {
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+  scroll-margin-top: var(--section-scroll-margin);
+}
+
+.resume-section-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid #222;
+  padding-bottom: 0.2rem;
+  color: #111;
+}
+
+.surface-card {
+  border: 1px solid var(--color-slate);
+  background: var(--color-charcoal);
+  border-radius: var(--radius-cards);
+}
+
 @keyframes marquee {
   0% {
     transform: translateX(0);
@@ -74,6 +151,23 @@ body {
   100% {
     transform: translateX(-50%);
   }
+}
+
+@keyframes marquee-vertical {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--duration, 40s) linear infinite;
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical var(--duration, 40s) linear infinite;
 }
 
 .marquee-track {
@@ -84,7 +178,6 @@ body {
   animation-play-state: paused;
 }
 
-/* Terminal cursor blink */
 @keyframes blink {
   0%,
   50% {
@@ -103,38 +196,23 @@ body {
   margin-left: 2px;
 }
 
-/* Bento card hover lift */
 .bento-card {
   transition:
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
+    border-color 0.35s ease;
 }
 
 .bento-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(232, 168, 73, 0.35);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--color-paper) 25%, transparent);
 }
 
-/* Resource deck fan */
 .deck-card {
   transition:
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.4s ease;
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .deck-card:hover {
   transform: translateY(-8px) rotate(0deg) !important;
   z-index: 10;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-}
-
-/* Section label */
-.section-kicker {
-  font-family: var(--font-ibm-mono), monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--amber);
 }

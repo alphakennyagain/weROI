@@ -17,18 +17,18 @@ export const cybersecurity = {
   ],
   projects: [
     {
-      title: "Network Traffic Analysis Lab",
-      description: "Captured and analysed HTTP/TCP traffic with Wireshark; documented handshake flow and common attack vectors.",
-      href: "#projects",
+      title: "Secure Auth Starter",
+      description: "JWT, bcrypt, rate limiting, and OWASP-aligned session handling patterns.",
+      href: "https://github.com/zacharyahutton",
     },
     {
-      title: "Secure API Hardening",
-      description: "Applied input validation, rate limiting awareness, and JWT best practices on a FastAPI project.",
-      href: "#projects",
+      title: "Network Lab Notes",
+      description: "Subnetting, firewall rules, and Wireshark capture analysis in a homelab VM.",
+      href: "https://github.com/zacharyahutton",
     },
     {
-      title: "OWASP Learning Path",
-      description: "Working through PortSwigger Web Security Academy modules alongside coursework networking labs.",
+      title: "PortSwigger Web Security Academy",
+      description: "Working through web security modules alongside UTech networking coursework.",
       href: "https://portswigger.net/web-security",
     },
   ],

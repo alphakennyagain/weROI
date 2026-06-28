@@ -1,33 +1,23 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Syne } from "next/font/google";
+import { DM_Sans } from "next/font/google";
+import ThemeProvider from "@/components/ThemeProvider";
+import ResumeProvider from "@/components/ResumeProvider";
 import "./globals.css";
 
-const syne = Syne({
-  variable: "--font-syne",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-});
-
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-ibm-plex",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Zachary Hutton — CS Student · Full-Stack · Security-minded",
+  title: "Zachary Hutton · CS Student · Full-Stack · Security-minded",
   description:
-    "CS student at UTech building across the stack — coursework, security labs, personal projects, and production web apps. Open to internships and co-ops.",
+    "CS student at UTech (GPA 3.7) building across the stack. Coursework, security labs, and production web apps. Open to internships and co-ops.",
   openGraph: {
-    title: "Zachary Hutton — Portfolio",
+    title: "Zachary Hutton · Portfolio",
     description:
-      "CS student · full-stack builder · security-minded engineer. Based in Jamaica.",
+      "CS student · collaborative builder · security-aware engineer. Based in Jamaica.",
     type: "website",
   },
 };
@@ -38,11 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${syne.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${dmSans.variable} antialiased`}>
+        <ThemeProvider>
+          <ResumeProvider>{children}</ResumeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

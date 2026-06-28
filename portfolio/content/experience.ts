@@ -3,14 +3,12 @@ import type { TimelineEntry } from "./types";
 export const experience: TimelineEntry[] = [
   {
     id: "weroi",
-    title: "Founder & Full-Stack Engineer",
+    title: "Software Developer (Contract)",
     org: "weROI",
     period: "2024 – Present",
     type: "work",
     bullets: [
-      "Built production web applications for Jamaican SMBs using React, Next.js, Python/FastAPI, and MongoDB.",
-      "Owned scoping through deployment on Vercel and Railway — 20+ live client builds shipped.",
-      "Designed conversion-focused UX with measurable outcomes for e-commerce, logistics, and service businesses.",
+      "Production web apps with React, Next.js, FastAPI, and MongoDB. REST APIs, auth patterns, Vercel and Railway deployment.",
     ],
   },
   {
@@ -20,18 +18,7 @@ export const experience: TimelineEntry[] = [
     period: "2023 – Present",
     type: "work",
     bullets: [
-      "Delivered responsive websites and landing pages for local businesses with SEO and performance focus.",
-      "Managed client communication, timelines, and iterative feedback loops independently.",
-    ],
-  },
-  {
-    id: "logistics",
-    title: "Logistics Operations Assistant",
-    org: "Contract role",
-    period: "Jul – Sep 2024",
-    type: "work",
-    bullets: [
-      "Coordinated inventory tracking and shipment accuracy in a fast-paced operations environment.",
+      "Responsive sites with React, TypeScript, and modern CSS for local businesses.",
     ],
   },
   {
@@ -40,16 +27,6 @@ export const experience: TimelineEntry[] = [
     org: "University of Technology, Jamaica",
     period: "2024 – 2029 (expected)",
     type: "education",
-    bullets: [
-      "Dean's List honouree. Coursework in data structures, databases, networking, OOP, and software engineering.",
-    ],
-  },
-  {
-    id: "ardenne",
-    title: "CSEC — IT, Mathematics, Physics",
-    org: "Ardenne High School",
-    period: "Completed",
-    type: "education",
-    bullets: ["Grade I in IT, Mathematics, and Physics. Principal's Honour Roll."],
+    bullets: ["GPA 3.7, Dean's List. Data structures, databases, networking, OOP, software engineering."],
   },
 ];

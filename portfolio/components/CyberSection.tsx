@@ -1,69 +1,123 @@
-import { ExternalLink, Shield } from "lucide-react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { ExternalLink } from "lucide-react";
 import SectionReveal from "./SectionReveal";
+import BlurText from "./ui/BlurText";
+import TextType from "./ui/TextType";
 import { cybersecurity } from "@/content/cybersecurity";
 
-export default function CyberSection() {
-  return (
-    <section id="cybersecurity" className="px-6 py-24">
-      <div className="mx-auto max-w-6xl">
-        <SectionReveal>
-          <div className="flex items-center gap-2">
-            <Shield className="text-teal-400" size={20} />
-            <span className="text-sm font-medium uppercase tracking-widest text-teal-400">Cybersecurity</span>
-          </div>
-          <h2 className="mt-3 font-serif text-3xl text-white sm:text-4xl">Security-aware engineering</h2>
-          <p className="mt-4 max-w-3xl leading-relaxed text-zinc-400">{cybersecurity.narrative}</p>
-        </SectionReveal>
+const terminalLines = [
+  { prompt: "$", text: "whoami", output: "zachary@utech-cs — security-aware engineer" },
+  { prompt: "$", text: "cat focus.txt", output: null },
+  ...cybersecurity.learningFocus.map((item) => ({
+    prompt: ">",
+    text: item,
+    output: null as string | null,
+  })),
+  { prompt: "$", text: "ls tools/", output: cybersecurity.tools.map((t) => t.name).join("  ") },
+  { prompt: "$", text: "status", output: "learning · building · hardening" },
+];
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          <SectionReveal delay={0.1}>
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
-              <h3 className="font-medium text-white">Learning focus</h3>
-              <ul className="mt-4 space-y-2">
-                {cybersecurity.learningFocus.map((item) => (
-                  <li key={item} className="flex gap-2 text-sm text-zinc-400">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-400" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+export default function CyberSection() {
+  const [visibleLines, setVisibleLines] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          let i = 0;
+          const interval = setInterval(() => {
+            i++;
+            setVisibleLines(i);
+            if (i >= terminalLines.length) clearInterval(interval);
+          }, 180);
+        }
+      },
+      { threshold: 0.3 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="cybersecurity" ref={sectionRef} className="px-6 py-24">
+      <div className="mx-auto max-w-[var(--page-max-width)]">
+        <div className="grid gap-12 lg:grid-cols-[0.4fr_0.6fr]">
+          <SectionReveal>
+            <span className="section-kicker">Cybersecurity</span>
+            <BlurText
+              text="Terminal mindset."
+              className="mt-4 text-4xl font-medium tracking-[-0.02em] text-[var(--color-paper)] sm:text-5xl"
+              delay={85}
+            />
+            <p className="mt-6 leading-relaxed text-[var(--color-pearl)]">{cybersecurity.narrative}</p>
+
+            <ul className="mt-8 space-y-3">
+              {cybersecurity.projects.map((proj) => (
+                <li key={proj.title}>
+                  <a
+                    href={proj.href}
+                    className="group flex items-center gap-2 text-sm text-[var(--color-pearl)] transition hover:text-[var(--terminal-green)]"
+                    {...(proj.href.startsWith("http")
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                  >
+                    <span className="text-[var(--color-ash)]">→</span>
+                    {proj.title}
+                    <ExternalLink size={12} className="opacity-0 transition group-hover:opacity-100" />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </SectionReveal>
 
           <SectionReveal delay={0.15}>
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
-              <h3 className="font-medium text-white">Tools & environments</h3>
-              <ul className="mt-4 space-y-3">
-                {cybersecurity.tools.map((tool) => (
-                  <li key={tool.name}>
-                    <div className="text-sm text-white">{tool.name}</div>
-                    <div className="text-xs text-zinc-500">{tool.description}</div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </SectionReveal>
+            <div className="overflow-hidden rounded-[var(--radius-cards)] border border-[var(--color-slate)] bg-[var(--color-obsidian)]">
+              <div className="flex items-center gap-2 border-b border-[var(--color-slate)] bg-[var(--color-charcoal)] px-4 py-3">
+                <span className="h-3 w-3 rounded-full bg-[var(--color-stone)]" />
+                <span className="h-3 w-3 rounded-full bg-[var(--color-ash)]" />
+                <span className="h-3 w-3 rounded-full bg-[var(--terminal-green)]/60" />
+                <span className="ml-3 text-[10px] text-[var(--color-stone)]">zachary@kali-lab ~ security</span>
+              </div>
 
-          <SectionReveal delay={0.2}>
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
-              <h3 className="font-medium text-white">Related work</h3>
-              <ul className="mt-4 space-y-4">
-                {cybersecurity.projects.map((proj) => (
-                  <li key={proj.title}>
-                    <a
-                      href={proj.href}
-                      className="group block"
-                      {...(proj.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    >
-                      <div className="flex items-center gap-1 text-sm text-white transition group-hover:text-teal-300">
-                        {proj.title}
-                        <ExternalLink size={12} className="opacity-0 transition group-hover:opacity-100" />
-                      </div>
-                      <p className="mt-1 text-xs text-zinc-500">{proj.description}</p>
-                    </a>
-                  </li>
+              <div className="min-h-[360px] p-5 font-mono text-sm leading-relaxed">
+                {terminalLines.slice(0, visibleLines).map((line, i) => (
+                  <div key={i} className="mb-2">
+                    <span className="text-[var(--color-ash)]">{line.prompt} </span>
+                    <span className="text-[var(--color-paper)]">{line.text}</span>
+                    {line.output && (
+                      <div className="mt-1 pl-4 text-[var(--terminal-green)]/90">{line.output}</div>
+                    )}
+                  </div>
                 ))}
-              </ul>
+                {visibleLines < terminalLines.length && <span className="cursor-blink" />}
+                {visibleLines >= terminalLines.length && (
+                  <div className="mt-4 border-t border-[var(--color-slate)] pt-4">
+                    <TextType
+                      text="hardening surfaces · validating inputs · learning continuously"
+                      loop={false}
+                      showCursor
+                      className="text-xs text-[var(--color-ash)]"
+                    />
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                      {cybersecurity.tools.map((tool) => (
+                        <div key={tool.name} className="text-xs">
+                          <span className="text-[var(--terminal-green)]">{tool.name}</span>
+                          <span className="text-[var(--color-stone)]"> — {tool.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </SectionReveal>
         </div>

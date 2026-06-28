@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Network Hardening cover">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#030712"/>
+      <stop offset="50%" stop-color="#042f2e"/>
+      <stop offset="100%" stop-color="#0e7490"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <pattern id="hex" width="56" height="48" patternUnits="userSpaceOnUse">
+    <path d="M28 0 L56 14 L56 34 L28 48 L0 34 L0 14 Z" fill="none" stroke="#06b6d4" stroke-width="0.5" opacity="0.12"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#hex)"/>
+  <!-- Shield -->
+  <path d="M600 100 L720 160 L720 300 Q720 420 600 480 Q480 420 480 300 L480 160 Z" fill="#042f2e" stroke="url(#shield)" stroke-width="3"/>
+  <path d="M600 140 L680 185 L680 290 Q680 370 600 420 Q520 370 520 290 L520 185 Z" fill="#0e7490" opacity="0.3"/>
+  <text x="600" y="280" text-anchor="middle" fill="#67e8f9" font-family="monospace" font-size="48" font-weight="700">FW</text>
+  <text x="600" y="330" text-anchor="middle" fill="#a5f3fc" font-family="monospace" font-size="16">HARDENED</text>
+  <!-- Network nodes -->
+  <circle cx="280" cy="320" r="40" fill="#042f2e" stroke="#06b6d4" stroke-width="2"/>
+  <text x="280" y="328" text-anchor="middle" fill="#67e8f9" font-family="monospace" font-size="14">LAN</text>
+  <circle cx="920" cy="320" r="40" fill="#042f2e" stroke="#06b6d4" stroke-width="2"/>
+  <text x="920" y="328" text-anchor="middle" fill="#67e8f9" font-family="monospace" font-size="14">DMZ</text>
+  <line x1="320" y1="320" x2="480" y2="280" stroke="#06b6d466" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="720" y1="280" x2="880" y2="320" stroke="#06b6d466" stroke-width="2" stroke-dasharray="6 4"/>
+  <rect x="180" y="420" width="840" height="80" rx="10" fill="#042f2e" stroke="#0891b2" stroke-width="1" opacity="0.8"/>
+  <text x="600" y="455" text-anchor="middle" fill="#67e8f9" font-family="monospace" font-size="15">iptables · patch policy · threat model</text>
+  <text x="600" y="480" text-anchor="middle" fill="#a5f3fc" font-family="monospace" font-size="13">5-machine office LAN security lab</text>
+  <text x="600" y="560" text-anchor="middle" fill="#fdfdfd" font-family="system-ui,sans-serif" font-size="44" font-weight="700">Network Hardening</text>
+  <text x="600" y="600" text-anchor="middle" fill="#67e8f9" font-family="system-ui,sans-serif" font-size="22">Security Policy · Linux · Threat Model</text>
+</svg>
