@@ -1,4 +1,4 @@
-import { ArrowUpRight, Code2, Mail, UserRound } from "lucide-react";
+import { ArrowUpRight, Code2, Instagram, Mail, UserRound } from "lucide-react";
 import SectionReveal from "./SectionReveal";
 import BlurText from "./ui/BlurText";
 import { profile } from "@/content/profile";
@@ -73,6 +73,26 @@ export default function Contact() {
                   <div className="text-[10px] uppercase tracking-wider text-[var(--color-stone)]">LinkedIn</div>
                   <div className="text-[var(--color-paper)] transition group-hover:text-[var(--color-pearl)]">
                     Zachary Hutton
+                  </div>
+                </div>
+                <ArrowUpRight
+                  size={16}
+                  className="text-[var(--color-stone)] transition group-hover:text-[var(--color-paper)]"
+                  aria-hidden
+                />
+              </a>
+
+              <a
+                href={profile.contact.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={channelClass}
+              >
+                <Instagram className="text-[var(--color-electric-indigo)]" size={22} aria-hidden />
+                <div className="flex-1">
+                  <div className="text-[10px] uppercase tracking-wider text-[var(--color-stone)]">Instagram</div>
+                  <div className="text-[var(--color-paper)] transition group-hover:text-[var(--color-pearl)]">
+                    @zachahutton
                   </div>
                 </div>
                 <ArrowUpRight

@@ -151,6 +151,10 @@ export default function ResumePdfDocument() {
             <Link src={resumeLinks.linkedin} style={styles.link}>
               LinkedIn
             </Link>
+            <Text> | </Text>
+            <Link src={resumeLinks.instagram} style={styles.link}>
+              Instagram
+            </Link>
           </View>
         </View>
 

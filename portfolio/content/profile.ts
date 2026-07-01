@@ -22,6 +22,7 @@ export const profile: Profile = {
     email: "hzach577@gmail.com",
     github: "https://github.com/zacharyahutton",
     linkedin: "https://www.linkedin.com/in/zachary-hutton-a2ab81415/",
+    instagram: "https://www.instagram.com/zachahutton/",
     location: "Portmore, Jamaica",
   },
 };

@@ -94,6 +94,7 @@ export interface Profile {
     email: string;
     github: string;
     linkedin: string;
+    instagram: string;
     location: string;
   };
 }

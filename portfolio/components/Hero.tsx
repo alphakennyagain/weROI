@@ -84,6 +84,15 @@ export default function Hero() {
                   LinkedIn
                   <ArrowUpRight size={14} aria-hidden />
                 </a>
+                <a
+                  href={profile.contact.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={socialLinkClass}
+                >
+                  Instagram
+                  <ArrowUpRight size={14} aria-hidden />
+                </a>
                 <button type="button" onClick={openResume} className={socialLinkClass}>
                   Resume
                   <ArrowDown size={14} aria-hidden />

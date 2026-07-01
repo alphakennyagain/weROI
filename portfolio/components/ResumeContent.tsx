@@ -46,6 +46,13 @@ export default function ResumeContent() {
             <LinkedinIcon size={12} aria-hidden />
             LinkedIn
           </a>
+          {" | "}
+          <a
+            href={resumeLinks.instagram}
+            className="inline-flex items-center gap-1 text-[#111] underline-offset-2 hover:underline"
+          >
+            Instagram
+          </a>
         </p>
       </header>
 
