@@ -1,4 +1,5 @@
-import { ArrowUpRight, Code2, Instagram, Mail, UserRound } from "lucide-react";
+import { ArrowUpRight, Code2, Mail, UserRound } from "lucide-react";
+import InstagramIcon from "@/components/ui/InstagramIcon";
 import SectionReveal from "./SectionReveal";
 import BlurText from "./ui/BlurText";
 import { profile } from "@/content/profile";
@@ -88,7 +89,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className={channelClass}
               >
-                <Instagram className="text-[var(--color-electric-indigo)]" size={22} aria-hidden />
+                <InstagramIcon className="text-[var(--color-electric-indigo)]" size={22} />
                 <div className="flex-1">
                   <div className="text-[10px] uppercase tracking-wider text-[var(--color-stone)]">Instagram</div>
                   <div className="text-[var(--color-paper)] transition group-hover:text-[var(--color-pearl)]">
