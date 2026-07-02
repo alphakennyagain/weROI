@@ -221,7 +221,7 @@ return { roi: "proven" };`}
               whileHover={{ x: 2 }}
             >
               <ShinyText
-                text="Get your free assessment"
+                text="See what's making your business invisible"
                 speed={3}
                 color="#202020"
                 shineColor="#c8f542"
@@ -273,7 +273,7 @@ return { roi: "proven" };`}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <GlowButton onClick={goGrowthPreview} data-testid="hero-cta-btn" size="lg" className="glow-btn">
-                See What&apos;s Holding Me Back <ArrowRight size={18} />
+                Get My Free Audit <ArrowRight size={18} />
               </GlowButton>
               <GlowButton onClick={goCaseStudies} data-testid="hero-view-work-btn" size="lg" variant="ghost">
                 View our work <ArrowUpRight size={18} />
@@ -536,7 +536,7 @@ return { roi: "proven" };`}
             <div>
               <span className="eyebrow cta-eyebrow" style={{ color: 'var(--lime)' }}>
                 <TextType
-                  text={['Next step', 'Start here', 'Get your weROI GrowthIQ™ report']}
+                  text={['Next step', 'Start here', 'Start your free audit']}
                   typingSpeed={60}
                   pauseDuration={1800}
                   startOnVisible
@@ -557,7 +557,7 @@ return { roi: "proven" };`}
             </div>
             <div>
               <GlowButton onClick={goGrowthPreview} data-testid="cta-btn" size="lg" className="glow-btn">
-                See What&apos;s Holding Me Back <ArrowRight size={18} />
+                Start My Free Audit <ArrowRight size={18} />
               </GlowButton>
             </div>
           </div>
@@ -602,7 +602,7 @@ return { roi: "proven" };`}
                 </li>
                 <li data-testid="footer-growth-preview">
                   <Link to="/growth-preview">
-                    <Calendar size={14} /> Get My GrowthIQ Score
+                    <Calendar size={14} /> Free Audit
                   </Link>
                 </li>
                 <li>

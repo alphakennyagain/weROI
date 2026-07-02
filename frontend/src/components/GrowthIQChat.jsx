@@ -179,7 +179,7 @@ export default function GrowthIQChat() {
               </button>
             </form>
             <button type="button" className="giq-chat-cta" onClick={goAssessment}>
-              Get My GrowthIQ Score <ArrowRight size={14} />
+              Get My Free Audit <ArrowRight size={14} />
             </button>
           </motion.div>
         )}

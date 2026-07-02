@@ -339,7 +339,7 @@ export default function GrowthPreview() {
               transition={{ delay: 0.3 }}
             >
               <GlowButton size="lg" onClick={startAssessment} data-testid="giq-hero-cta">
-                See What&apos;s Holding Me Back <ArrowRight size={18} />
+                Start My Free Audit <ArrowRight size={18} />
               </GlowButton>
               <p className="giq-hero-proof-stat">{HERO_PROOF_STAT}</p>
               <p className="giq-hero-micro">{CTA_TIME_NOTE} · Your progress saves automatically</p>

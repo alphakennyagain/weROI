@@ -32,7 +32,7 @@ export default function SiteHeader({
   dark = false,
   showCenterLinks = true,
   showDesktopCta = true,
-  ctaLabel = 'Get My GrowthIQ Score',
+  ctaLabel = 'Free Audit',
   ctaTestId = 'nav-cta-btn',
   onCtaClick,
   desktopActions = null,
