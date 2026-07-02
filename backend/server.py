@@ -204,6 +204,26 @@ CRM_STATUSES = [
     "lost",
 ]
 
+
+def _normalize_email(value: str | None) -> str:
+    return str(value or "").strip().lower()
+
+
+def _growthiq_email_query(email: str) -> dict:
+    """Case-insensitive match for business_email (legacy + normalized field)."""
+    norm = _normalize_email(email)
+    return {
+        "$or": [
+            {"business_email_normalized": norm},
+            {"$expr": {"$eq": [{"$toLower": {"$ifNull": ["$business_email", ""]}}, norm]}},
+        ]
+    }
+
+
+def _emails_match(stored: str | None, provided: str | None) -> bool:
+    return _normalize_email(stored) == _normalize_email(provided)
+
+
 class DigitalPresence(BaseModel):
     website: str = ""
     seo: str = ""
@@ -483,6 +503,8 @@ async def health():
             "database": "connected",
             "db_name": _db_name(),
             "growthiq": True,
+            "report_lookup": True,
+            "meeting_link_send": True,
             "commit": os.environ.get("RAILWAY_GIT_COMMIT_SHA")
             or os.environ.get("VERCEL_GIT_COMMIT_SHA")
             or "local",
@@ -659,6 +681,7 @@ async def create_growth_assessment(input: GrowthAssessmentCreate, background_tas
             else doc["digital_presence"]
         )
 
+    doc["business_email_normalized"] = str(assessment_obj.business_email).strip().lower()
     await db.growth_assessments.insert_one(doc)
     logger.info("GrowthIQ assessment created: %s (%s)", assessment_obj.report_id, assessment_obj.business_email)
 
@@ -754,17 +777,16 @@ async def get_growth_assessment(report_id: str, email: Optional[EmailStr] = Quer
     if not doc:
         raise HTTPException(status_code=404, detail="Report not found")
     if email is not None:
-        stored = (doc.get("business_email") or "").strip().lower()
-        if stored != str(email).strip().lower():
+        if not _emails_match(doc.get("business_email"), str(email)):
             raise HTTPException(status_code=403, detail="Email does not match this report")
     return doc
 
 @api_router.post("/growthiq/reports/lookup")
 async def lookup_growthiq_reports(body: GrowthIQReportLookup):
     """Return compact report summaries for a business email (max 20, newest first)."""
-    email = str(body.email).strip().lower()
+    email = _normalize_email(str(body.email))
     assessments = await db.growth_assessments.find(
-        {"business_email": {"$regex": f"^{re.escape(email)}$", "$options": "i"}},
+        _growthiq_email_query(email),
         {
             "_id": 0,
             "report_id": 1,
@@ -1361,6 +1383,19 @@ async def startup_event():
             database = get_db()
             await database.command("ping")
             logger.info("MongoDB connected (db=%s)", _db_name())
+            updated = 0
+            cursor = db.growth_assessments.find(
+                {"business_email_normalized": {"$exists": False}, "business_email": {"$exists": True, "$ne": ""}},
+                {"report_id": 1, "business_email": 1},
+            )
+            async for row in cursor:
+                await db.growth_assessments.update_one(
+                    {"report_id": row["report_id"]},
+                    {"$set": {"business_email_normalized": _normalize_email(row.get("business_email"))}},
+                )
+                updated += 1
+            if updated:
+                logger.info("Backfilled business_email_normalized on %s assessments", updated)
         except Exception as exc:
             logger.error(
                 "MongoDB ping failed at startup: %s. "
