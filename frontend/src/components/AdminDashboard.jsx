@@ -213,6 +213,33 @@ const AdminDashboard = () => {
     });
   };
 
+  const openManualMeetingEmail = () => {
+    const target = meetingComposeTarget || giqViewTarget;
+    if (!target?.business_email) return;
+    const name = target.full_name || 'there';
+    const times = meetingProposedTimes.trim();
+    const note = meetingPersonalNote.trim()
+      || `Hi ${name}, we reviewed your GrowthIQ report and would love to walk through the findings with you.`;
+    const body = [
+      note,
+      times ? `\nSuggested times:\n${times}` : '',
+      `\nBook your call: ${meetingCalendlyUrl.trim() || CALENDLY_30MIN_URL}`,
+      '\nTalk soon,\nThe weROI Team',
+    ].join('');
+    const mailto = `mailto:${encodeURIComponent(target.business_email)}?subject=${encodeURIComponent('Book your weROI expert review call')}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+  };
+
+  const copyCalendlyLink = async () => {
+    const link = meetingCalendlyUrl.trim() || CALENDLY_30MIN_URL;
+    try {
+      await navigator.clipboard.writeText(link);
+      setMeetingLinkFeedback('Calendly link copied. Paste it into your email until the API is live.');
+    } catch {
+      setMeetingLinkFeedback(`Copy this link manually: ${link}`);
+    }
+  };
+
   const handleLogout = () => {
     sessionStorage.removeItem('adminAuth');
     setIsAuthenticated(false);
@@ -496,9 +523,19 @@ const AdminDashboard = () => {
                   </p>
                 )}
                 {meetingLinkFeedback && (
-                  <p className={`giq-meeting-feedback${meetingLinkFeedback.includes('success') ? ' is-success' : ' is-error'}`} role="status">
+                  <p className={`giq-meeting-feedback${meetingLinkFeedback.includes('success') || meetingLinkFeedback.includes('copied') ? ' is-success' : ' is-error'}`} role="status">
                     {meetingLinkFeedback}
                   </p>
+                )}
+                {meetingLinkFeedback && meetingLinkFeedback.includes('not live') && (
+                  <div className="giq-meeting-fallbacks">
+                    <button type="button" className="btn-cancel" onClick={openManualMeetingEmail}>
+                      Open in email app (manual)
+                    </button>
+                    <button type="button" className="btn-cancel" onClick={copyCalendlyLink}>
+                      Copy Calendly link
+                    </button>
+                  </div>
                 )}
               </div>
             )}
@@ -560,8 +597,18 @@ const AdminDashboard = () => {
               <p className="meeting-compose-hint">
                 They will receive a branded weROI email with your message, suggested times, and a Book Your Call button.
               </p>
-              {meetingLinkFeedback && !meetingLinkFeedback.includes('success') && (
+              {meetingLinkFeedback && !meetingLinkFeedback.includes('success') && !meetingLinkFeedback.includes('copied') && (
                 <p className="giq-meeting-feedback is-error" role="alert">{meetingLinkFeedback}</p>
+              )}
+              {meetingLinkFeedback && meetingLinkFeedback.includes('not live') && (
+                <div className="giq-meeting-fallbacks">
+                  <button type="button" className="btn-cancel" onClick={openManualMeetingEmail}>
+                    Open in email app (manual)
+                  </button>
+                  <button type="button" className="btn-cancel" onClick={copyCalendlyLink}>
+                    Copy Calendly link
+                  </button>
+                </div>
               )}
               <div className="modal-actions">
                 <button type="button" className="btn-cancel" onClick={() => setMeetingComposeTarget(null)}>Cancel</button>

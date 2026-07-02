@@ -491,14 +491,29 @@ async def send_email_sequence(lead_id: str, name: str, email: str, company_name:
 # ROUTES
 # ========================================
 
+def _deploy_commit() -> str:
+    return (
+        os.environ.get("RAILWAY_GIT_COMMIT_SHA")
+        or os.environ.get("VERCEL_GIT_COMMIT_SHA")
+        or "local"
+    )
+
+
+def _api_features() -> dict:
+    return {
+        "report_lookup": True,
+        "meeting_link_send": True,
+        "visibility_checklist_pdf": True,
+    }
+
+
 @api_router.get("/")
 async def root():
     return {
         "message": "weROI API",
         "growthiq": True,
-        "commit": os.environ.get("RAILWAY_GIT_COMMIT_SHA")
-        or os.environ.get("VERCEL_GIT_COMMIT_SHA")
-        or "local",
+        "commit": _deploy_commit(),
+        "features": _api_features(),
     }
 
 
@@ -524,12 +539,8 @@ async def health():
             "database": "connected",
             "db_name": _db_name(),
             "growthiq": True,
-            "report_lookup": True,
-            "meeting_link_send": True,
-            "visibility_checklist_pdf": True,
-            "commit": os.environ.get("RAILWAY_GIT_COMMIT_SHA")
-            or os.environ.get("VERCEL_GIT_COMMIT_SHA")
-            or "local",
+            "features": _api_features(),
+            "commit": _deploy_commit(),
             "email": email_status,
         }
     except Exception as exc:

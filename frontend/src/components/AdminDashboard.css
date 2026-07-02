@@ -910,6 +910,12 @@
   line-height: 1.5;
 }
 .meeting-compose-form .modal-actions { margin-top: 8px; }
+.giq-meeting-fallbacks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.giq-meeting-fallbacks .btn-cancel { font-size: 13px; }
 .admin-dashboard .spin {
   animation: admin-spin 0.8s linear infinite;
 }
