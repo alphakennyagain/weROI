@@ -1784,15 +1784,103 @@ html[data-theme="dark"] .giq-chat-panel {
 .giq-assessment-recap-body { padding: 20px 22px 24px; }
 .giq-recap-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 20px;
 }
-.giq-recap-item { display: flex; flex-direction: column; gap: 4px; }
-.giq-recap-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-.giq-recap-value { font-size: 14px; color: var(--ink); line-height: 1.45; }
+.giq-recap-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.giq-recap-item--full {
+  grid-column: 1 / -1;
+}
+.giq-recap-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.giq-recap-value {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.giq-recap-value--text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.giq-recap-link {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+  text-decoration: none;
+}
+.giq-recap-link:hover {
+  color: var(--lime-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.giq-recap-link-text {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+.giq-recap-goals {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.giq-recap-goals-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) minmax(0, 1fr);
+  gap: 8px 16px;
+  align-items: start;
+}
+.giq-recap-goals-row dt {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.giq-recap-goals-row dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 .giq-recap-presence { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(32, 32, 32, 0.08); }
 .giq-recap-presence h3 { margin: 0 0 10px; font-size: 14px; }
-.giq-recap-presence ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+.giq-recap-presence ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .giq-recap-grid {
+    grid-template-columns: 1fr;
+  }
+  .giq-recap-goals-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
 
 @media (max-width: 600px) {
   .giq-steps-label { display: none; }
