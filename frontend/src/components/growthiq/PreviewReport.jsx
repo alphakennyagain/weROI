@@ -1,4 +1,5 @@
 import React from 'react';
+import { GROWTHIQ_BRAND } from '../../data/growthiqConstants';
 
 const SAMPLE_CATEGORIES = [
   { label: 'Website Experience', score: 78 },
@@ -14,7 +15,7 @@ export default function PreviewReport() {
     <div className="giq-preview-report-wrap">
       <div className="giq-preview-report" aria-hidden="true">
         <div className="giq-preview-header">
-          <span className="giq-preview-eyebrow">GrowthIQ™ Report</span>
+          <span className="giq-preview-eyebrow">{GROWTHIQ_BRAND} Report</span>
           <div className="giq-preview-score-row">
             <div className="giq-preview-score">
               <span className="giq-preview-score-num">84</span>

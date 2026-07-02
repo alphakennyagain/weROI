@@ -25,6 +25,7 @@ import {
   getEstimatedMinutesRemaining,
   prepareSubmissionData,
   SOCIAL_USERNAME_PLACEHOLDERS,
+  GROWTHIQ_BRAND,
 } from '../../data/growthiqConstants';
 
 const TOTAL_STEPS = 4;
@@ -399,7 +400,7 @@ export default function GrowthIQWizard({ onComplete, onStepChange }) {
             {data.social_platforms.filter((p) => p !== 'Other').map((platform) => (
               <div key={platform} className="giq-field giq-field--mt">
                 <label className="giq-label">{platform} username</label>
-                <p className="giq-field-hint">Username only — we build the full profile link (e.g. instagram.com/yourname).</p>
+                <p className="giq-field-hint">Username only. We build the full profile link (e.g. instagram.com/yourname).</p>
                 <div className="giq-input-prefix-wrap">
                   <span className="giq-input-prefix">@</span>
                   <input
@@ -584,7 +585,7 @@ export default function GrowthIQWizard({ onComplete, onStepChange }) {
                 </GlowButton>
               ) : (
                 <GlowButton onClick={submit} className="giq-nav-btn giq-nav-primary">
-                  Generate My GrowthIQ™ Report <ArrowRight size={16} />
+                  Generate My {GROWTHIQ_BRAND} Report <ArrowRight size={16} />
                 </GlowButton>
               )}
             </div>

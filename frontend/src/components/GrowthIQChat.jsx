@@ -3,24 +3,25 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { MessageCircle, X, Sparkles, ArrowRight, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiUrl } from '../lib/apiConfig';
+import { GROWTHIQ_BRAND } from '../data/growthiqConstants';
 import './GrowthIQ.css';
 
 const QUICK_REPLIES = [
   {
-    q: 'What is GrowthIQ™?',
-    a: 'GrowthIQ™ is weROI\'s free AI-powered digital growth assessment. Answer a few questions about your business and get an instant personalized report with scores, priorities, and a growth roadmap.',
+    q: `What is ${GROWTHIQ_BRAND}?`,
+    a: `${GROWTHIQ_BRAND} is weROI's free AI-powered digital growth assessment. Answer a few questions about your business and get an instant personalized report with scores, priorities, and a growth roadmap.`,
   },
   {
     q: 'How long does it take?',
-    a: 'About 3 to 5 minutes. Your progress saves automatically — close the tab anytime and you will pick up right where you left off.',
+    a: 'About 3 to 5 minutes. Your progress saves automatically. Close the tab anytime and you will pick up right where you left off.',
   },
   {
     q: 'Is it really free?',
-    a: 'Yes. The GrowthIQ™ report is completely free with no obligation. After your report, you can optionally request a complimentary expert review from our team.',
+    a: `Yes. The ${GROWTHIQ_BRAND} report is completely free with no obligation. After your report, you can optionally request a complimentary expert review from the weROI team.`,
   },
   {
     q: 'What is the expert review?',
-    a: 'After your free AI report, you can request a complimentary expert review. Our team may validate findings, share deeper strategy, and in some cases provide visual concepts or website ideas so you can see what working with weROI looks like. Provided at our discretion — not guaranteed.',
+    a: `After your free ${GROWTHIQ_BRAND} report, you can request a complimentary expert review. The weROI team may validate findings, share deeper strategy, and in some cases provide visual concepts or website ideas so you can see what working with weROI looks like. Provided at our discretion, not guaranteed.`,
   },
   {
     q: 'What services does weROI offer?',
@@ -49,7 +50,7 @@ export default function GrowthIQChat() {
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      text: 'Hi! I\'m the GrowthIQ™ assistant. Ask me anything about the free assessment, expert review, or weROI services.',
+      text: `Hi! I'm the ${GROWTHIQ_BRAND} assistant. Ask me anything about the free assessment, expert review, or weROI services.`,
     },
   ]);
   const bottomRef = useRef(null);
@@ -92,7 +93,7 @@ export default function GrowthIQChat() {
     if (!apiUrl) {
       setMessages((prev) => [...prev, {
         role: 'bot',
-        text: 'Start your free GrowthIQ™ assessment to get your personalized growth score and roadmap in minutes.',
+        text: `Start your free ${GROWTHIQ_BRAND} assessment to get your personalized growth score and roadmap in minutes.`,
       }]);
       setLoading(false);
       return;
@@ -110,7 +111,7 @@ export default function GrowthIQChat() {
     } catch {
       setMessages((prev) => [...prev, {
         role: 'bot',
-        text: localFaqAnswer(trimmed) || 'I can help with GrowthIQ™, the free assessment, and weROI services. Start your free assessment anytime.',
+        text: localFaqAnswer(trimmed) || `I can help with ${GROWTHIQ_BRAND}, the free assessment, and weROI services. Start your free assessment anytime.`,
       }]);
     } finally {
       setLoading(false);
@@ -135,12 +136,12 @@ export default function GrowthIQChat() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             role="dialog"
-            aria-label="GrowthIQ assistant"
+            aria-label={`${GROWTHIQ_BRAND} assistant`}
           >
             <div className="giq-chat-header">
               <div>
                 <Sparkles size={16} />
-                <span>GrowthIQ™ Assistant</span>
+                <span>{GROWTHIQ_BRAND} Assistant</span>
               </div>
               <button type="button" onClick={() => setOpen(false)} aria-label="Close chat">
                 <X size={18} />
@@ -166,7 +167,7 @@ export default function GrowthIQChat() {
               <input
                 type="text"
                 className="giq-chat-input"
-                placeholder="Ask anything about GrowthIQ…"
+                placeholder={`Ask anything about ${GROWTHIQ_BRAND}…`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 maxLength={500}
@@ -178,7 +179,7 @@ export default function GrowthIQChat() {
               </button>
             </form>
             <button type="button" className="giq-chat-cta" onClick={goAssessment}>
-              Get My Free Assessment <ArrowRight size={14} />
+              Get My GrowthIQ Score <ArrowRight size={14} />
             </button>
           </motion.div>
         )}
@@ -188,7 +189,7 @@ export default function GrowthIQChat() {
         type="button"
         className="giq-chat-fab"
         onClick={() => setOpen(!open)}
-        aria-label={open ? 'Close GrowthIQ chat' : 'Open GrowthIQ chat'}
+        aria-label={open ? `Close ${GROWTHIQ_BRAND} chat` : `Open ${GROWTHIQ_BRAND} chat`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         data-testid="giq-chat-fab"

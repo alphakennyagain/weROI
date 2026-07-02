@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Sparkles, Check } from 'lucide-react';
+import { ArrowRight, Sparkles, Check, Target, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
-import SiteHeader from './SiteHeader';
+import GrowthIQNav from './growthiq/GrowthIQNav';
 import GlowButton from './ui/GlowButton';
 import GrowthIQWizard from './growthiq/GrowthIQWizard';
 import GrowthIQProcessing from './growthiq/GrowthIQProcessing';
@@ -12,6 +11,10 @@ import {
   HOW_IT_WORKS,
   PREMIUM_CARDS,
   HERO_CHECKMARKS,
+  HERO_PROOF_STAT,
+  CTA_TIME_NOTE,
+  GROWTHIQ_BRAND,
+  WHAT_IS_GROWTHIQ,
   hasDraft,
   clearDraft,
 } from '../data/growthiqConstants';
@@ -163,15 +166,7 @@ export default function GrowthPreview() {
   if (phase === PHASE.REPORT && result) {
     return (
       <div className="giq-page">
-        <SiteHeader
-          className="giq-header"
-          hideLogo
-          showCenterLinks={false}
-          showDesktopCta={false}
-          desktopActions={
-            <Link to="/" className="giq-back"><ArrowLeft size={14} /> Home</Link>
-          }
-        />
+        <GrowthIQNav />
         <GrowthIQReport
           report={result.report}
           assessment={result}
@@ -193,8 +188,8 @@ export default function GrowthPreview() {
           <h1>{expertRequested ? 'Expert review requested!' : 'Thank you!'}</h1>
           <p>
             {expertRequested
-              ? 'Our team will review your GrowthIQ™ assessment and reach out within 48 hours.'
-              : 'Your GrowthIQ™ report has been saved. You can return anytime to request a complimentary expert review.'}
+              ? `Our weROI team will review your ${GROWTHIQ_BRAND} assessment and reach out within 48 hours.`
+              : `Your ${GROWTHIQ_BRAND} report has been saved. You can return anytime to request a complimentary expert review from our team.`}
           </p>
           {result?.report_id && (
             <p className="giq-report-id">Report ID: {result.report_id}</p>
@@ -209,16 +204,7 @@ export default function GrowthPreview() {
 
   return (
     <div className="giq-page" data-testid="growth-preview-page">
-      <SiteHeader
-        className="giq-header"
-        hideLogo
-        showCenterLinks={false}
-        showDesktopCta={false}
-        ctaLabel="Free Assessment"
-        desktopActions={
-          <Link to="/" className="giq-back"><ArrowLeft size={14} /> Home</Link>
-        }
-      />
+      <GrowthIQNav />
 
       <section className="giq-hero">
         <div className="container">
@@ -227,7 +213,7 @@ export default function GrowthPreview() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            weROI Growth Preview · GrowthIQ™
+            Powered by {GROWTHIQ_BRAND}
           </motion.span>
           <motion.h1
             className="giq-hero-title"
@@ -235,7 +221,7 @@ export default function GrowthPreview() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            What&apos;s Your Business&apos;s GrowthIQ Score?
+            What&apos;s Your {GROWTHIQ_BRAND} Score?
           </motion.h1>
           <motion.p
             className="giq-hero-sub"
@@ -244,7 +230,7 @@ export default function GrowthPreview() {
             transition={{ delay: 0.2 }}
           >
             Most business owners do not realize where they are losing customers online. In under 5 minutes,
-            get a personalized GrowthIQ™ report that reveals your biggest opportunities, with no obligation.
+            get a personalized {GROWTHIQ_BRAND} report that reveals your biggest opportunities, with no obligation.
           </motion.p>
           {phase === PHASE.LANDING && (
             <motion.div
@@ -254,8 +240,10 @@ export default function GrowthPreview() {
               transition={{ delay: 0.3 }}
             >
               <GlowButton size="lg" onClick={startAssessment} data-testid="giq-hero-cta">
-                Get My Free Assessment <ArrowRight size={18} />
+                See What&apos;s Holding Me Back <ArrowRight size={18} />
               </GlowButton>
+              <p className="giq-hero-proof-stat">{HERO_PROOF_STAT}</p>
+              <p className="giq-hero-micro">{CTA_TIME_NOTE} · Your progress saves automatically</p>
               <ul className="giq-hero-checkmarks">
                 {HERO_CHECKMARKS.map((item) => (
                   <li key={item}><Check size={14} /> {item}</li>
@@ -265,6 +253,38 @@ export default function GrowthPreview() {
           )}
         </div>
       </section>
+
+      {phase === PHASE.LANDING && (
+        <section className="giq-hero-preview">
+          <div className="container">
+            <PreviewReport />
+          </div>
+        </section>
+      )}
+
+      {phase === PHASE.LANDING && (
+        <section className="giq-section giq-explainer">
+          <div className="container giq-explainer-inner">
+            <h2 className="giq-section-title">{WHAT_IS_GROWTHIQ.title}</h2>
+            <div className="giq-explainer-body">
+              {WHAT_IS_GROWTHIQ.body.map((para) => (
+                <p key={para.slice(0, 40)}>{para}</p>
+              ))}
+            </div>
+            <ul className="giq-explainer-bullets">
+              {WHAT_IS_GROWTHIQ.bullets.map((item) => {
+                const Icon = item.icon === 'shield' ? Shield : item.icon === 'target' ? Target : Sparkles;
+                return (
+                  <li key={item.text}>
+                    <Icon size={18} />
+                    <span>{item.text}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
 
       <section className="giq-section">
         <div className="container">
@@ -290,7 +310,7 @@ export default function GrowthPreview() {
 
       <section className="giq-section giq-section--alt">
         <div className="container">
-          <h2 className="giq-section-title">What&apos;s Included in Your GrowthIQ™ Report</h2>
+          <h2 className="giq-section-title">What&apos;s Included in Your {GROWTHIQ_BRAND} Report</h2>
           <div className="giq-premium-grid">
             {PREMIUM_CARDS.map((card) => (
               <div key={card.title} className="giq-premium-card">
@@ -307,18 +327,17 @@ export default function GrowthPreview() {
           <div className="container giq-form-container">
             {phase === PHASE.LANDING && (
               <div className="giq-form-intro">
-                <PreviewReport />
                 <p className="giq-exclusivity">
-                  Every GrowthIQ™ Assessment is personalized for your business. To ensure quality,
-                  our expert reviews are completed for a limited number of businesses each week.
+                  Every {GROWTHIQ_BRAND} Assessment is personalized for your business. To ensure quality,
+                  our weROI expert reviews are completed for a limited number of businesses each week.
                 </p>
-                <h2>Ready to see your growth score?</h2>
-                <p>About 3 to 5 minutes · Instant AI report · No obligation</p>
+                <h2>Ready to find out where you stand?</h2>
+                <p>{CTA_TIME_NOTE} · Instant {GROWTHIQ_BRAND} report · No obligation</p>
                 <div className="giq-intro-ctas">
                   <GlowButton onClick={startAssessment} size="lg">
-                    Start My Assessment <ArrowRight size={16} />
+                    Show Me My Growth Plan <ArrowRight size={16} />
                   </GlowButton>
-                  <p className="giq-intro-cta-note">Scroll down when you are ready — your progress saves automatically.</p>
+                  <p className="giq-intro-cta-note">{CTA_TIME_NOTE} · Your progress saves automatically</p>
                 </div>
               </div>
             )}
@@ -326,7 +345,7 @@ export default function GrowthPreview() {
               <div className="giq-assessment-wrap">
                 <div className="giq-assessment-badge">
                   <Sparkles size={16} />
-                  <span>GrowthIQ™ Assessment</span>
+                  <span>{GROWTHIQ_BRAND} Assessment</span>
                 </div>
                 {error && <p className="giq-error giq-error--center" role="alert">{error}</p>}
                 <GrowthIQWizard onComplete={handleFormComplete} />

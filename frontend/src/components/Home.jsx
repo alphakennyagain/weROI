@@ -276,7 +276,7 @@ return { roi: "proven" };`}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <GlowButton onClick={goGrowthPreview} data-testid="hero-cta-btn" size="lg" className="glow-btn">
-                Get My Free Assessment <ArrowRight size={18} />
+                See What&apos;s Holding Me Back <ArrowRight size={18} />
               </GlowButton>
               <GlowButton onClick={goCaseStudies} data-testid="hero-view-work-btn" size="lg" variant="ghost">
                 View our work <ArrowUpRight size={18} />
@@ -539,7 +539,7 @@ return { roi: "proven" };`}
             <div>
               <span className="eyebrow cta-eyebrow" style={{ color: 'var(--lime)' }}>
                 <TextType
-                  text={['Next step', 'Start here', 'Get your GrowthIQ report']}
+                  text={['Next step', 'Start here', 'Get your weROI GrowthIQ™ report']}
                   typingSpeed={60}
                   pauseDuration={1800}
                   startOnVisible
@@ -560,7 +560,7 @@ return { roi: "proven" };`}
             </div>
             <div>
               <GlowButton onClick={goGrowthPreview} data-testid="cta-btn" size="lg" className="glow-btn">
-                Get My Free Assessment <ArrowRight size={18} />
+                See What&apos;s Holding Me Back <ArrowRight size={18} />
               </GlowButton>
             </div>
           </div>
@@ -605,7 +605,7 @@ return { roi: "proven" };`}
                 </li>
                 <li data-testid="footer-growth-preview">
                   <Link to="/growth-preview">
-                    <Calendar size={14} /> Free Assessment
+                    <Calendar size={14} /> Get My GrowthIQ Score
                   </Link>
                 </li>
                 <li>

@@ -33,6 +33,52 @@ html[data-theme="dark"] .giq-header {
 }
 .giq-back:hover { opacity: 0.65; }
 
+.giq-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Explainer */
+.giq-explainer { padding-top: 0; }
+.giq-explainer-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+.giq-explainer-body p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.giq-explainer-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 28px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.giq-explainer-bullets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--carbon);
+  line-height: 1.5;
+}
+.giq-explainer-bullets svg {
+  color: var(--lime-ink);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
 /* Hero */
 .giq-hero {
   padding: clamp(48px, 8vw, 96px) 0 clamp(32px, 5vw, 64px);
@@ -68,6 +114,23 @@ html[data-theme="dark"] .giq-header {
 
 .giq-hero-cta { display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .giq-hero-micro { font-size: 13px; color: var(--muted); }
+
+.giq-hero-proof-stat {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+
+.giq-hero-preview {
+  padding: 0 0 clamp(24px, 4vw, 48px);
+  text-align: center;
+}
+.giq-hero-preview .giq-preview-report-wrap {
+  margin: 0 auto;
+}
 
 .giq-hero-checkmarks {
   display: flex;
@@ -936,6 +999,7 @@ html[data-theme="dark"] .giq-cat-card {
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px;
+  min-height: 56px;
   background: none;
   border: none;
   cursor: pointer;
@@ -958,6 +1022,84 @@ html[data-theme="dark"] .giq-cat-card {
   height: 100%;
   background: var(--lime);
   border-radius: 999px;
+}
+.giq-cat-card.is-open {
+  border-color: rgba(200, 245, 66, 0.35);
+}
+.giq-score-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.giq-score-badge--strong { background: rgba(200, 245, 66, 0.25); color: var(--lime-ink); }
+.giq-score-badge--needs-attention { background: rgba(245, 166, 35, 0.15); color: #b87a10; }
+.giq-score-badge--priority-area { background: rgba(232, 93, 76, 0.15); color: #c44a3a; }
+.giq-cat-hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin: -8px 0 16px;
+}
+.giq-cat-finding {
+  margin: 14px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.giq-cat-finding strong,
+.giq-cat-section strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.giq-cat-rec-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--carbon);
+}
+.giq-cat-weroi-help {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  background: rgba(200, 245, 66, 0.08);
+  border-radius: 10px;
+  border-left: 3px solid var(--lime);
+}
+.giq-report-summary-card {
+  background: var(--paper);
+  border: 1px solid rgba(32, 32, 32, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+}
+html[data-theme="dark"] .giq-report-summary-card {
+  background: rgba(255, 255, 255, 0.03);
+}
+.giq-priority-areas {
+  margin-top: 20px;
+}
+.giq-priority-areas h3 {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.giq-priority-areas ul {
+  padding-left: 20px;
+  margin: 0;
+  font-size: 14px;
+}
+.giq-priority-areas li { margin-bottom: 6px; }
+.giq-expert-invite {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  padding-top: 16px;
+  border-top: 1px solid rgba(32, 32, 32, 0.06);
 }
 .giq-cat-score {
   font-family: var(--font-mono);
@@ -1304,6 +1446,11 @@ html[data-theme="dark"] .giq-chat-panel {
   .giq-nav-btn { width: 100%; justify-content: center; }
   .giq-report-cta { padding: 28px 16px; }
   .giq-cta-actions { flex-direction: column; }
+  .giq-cat-header { padding: 14px 16px; min-height: 60px; }
+  .giq-cat-score-bar { width: 56px; }
+  .giq-cat-right svg { flex-shrink: 0; }
+  .giq-report-grid { grid-template-columns: 1fr; }
+  .giq-report-summary-card { padding: 18px; }
 }
 
 @media (max-width: 600px) {

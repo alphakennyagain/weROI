@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, CheckCircle2 } from 'lucide-react';
-import { PROCESSING_STEPS } from '../../data/growthiqConstants';
+import { PROCESSING_STEPS, GROWTHIQ_BRAND } from '../../data/growthiqConstants';
 
 export default function GrowthIQProcessing({ onComplete }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -33,8 +33,8 @@ export default function GrowthIQProcessing({ onComplete }) {
           <div className="giq-processing-ring-inner" />
         </motion.div>
 
-        <h2 className="giq-processing-title">GrowthIQ™ is analyzing your business</h2>
-        <p className="giq-processing-sub">Building your personalized growth assessment...</p>
+        <h2 className="giq-processing-title">{GROWTHIQ_BRAND} is analyzing your business</h2>
+        <p className="giq-processing-sub">Building your personalized {GROWTHIQ_BRAND} assessment...</p>
 
         <ul className="giq-processing-steps">
           {PROCESSING_STEPS.map((label, i) => {

@@ -1,14 +1,37 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Download, TrendingUp, AlertTriangle, Target, Zap, Map, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import GlowButton from '../ui/GlowButton';
+import { GROWTHIQ_BRAND } from '../../data/growthiqConstants';
+
+function useCountUp(target, duration = 1200) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!target) {
+      setValue(0);
+      return undefined;
+    }
+    const start = performance.now();
+    let frame;
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - (1 - progress) ** 3;
+      setValue(Math.round(eased * target));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, duration]);
+  return value;
+}
 
 function ScoreRing({ score, size = 140 }) {
+  const animatedScore = useCountUp(score);
   const radius = (size - 12) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
+  const offset = circumference - (animatedScore / 100) * circumference;
   const color = score >= 70 ? 'var(--lime)' : score >= 50 ? '#f5a623' : '#e85d4c';
 
   return (
@@ -31,59 +54,104 @@ function ScoreRing({ score, size = 140 }) {
         />
       </svg>
       <div className="giq-score-ring-label">
-        <span className="giq-score-num">{score}</span>
+        <span className="giq-score-num">{animatedScore}</span>
         <span className="giq-score-of">/ 100</span>
       </div>
     </div>
   );
 }
 
-function CategoryCard({ cat }) {
-  const [open, setOpen] = useState(false);
+function AnimatedScoreBar({ score }) {
+  const animatedScore = useCountUp(score, 900);
+  return (
+    <div className="giq-cat-score-bar" aria-hidden="true">
+      <motion.div
+        className="giq-cat-score-fill"
+        initial={{ width: 0 }}
+        animate={{ width: `${animatedScore}%` }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      />
+    </div>
+  );
+}
+
+function CategoryCard({ cat, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
   const priorityClass = (cat.priority_level || '').toLowerCase();
+  const displayScore = useCountUp(cat.score || 0, 900);
+  const scoreLabel = cat.score_label || '';
 
   return (
-    <div className="giq-cat-card">
-      <button type="button" className="giq-cat-header" onClick={() => setOpen(!open)} aria-expanded={open}>
+    <div className={`giq-cat-card${open ? ' is-open' : ''}`}>
+      <button
+        type="button"
+        className="giq-cat-header"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+      >
         <div className="giq-cat-left">
           <span className="giq-cat-label">{cat.label}</span>
+          {scoreLabel && (
+            <span className={`giq-score-badge giq-score-badge--${scoreLabel.toLowerCase().replace(/\s+/g, '-')}`}>
+              {scoreLabel}
+            </span>
+          )}
           <span className={`giq-priority giq-priority--${priorityClass}`}>{cat.priority_level}</span>
         </div>
         <div className="giq-cat-right">
-          <div className="giq-cat-score-bar">
-            <div className="giq-cat-score-fill" style={{ width: `${cat.score}%` }} />
-          </div>
-          <span className="giq-cat-score">{cat.score}</span>
-          {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          <AnimatedScoreBar score={cat.score || 0} />
+          <span className="giq-cat-score">{displayScore}</span>
+          {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </div>
       </button>
-      {open && (
-        <motion.div
-          className="giq-cat-body"
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-        >
-          <p className="giq-cat-explanation">{cat.explanation}</p>
-          {cat.strengths?.length > 0 && (
-            <div className="giq-cat-section">
-              <strong>Strengths</strong>
-              <ul>{cat.strengths.map((s) => <li key={s}>{s}</li>)}</ul>
-            </div>
-          )}
-          {cat.weaknesses?.length > 0 && (
-            <div className="giq-cat-section">
-              <strong>Areas to improve</strong>
-              <ul>{cat.weaknesses.map((w) => <li key={w}>{w}</li>)}</ul>
-            </div>
-          )}
-          {cat.recommendations?.length > 0 && (
-            <div className="giq-cat-section">
-              <strong>Recommendations</strong>
-              <ul>{cat.recommendations.map((r) => <li key={r}>{r}</li>)}</ul>
-            </div>
-          )}
-        </motion.div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            className="giq-cat-body"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {cat.finding && (
+              <div className="giq-cat-finding">
+                <strong>Finding</strong>
+                <p>{cat.finding}</p>
+              </div>
+            )}
+            {!cat.finding && cat.explanation && (
+              <p className="giq-cat-explanation">{cat.explanation}</p>
+            )}
+            {cat.recommendation && (
+              <div className="giq-cat-section">
+                <strong>Recommendation</strong>
+                <p className="giq-cat-rec-text">{cat.recommendation}</p>
+              </div>
+            )}
+            {cat.weroi_help && (
+              <p className="giq-cat-weroi-help">{cat.weroi_help}</p>
+            )}
+            {cat.strengths?.length > 0 && (
+              <div className="giq-cat-section">
+                <strong>Strengths</strong>
+                <ul>{cat.strengths.map((s) => <li key={s}>{s}</li>)}</ul>
+              </div>
+            )}
+            {cat.weaknesses?.length > 0 && (
+              <div className="giq-cat-section">
+                <strong>Areas to improve</strong>
+                <ul>{cat.weaknesses.map((w) => <li key={w}>{w}</li>)}</ul>
+              </div>
+            )}
+            {cat.recommendations?.length > 1 && (
+              <div className="giq-cat-section">
+                <strong>Additional steps</strong>
+                <ul>{cat.recommendations.map((r) => <li key={r}>{r}</li>)}</ul>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -98,6 +166,7 @@ export default function GrowthIQReport({
 }) {
   const r = report || {};
   const business = assessment?.business_name || 'Your Business';
+  const summary = r.report_summary || {};
 
   const handleDownload = () => {
     const content = JSON.stringify({ report_id: reportId, business, report: r, assessment }, null, 2);
@@ -110,10 +179,14 @@ export default function GrowthIQReport({
     URL.revokeObjectURL(url);
   };
 
+  const ctaHeadline = (r.overall_score || 0) >= 85
+    ? 'Want a second opinion on your next-level opportunities?'
+    : 'Imagine what we could uncover with a full expert review.';
+
   return (
     <div className="giq-report">
       <section className="giq-report-hero">
-        <span className="giq-eyebrow">GrowthIQ™ Report</span>
+        <span className="giq-eyebrow">{GROWTHIQ_BRAND} Report</span>
         <h1 className="giq-report-title">{business}</h1>
         <p className="giq-report-id">Report ID: {reportId}</p>
 
@@ -128,9 +201,32 @@ export default function GrowthIQReport({
 
         <p className="giq-disclaimer">
           Based on the information provided. This assessment is not a guarantee of results.
-          Scores reflect self-reported data and AI analysis.
+          Scores reflect self-reported data and analysis from your answers
+          {r.website_analysis_used ? ' plus live website signals' : ''}.
         </p>
       </section>
+
+      {(summary.overall_meaning || summary.priority_areas?.length > 0) && (
+        <section className="giq-report-section giq-report-summary-card">
+          <h2>Your Score at a Glance</h2>
+          {summary.overall_meaning && (
+            <p className="giq-summary-text">{summary.overall_meaning}</p>
+          )}
+          {summary.priority_areas?.length > 0 && (
+            <div className="giq-priority-areas">
+              <h3>Top Priority Areas</h3>
+              <ul>
+                {summary.priority_areas.map((area) => (
+                  <li key={area}>{area}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {summary.expert_review_invite && (
+            <p className="giq-expert-invite">{summary.expert_review_invite}</p>
+          )}
+        </section>
+      )}
 
       {r.business_summary && (
         <section className="giq-report-section">
@@ -143,9 +239,17 @@ export default function GrowthIQReport({
         <section className="giq-report-section giq-confidence">
           <h2>Report Confidence</h2>
           <div className="giq-confidence-bar">
-            <div className="giq-confidence-fill" style={{ width: `${r.confidence_score}%` }} />
+            <motion.div
+              className="giq-confidence-fill"
+              initial={{ width: 0 }}
+              animate={{ width: `${r.confidence_score}%` }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            />
           </div>
-          <p className="giq-confidence-label">{r.confidence_score}% confidence based on data provided{r.website_analysis_used ? ' and live website analysis' : ''}</p>
+          <p className="giq-confidence-label">
+            {r.confidence_score}% confidence based on data provided
+            {r.website_analysis_used ? ' and live website analysis' : ''}
+          </p>
         </section>
       )}
 
@@ -164,9 +268,10 @@ export default function GrowthIQReport({
 
       <section className="giq-report-section">
         <h2>Category Breakdown</h2>
+        <p className="giq-cat-hint">Tap a category to expand details.</p>
         <div className="giq-cat-list">
           {(r.categories || []).map((cat) => (
-            <CategoryCard key={cat.key || cat.label} cat={cat} />
+            <CategoryCard key={cat.key || cat.label} cat={cat} defaultOpen={false} />
           ))}
         </div>
       </section>
@@ -233,12 +338,12 @@ export default function GrowthIQReport({
       )}
 
       <section className="giq-report-cta" id="giq-expert-review">
-        <h2>Imagine what we could uncover with a full expert review.</h2>
+        <h2>{ctaHeadline}</h2>
         <p>
-          Your GrowthIQ™ report is a strong starting point. If you would like us to go deeper,
-          request a complimentary expert review. Our team will personally validate your assessment,
+          Your {GROWTHIQ_BRAND} report is a strong starting point. If you would like us to go deeper,
+          request a complimentary expert review. The weROI team will personally validate your assessment,
           identify additional opportunities, and show you what partnering with weROI could look like
-          for your business — including strategic recommendations and, when appropriate, visual
+          for your business, including strategic recommendations and, when appropriate, visual
           concepts or website mockups to illustrate the path forward. These are provided at our
           discretion and are not guaranteed with every review.
         </p>

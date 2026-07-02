@@ -1,14 +1,20 @@
 export const STORAGE_KEY = 'weroi_growthiq_draft';
 
+export const GROWTHIQ_BRAND = 'weROI GrowthIQ™';
+
 export const STEP_LABELS = ['Contact', 'Business', 'Digital Presence', 'Goals'];
 
 export const HERO_CHECKMARKS = [
   'Free',
-  'Takes 3–5 minutes',
-  'Instant AI Report',
-  'No Obligation',
-  'Optional Expert Review',
+  'Takes 3-5 minutes',
+  'Instant weROI GrowthIQ™ Report',
+  'No obligation',
+  'No sales call unless you ask for one',
 ];
+
+export const HERO_PROOF_STAT = 'weROI GrowthIQ™ clients average a 3.2x revenue lift after implementing their growth plan.';
+
+export const CTA_TIME_NOTE = 'Takes 3-5 minutes';
 
 export const INDUSTRIES = [
   'Accounting & Finance',
@@ -127,7 +133,7 @@ export const DIGITAL_PRESENCE_FIELDS = [
 ];
 
 export const PREMIUM_CARDS = [
-  { title: 'Overall Growth Score', desc: 'Your single GrowthIQ™ score with letter grade and growth level.' },
+  { title: 'Overall Growth Score', desc: 'Your single weROI GrowthIQ™ score with letter grade and growth level.' },
   { title: 'Website Experience', desc: 'How well your site converts visitors into customers.' },
   { title: 'SEO Potential', desc: 'Discoverability and search visibility opportunities.' },
   { title: 'Brand & Trust', desc: 'Consistency, credibility, and social proof signals.' },
@@ -137,6 +143,21 @@ export const PREMIUM_CARDS = [
   { title: 'Growth Roadmap', desc: 'Prioritized 30, 60, and 90 day action plan.' },
 ];
 
+export const WHAT_IS_GROWTHIQ = {
+  title: 'What Is GrowthIQ?',
+  body: [
+    `${GROWTHIQ_BRAND} is not a chatbot, a generic AI prompt, or a DIY ChatGPT audit. It is a personalized business review built from your answers and, when you share a URL, a live look at your website.`,
+    `Behind every score is the weROI team and methodology. We condensed the same lens we use in client work into a focused assessment that applies to your business, not a one-size-fits-all template.`,
+    `Free AI audits online rarely connect to your goals, industry, or actual site. ${GROWTHIQ_BRAND} is specific to you, catered by weROI, so you get a read you can act on.`,
+    `This is an experienced team's perspective in minutes, not a script.`,
+  ],
+  bullets: [
+    { icon: 'target', text: 'Personalized from your answers and website signals' },
+    { icon: 'shield', text: 'Built on weROI methodology, not random AI integration' },
+    { icon: 'sparkles', text: 'Specific findings for your business, not generic SEO tips' },
+  ],
+};
+
 export const HOW_IT_WORKS = [
   {
     step: '01',
@@ -145,8 +166,8 @@ export const HOW_IT_WORKS = [
   },
   {
     step: '02',
-    title: 'Receive your GrowthIQ™ Score instantly',
-    desc: 'Our AI analyzes your answers (and your website if provided) to calculate your personalized score.',
+    title: 'Receive your weROI GrowthIQ™ Score instantly',
+    desc: 'Our AI analyzes your answers (and your website if provided) to calculate your personalized weROI GrowthIQ™ score.',
   },
   {
     step: '03',

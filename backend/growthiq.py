@@ -76,6 +76,30 @@ def growth_level(score: int) -> str:
     return "Emerging"
 
 
+def score_label(score: int) -> str:
+    """Human-readable label for category/overall scores."""
+    if score >= 85:
+        return "Strong"
+    if score >= 60:
+        return "Needs Attention"
+    return "Priority Area"
+
+
+CATEGORY_DISPLAY = {
+    "website": "Website Experience",
+    "seo": "SEO Potential",
+    "brand": "Brand & Trust",
+    "performance": "Performance",
+    "lead_gen": "Lead Generation",
+    "ux": "User Experience",
+    "accessibility": "Accessibility",
+    "trust": "Trust & Credibility",
+    "marketing": "Marketing Channels",
+    "automation": "Automation Readiness",
+    "digital_presence": "Digital Presence",
+}
+
+
 def _hedged(text: str) -> str:
     if not text.startswith("Based on"):
         return f"Based on the information provided, {text[0].lower()}{text[1:]}" if text else text
@@ -160,7 +184,7 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
             r"<(a|button)[^>]*>([^<]*(?:contact|book|schedule|get started|sign up|buy|shop|quote|free|call|learn more)[^<]*)</\1>",
             re.I,
         )
-        ctas = [_strip_tags(m.group(2))[:80] for m in cta_patterns.finditer(html)[:8]]
+        ctas = [_strip_tags(m.group(2))[:80] for m in list(cta_patterns.finditer(html))[:8]]
         ctas = list(dict.fromkeys([c for c in ctas if c]))
 
         has_viewport = bool(re.search(r'<meta[^>]+name=["\']viewport["\']', html, re.I))
@@ -179,6 +203,33 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
 
         img_count = len(re.findall(r"<img\b", html, re.I))
         alt_missing = len(re.findall(r"<img(?![^>]*\balt=)[^>]*>", html, re.I))
+
+        has_form = bool(re.search(r"<form\b", html, re.I))
+        has_tel = bool(re.search(r"href=[\"']tel:", html, re.I))
+        has_email = bool(re.search(r"href=[\"']mailto:", html, re.I))
+        has_h2 = len(re.findall(r"<h2\b", html, re.I))
+        word_count = len(_strip_tags(html).split())
+        load_hint = "light" if len(html) < 80_000 else "heavy" if len(html) > 250_000 else "moderate"
+
+        issues: list[str] = []
+        if not title:
+            issues.append("Missing page title")
+        if not meta_desc:
+            issues.append("Missing meta description")
+        if not h1s:
+            issues.append("No H1 heading detected")
+        elif len(h1s) > 1:
+            issues.append(f"Multiple H1 headings ({len(h1s)})")
+        if not has_viewport:
+            issues.append("No viewport meta tag (mobile risk)")
+        if not https:
+            issues.append("Site not served over HTTPS")
+        if alt_missing and img_count:
+            issues.append(f"{alt_missing} of {img_count} images may lack alt text")
+        if not ctas:
+            issues.append("No clear call-to-action text detected")
+        if not has_form and not has_tel and not has_email:
+            issues.append("No contact form, phone, or email link detected")
 
         return {
             "success": status < 400,
@@ -203,6 +254,18 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
                 "image_count": img_count,
                 "images_missing_alt": alt_missing,
             },
+            "conversion_signals": {
+                "has_form": has_form,
+                "has_tel_link": has_tel,
+                "has_email_link": has_email,
+                "cta_count": len(ctas),
+            },
+            "content_signals": {
+                "h2_count": has_h2,
+                "approx_word_count": word_count,
+                "page_weight_hint": load_hint,
+            },
+            "issues_detected": issues[:8],
             "content_length": len(html),
         }
     except requests.RequestException as exc:
@@ -268,79 +331,124 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
 
     overall = round(sum(scores.values()) / len(scores))
 
-    def cat(name: str, label: str, explanation: str, strengths: list, weaknesses: list, recs: list, priority: str):
+    def cat(
+        name: str,
+        label: str,
+        finding: str,
+        recommendation: str,
+        weroi_help: str,
+        explanation: str = "",
+        strengths: list | None = None,
+        weaknesses: list | None = None,
+        recs: list | None = None,
+        priority: str = "Medium",
+    ):
         s = scores[name]
+        sl = score_label(s)
         return {
             "key": name,
             "label": label,
             "score": s,
-            "explanation": _hedged(explanation),
-            "strengths": strengths,
-            "weaknesses": weaknesses,
+            "score_label": sl,
+            "finding": _hedged(finding),
+            "recommendation": recommendation,
+            "weroi_help": weroi_help,
+            "explanation": _hedged(explanation or finding),
+            "strengths": strengths or [],
+            "weaknesses": weaknesses or [],
             "priority_level": priority,
-            "recommendations": recs,
+            "recommendations": recs or [recommendation],
         }
 
+    wa = website_analysis or {}
+    wa_issues = wa.get("issues_detected") or []
+    wa_title = wa.get("title") or ""
+    wa_success = wa.get("success")
+
     categories = []
+    website_finding = (
+        f"Live analysis found: {', '.join(wa_issues[:3])}."
+        if wa_success and wa_issues
+        else f"Based on your responses, {business} appears to have a website."
+        if has_website
+        else f"It appears {business} may not have a live website yet."
+    )
     if not has_website:
         categories.append(
             cat(
                 "website",
-                "Website Quality",
-                f"It appears {business} may not have a live website yet. A professional site is often the foundation for credibility and lead capture in {industry}.",
-                ["Clear opportunity to build a strong first impression"] if presence.get("website") == "being built" else [],
-                ["No live website detected", "Potential customers may struggle to verify your business online"],
-                [
+                "Website Experience",
+                website_finding,
+                "Launch a mobile-responsive site with clear service pages, trust signals, and a simple lead form above the fold.",
+                "weROI builds conversion-focused websites tailored to your industry and goals.",
+                strengths=["Clear opportunity to build a strong first impression"] if presence.get("website") == "being built" else [],
+                weaknesses=["No live website detected", "Potential customers may struggle to verify your business online"],
+                recs=[
                     "Launch a mobile-responsive website with clear service pages and contact paths",
                     "Include trust signals: testimonials, location, and a simple lead form",
                 ],
-                "High",
+                priority="High",
             )
         )
     else:
+        site_rec = (
+            f"Address detected issues: {wa_issues[0]}."
+            if wa_issues
+            else "Audit key landing pages for clarity and calls to action."
+        )
         categories.append(
             cat(
                 "website",
-                "Website Quality",
-                f"Based on your responses, {business} appears to have a website. Further expert review could validate conversion paths and messaging.",
-                ["Website presence established"],
-                ["Conversion optimization may need review", "Content depth unknown without live audit"],
-                ["Audit key landing pages for clarity and calls to action", "Ensure mobile performance meets modern standards"],
-                "Medium",
+                "Website Experience",
+                website_finding + (f' Page title: "{wa_title[:60]}".' if wa_title else ""),
+                site_rec,
+                "weROI can audit your live site and prioritize fixes that move leads and conversions.",
+                strengths=["Website presence established"] + (["HTTPS enabled"] if wa.get("seo_signals", {}).get("https") else []),
+                weaknesses=wa_issues[:3] or ["Conversion optimization may need review"],
+                recs=["Audit key landing pages for clarity and calls to action", "Ensure mobile performance meets modern standards"],
+                priority="High" if wa_issues else "Medium",
             )
         )
 
     seo_val = presence.get("seo", "no").lower()
+    seo_finding = (
+        f"You indicated SEO is \"{seo_val}\"."
+        + (f" Live site {'lacks' if 'Missing meta description' in wa_issues else 'has'} basic SEO signals checked." if wa_success else "")
+        + (
+            " It appears discoverability may be limited without active SEO."
+            if seo_val in ("no", "not sure")
+            else " Some SEO foundation may exist; optimization could unlock additional organic traffic."
+        )
+    )
     categories.append(
         cat(
             "seo",
-            "SEO & Discoverability",
-            f"SEO status: {seo_val}. "
-            + (
-                "It appears discoverability may be limited without active SEO."
-                if seo_val in ("no", "not sure")
-                else "Some SEO foundation may exist; optimization could unlock additional organic traffic."
-            ),
-            ["SEO awareness"] if seo_val == "yes" else [],
-            ["Limited organic visibility potential"] if seo_val != "yes" else ["Competitive keywords may need targeting"],
-            [
+            "SEO Potential",
+            seo_finding,
+            "Claim and optimize Google Business Profile, target 3 to 5 high-intent keywords, and publish content that answers customer questions.",
+            "weROI runs focused SEO audits and builds content plans around keywords your customers actually search.",
+            strengths=["SEO awareness"] if seo_val == "yes" else [],
+            weaknesses=["Limited organic visibility potential"] if seo_val != "yes" else ["Competitive keywords may need targeting"],
+            recs=[
                 "Claim and optimize Google Business Profile if local",
                 "Target 3 to 5 high-intent keywords for your services",
                 "Publish helpful content answering customer questions",
             ],
-            "High" if seo_val != "yes" else "Medium",
+            priority="High" if seo_val != "yes" else "Medium",
         )
     )
 
     categories.append(
         cat(
             "brand",
-            "Brand Consistency",
-            f"Brand guidelines status: {presence.get('brand_guidelines', 'not sure')}. Consistent branding typically improves trust and recognition.",
-            ["Brand foundation may exist"] if presence.get("brand_guidelines") == "yes" else [],
-            ["Inconsistent visuals or messaging may reduce trust"] if presence.get("brand_guidelines") != "yes" else [],
-            ["Document core colors, fonts, and tone of voice", "Align website and social profiles to one visual system"],
-            "Medium",
+            "Brand & Trust",
+            f"Brand guidelines status: {presence.get('brand_guidelines', 'not sure')}. Consistent branding typically improves trust and recognition in {industry}.",
+            "Document core colors, fonts, and tone of voice, then align website and social profiles to one visual system.",
+            "weROI helps businesses tighten brand systems so every touchpoint feels intentional.",
+            strengths=["Brand foundation may exist"] if presence.get("brand_guidelines") == "yes" else [],
+            weaknesses=["Inconsistent visuals or messaging may reduce trust"] if presence.get("brand_guidelines") != "yes" else [],
+            recs=["Document core colors, fonts, and tone of voice", "Align website and social profiles to one visual system"],
+            priority="Medium",
         )
     )
 
@@ -348,11 +456,14 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
         cat(
             "performance",
             "Performance",
-            f"Performance optimization: {presence.get('performance_optimization', 'not sure')}. Fast experiences often correlate with better engagement.",
-            [] if presence.get("performance_optimization") != "yes" else ["Performance awareness noted"],
-            ["Slow load times may increase bounce rates"] if presence.get("performance_optimization") != "yes" else [],
-            ["Compress images and enable caching", "Test Core Web Vitals on mobile"],
-            "Medium",
+            f"Performance optimization: {presence.get('performance_optimization', 'not sure')}."
+            + (f" Live page weight appears {wa.get('content_signals', {}).get('page_weight_hint', 'unknown')}." if wa_success else ""),
+            "Compress images, enable caching, and test Core Web Vitals on mobile.",
+            "weROI optimizes site speed and mobile experience as part of every build and audit.",
+            strengths=[] if presence.get("performance_optimization") != "yes" else ["Performance awareness noted"],
+            weaknesses=["Slow load times may increase bounce rates"] if presence.get("performance_optimization") != "yes" else [],
+            recs=["Compress images and enable caching", "Test Core Web Vitals on mobile"],
+            priority="Medium",
         )
     )
 
@@ -360,11 +471,14 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
         cat(
             "lead_gen",
             "Lead Generation",
-            f"CRM: {presence.get('crm', 'no')}, email marketing: {presence.get('email_marketing', 'no')}.",
-            ["Lead capture systems may be partially in place"] if presence.get("crm") == "yes" else [],
-            ["Leads may be lost without structured follow-up"] if presence.get("crm") != "yes" else [],
-            ["Add a simple lead form on every key page", "Set up automated follow-up within 24 hours"],
-            "High" if presence.get("crm") != "yes" else "Low",
+            f"CRM: {presence.get('crm', 'no')}, email marketing: {presence.get('email_marketing', 'no')}."
+            + (f" Primary goal noted: {assessment.get('primary_goal', 'growth')}." if assessment.get("primary_goal") else ""),
+            "Add a lead form on every key page and set up automated follow-up within 24 hours.",
+            "weROI designs lead capture and follow-up systems that match how your team actually sells.",
+            strengths=["Lead capture systems may be partially in place"] if presence.get("crm") == "yes" else [],
+            weaknesses=["Leads may be lost without structured follow-up"] if presence.get("crm") != "yes" else [],
+            recs=["Add a simple lead form on every key page", "Set up automated follow-up within 24 hours"],
+            priority="High" if presence.get("crm") != "yes" else "Low",
         )
     )
 
@@ -372,11 +486,14 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
         cat(
             "ux",
             "User Experience",
-            "It appears navigation clarity and mobile usability are important growth levers for your visitors.",
-            ["Opportunity to refine user journeys"],
-            ["Friction in booking or contact flows may reduce conversions"],
-            ["Simplify navigation to 5 or fewer primary items", "Make phone, email, and booking one tap away on mobile"],
-            "Medium",
+            "Navigation clarity and mobile usability are important growth levers for your visitors."
+            + (f" Detected {len(wa.get('nav_links') or [])} nav items on your live site." if wa_success else ""),
+            "Simplify navigation to 5 or fewer primary items and make phone, email, and booking one tap away on mobile.",
+            "weROI maps user journeys and removes friction from contact and booking flows.",
+            strengths=["Opportunity to refine user journeys"],
+            weaknesses=["Friction in booking or contact flows may reduce conversions"],
+            recs=["Simplify navigation to 5 or fewer primary items", "Make phone, email, and booking one tap away on mobile"],
+            priority="Medium",
         )
     )
 
@@ -384,11 +501,14 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
         cat(
             "accessibility",
             "Accessibility",
-            f"Accessibility status: {presence.get('accessibility', 'not sure')}. Inclusive design expands reach and may reduce legal risk.",
-            [] if presence.get("accessibility") != "yes" else ["Accessibility considered"],
-            ["Potential barriers for some users"] if presence.get("accessibility") != "yes" else [],
-            ["Add alt text to images", "Ensure sufficient color contrast and keyboard navigation"],
-            "Low" if presence.get("accessibility") == "yes" else "Medium",
+            f"Accessibility status: {presence.get('accessibility', 'not sure')}."
+            + (f" {wa.get('accessibility_signals', {}).get('images_missing_alt', 0)} images may lack alt text on your site." if wa_success and wa.get("accessibility_signals") else ""),
+            "Add alt text to images and ensure sufficient color contrast and keyboard navigation.",
+            "weROI builds accessible sites that expand reach and reduce compliance risk.",
+            strengths=[] if presence.get("accessibility") != "yes" else ["Accessibility considered"],
+            weaknesses=["Potential barriers for some users"] if presence.get("accessibility") != "yes" else [],
+            recs=["Add alt text to images", "Ensure sufficient color contrast and keyboard navigation"],
+            priority="Low" if presence.get("accessibility") == "yes" else "Medium",
         )
     )
 
@@ -396,11 +516,14 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
         cat(
             "trust",
             "Trust & Credibility",
-            f"Reviews: {presence.get('online_reviews', 'no')}, SSL: {presence.get('ssl', 'not sure')}.",
-            ["Trust signals may exist"] if presence.get("online_reviews") == "yes" else [],
-            ["Social proof may be underutilized"] if presence.get("online_reviews") != "yes" else [],
-            ["Collect and display recent client reviews", "Ensure HTTPS across all pages"],
-            "Medium",
+            f"Reviews: {presence.get('online_reviews', 'no')}, SSL: {presence.get('ssl', 'not sure')}."
+            + (f" Trust signals on site: {', '.join(wa.get('trust_signals') or [])[:120]}." if wa_success and wa.get("trust_signals") else ""),
+            "Collect and display recent client reviews and ensure HTTPS across all pages.",
+            "weROI helps businesses surface social proof where it influences buying decisions.",
+            strengths=["Trust signals may exist"] if presence.get("online_reviews") == "yes" else [],
+            weaknesses=["Social proof may be underutilized"] if presence.get("online_reviews") != "yes" else [],
+            recs=["Collect and display recent client reviews", "Ensure HTTPS across all pages"],
+            priority="Medium",
         )
     )
 
@@ -409,22 +532,26 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
             "marketing",
             "Marketing Channels",
             f"Social: {presence.get('social_media', 'no')}, paid ads: {presence.get('paid_ads', 'no')}, blog: {presence.get('blog', 'no')}.",
-            ["Active marketing channels noted"] if presence.get("social_media") == "yes" else [],
-            ["Channel mix may be underdeveloped"] if presence.get("social_media") != "yes" else [],
-            ["Choose 1 to 2 primary channels and post consistently", "Repurpose website content into short-form posts"],
-            "Medium",
+            "Choose 1 to 2 primary channels and post consistently; repurpose website content into short-form posts.",
+            "weROI plans channel strategy around where your ideal customers actually spend time.",
+            strengths=["Active marketing channels noted"] if presence.get("social_media") == "yes" else [],
+            weaknesses=["Channel mix may be underdeveloped"] if presence.get("social_media") != "yes" else [],
+            recs=["Choose 1 to 2 primary channels and post consistently", "Repurpose website content into short-form posts"],
+            priority="Medium",
         )
     )
 
     categories.append(
         cat(
             "automation",
-            "Automation",
+            "Automation Readiness",
             f"Automation status: {presence.get('automation', 'not sure')}.",
-            ["Some automation may exist"] if presence.get("automation") == "yes" else [],
-            ["Manual workflows may limit scale"] if presence.get("automation") != "yes" else [],
-            ["Automate appointment reminders and lead routing", "Connect forms to CRM or email sequences"],
-            "Medium" if presence.get("automation") != "yes" else "Low",
+            "Automate appointment reminders and lead routing; connect forms to CRM or email sequences.",
+            "weROI connects the tools you already use into workflows that save hours each week.",
+            strengths=["Some automation may exist"] if presence.get("automation") == "yes" else [],
+            weaknesses=["Manual workflows may limit scale"] if presence.get("automation") != "yes" else [],
+            recs=["Automate appointment reminders and lead routing", "Connect forms to CRM or email sequences"],
+            priority="Medium" if presence.get("automation") != "yes" else "Low",
         )
     )
 
@@ -433,10 +560,12 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
             "digital_presence",
             "Digital Presence",
             f"Overall digital footprint for {business} in {industry} shows room to strengthen how customers discover and evaluate you online.",
-            ["Clear growth path identified"],
-            ["Gaps across multiple digital touchpoints"],
-            ["Prioritize website, SEO, and lead capture in the next 90 days"],
-            "High",
+            "Prioritize website, SEO, and lead capture in the next 90 days.",
+            "weROI builds integrated digital presence strategies, not isolated fixes.",
+            strengths=["Clear growth path identified"],
+            weaknesses=["Gaps across multiple digital touchpoints"],
+            recs=["Prioritize website, SEO, and lead capture in the next 90 days"],
+            priority="High",
         )
     )
 
@@ -538,8 +667,100 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
             "Potential opportunity: businesses that address website, SEO, and lead systems often see "
             "meaningful improvements in visibility and inquiry volume. Results vary and are not guaranteed."
         ),
+        "report_summary": _build_report_summary(business, overall, categories),
         "whats_included": _whats_included_summary(),
     }
+    return report
+
+
+def _build_report_summary(business: str, overall: int, categories: list[dict[str, Any]]) -> dict[str, Any]:
+    """Plain-language summary with soft-sell tone based on score band."""
+    sorted_cats = sorted(categories, key=lambda c: c.get("score", 0))
+    priority_areas = [
+        f"{c.get('label', c.get('key', 'Area'))} ({c.get('score', 0)} · {c.get('score_label', score_label(c.get('score', 0)))})"
+        for c in sorted_cats[:3]
+    ]
+
+    if overall >= 85:
+        overall_meaning = (
+            f"{business} is in a strong position with a score of {overall}/100 ({score_label(overall)}). "
+            "The focus now is next-level optimization, not fixing fundamentals. "
+            "Fine-tuning conversion paths and scaling what already works can unlock further growth."
+        )
+        expert_invite = (
+            "If you want a second set of eyes on advanced opportunities, our team offers complimentary expert reviews. "
+            "No pressure. Many strong scorers use it to validate their roadmap."
+        )
+    elif overall >= 60:
+        overall_meaning = (
+            f"With a score of {overall}/100 ({score_label(overall)}), {business} has a solid foundation "
+            "with clear gaps worth addressing. The categories below highlight where focused effort "
+            "could have the most impact on leads and visibility."
+        )
+        expert_invite = (
+            "A complimentary expert review from weROI can help prioritize these gaps and map a practical next step. "
+            "Request one if you would like our team to go deeper."
+        )
+    else:
+        overall_meaning = (
+            f"At {overall}/100 ({score_label(overall)}), {business} has meaningful room to grow online. "
+            "This is not a crisis, but several areas need attention to stop losing potential customers. "
+            "The good news: the biggest wins are often straightforward fixes."
+        )
+        expert_invite = (
+            "Our complimentary expert review is designed for situations like this. "
+            "The weROI team can validate these findings and help you tackle the highest-impact items first."
+        )
+
+    return {
+        "overall_meaning": overall_meaning,
+        "priority_areas": priority_areas,
+        "expert_review_invite": expert_invite,
+    }
+
+
+def _normalize_category(cat_data: dict[str, Any]) -> dict[str, Any]:
+    """Ensure every category has required dynamic fields."""
+    s = int(cat_data.get("score") or 0)
+    key = cat_data.get("key") or ""
+    label = cat_data.get("label") or CATEGORY_DISPLAY.get(key, key.replace("_", " ").title())
+    finding = cat_data.get("finding") or cat_data.get("explanation") or ""
+    recommendation = cat_data.get("recommendation") or (
+        (cat_data.get("recommendations") or [""])[0]
+    )
+    weroi_help = cat_data.get("weroi_help") or (
+        f"weROI can help strengthen {label.lower()} with a focused plan tailored to your business."
+    )
+    return {
+        **cat_data,
+        "key": key,
+        "label": label,
+        "score": s,
+        "score_label": cat_data.get("score_label") or score_label(s),
+        "finding": finding,
+        "recommendation": recommendation,
+        "weroi_help": weroi_help,
+        "explanation": cat_data.get("explanation") or finding,
+        "recommendations": cat_data.get("recommendations") or ([recommendation] if recommendation else []),
+        "strengths": cat_data.get("strengths") or [],
+        "weaknesses": cat_data.get("weaknesses") or [],
+        "priority_level": cat_data.get("priority_level") or ("High" if s < 60 else "Medium" if s < 85 else "Low"),
+    }
+
+
+def _normalize_report(report: dict[str, Any], assessment: dict[str, Any], website_analysis: dict[str, Any] | None) -> dict[str, Any]:
+    """Post-process AI output to ensure schema completeness."""
+    business = assessment.get("business_name") or "your business"
+    categories = [_normalize_category(c) for c in (report.get("categories") or [])]
+    report["categories"] = categories
+
+    overall = int(report.get("overall_score") or 0)
+    if not report.get("report_summary"):
+        report["report_summary"] = _build_report_summary(business, overall, categories)
+    if "confidence_score" not in report:
+        report["confidence_score"] = _confidence_from_assessment(assessment, website_analysis)
+    if website_analysis:
+        report["website_analysis_used"] = bool(website_analysis.get("success"))
     return report
 
 
@@ -573,16 +794,24 @@ Generate a personalized digital growth assessment report as valid JSON only.
 Rules:
 - Use hedged language: "Based on the information provided...", "It appears...", "Potential opportunity..."
 - NO guarantees of revenue, rankings, or specific outcomes
-- Reference the user's actual answers (missing website, no SEO, no analytics, etc.)
-- If website_analysis is provided, cite only verified signals from that object (title, meta, h1, nav, CTAs, SEO/trust signals). Label source as "live website analysis" when used.
-- NEVER invent website data not present in website_analysis
+- Reference the user's ACTUAL answers by name (e.g. "You indicated SEO is No", "Primary goal: Get more leads")
+- If website_analysis is provided, cite ONLY verified signals (title, meta, h1, nav, CTAs, issues_detected, conversion_signals, seo_signals). Say "live website analysis" when citing these. NEVER invent website data.
+- Every category MUST have specific finding text referencing real answers or verified site signals. NO generic advice like "your SEO could be better".
 - Scores 0-100 per category; overall_score is weighted average
+- score_label per category: "Strong" (85+), "Needs Attention" (60-84), "Priority Area" (below 60)
+- Scoring tone: 85+ congratulate and suggest next-level optimizations; 60-84 state factual gaps as natural next steps; below 60 be direct but not alarmist
 - priority_level: High, Medium, or Low
 - growth_level: Emerging (0-39), Growing (40-59), Established (60-79), Leading (80-100)
 - letter_grade: A (90+), B (80+), C (70+), D (60+), F (<60)
 - confidence_score: 0-100 reflecting how much reliable data was available
-- business_summary: 2-3 sentence overview of the business
-- potential_impact_areas: list of 3-5 areas where improvements could have the most impact (potential, not guaranteed)
+- business_summary: 2-3 sentence overview referencing industry, goals, and website if analyzed
+- weroi_help: one soft sentence per category on how weROI could help (not a hard sell)
+- report_summary: overall_meaning in plain language, priority_areas (top 2-3 lowest-scoring categories with scores), expert_review_invite (natural invite; high scorers should NOT feel pushed to a sales call)
+
+Category labels to use:
+website=Website Experience, seo=SEO Potential, brand=Brand & Trust, performance=Performance,
+lead_gen=Lead Generation, ux=User Experience, accessibility=Accessibility, trust=Trust & Credibility,
+marketing=Marketing Channels, automation=Automation Readiness, digital_presence=Digital Presence
 
 Return JSON matching this schema:
 {
@@ -594,10 +823,19 @@ Return JSON matching this schema:
   "confidence_score": number,
   "potential_impact_areas": [string],
   "top_next_actions": [string, string, string],
+  "report_summary": {
+    "overall_meaning": string,
+    "priority_areas": [string],
+    "expert_review_invite": string
+  },
   "categories": [{
     "key": string,
     "label": string,
     "score": number,
+    "score_label": string,
+    "finding": string,
+    "recommendation": string,
+    "weroi_help": string,
     "explanation": string,
     "strengths": [string],
     "weaknesses": [string],
@@ -669,12 +907,9 @@ async def generate_growthiq_report(
         )
         raw = response.choices[0].message.content or "{}"
         report = _extract_json(raw)
+        report = _normalize_report(report, assessment, website_analysis)
         report["whats_included"] = _whats_included_summary()
         report["generation_mode"] = provider
-        if website_analysis:
-            report["website_analysis_used"] = bool(website_analysis.get("success"))
-        if "confidence_score" not in report:
-            report["confidence_score"] = _confidence_from_assessment(assessment, website_analysis)
         return report
     except Exception as exc:
         logger.error("%s GrowthIQ generation failed: %s", provider, exc)
@@ -684,8 +919,8 @@ async def generate_growthiq_report(
 
 
 CHAT_SYSTEM = """You are the weROI GrowthIQ™ assistant on weroi.net.
-Answer in 2 to 4 short sentences. Be helpful, warm, and professional — not salesy.
-Topics: GrowthIQ free assessment, what the report includes, expert review (optional, may include strategic ideas or visual concepts at weROI's discretion — not guaranteed), weROI services (websites, SEO, funnels, automation, Jamaica).
+Answer in 2 to 4 short sentences. Be helpful, warm, and professional, not salesy.
+Topics: GrowthIQ free assessment, what the report includes, expert review (optional, may include strategic ideas or visual concepts at weROI's discretion, not guaranteed), weROI services (websites, SEO, funnels, automation, Jamaica).
 When someone wants their score or report, suggest they start the free assessment at /growth-preview.
 Never guarantee rankings, revenue, or specific outcomes. Never invent pricing."""
 
