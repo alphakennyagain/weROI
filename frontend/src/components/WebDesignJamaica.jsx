@@ -10,7 +10,7 @@ import './WebDesignJamaica.css';
 
 const PAGE_TITLE = 'Web Design Jamaica | Islandwide & International | weROI';
 const PAGE_DESCRIPTION =
-  'Jamaica web design from weROI — conversion-focused websites, SEO, apps, and growth systems islandwide. Based in Kingston with hubs in Portmore and St. Catherine. Remote and international clients welcome.';
+  'Jamaica web design from weROI. Conversion-focused websites, SEO, apps, and growth systems islandwide. Based in Kingston with hubs in Portmore and St. Catherine. Remote and international clients welcome.';
 const CANONICAL = 'https://weroi.net/web-design-jamaica';
 const DEFAULT_TITLE = 'weROI | Digital Growth Agency in Jamaica';
 const DEFAULT_DESCRIPTION =
@@ -70,7 +70,7 @@ export default function WebDesignJamaica() {
             <h1 className="heading local-hero-title">Web design across Jamaica</h1>
             <p className="body local-hero-lead">
               weROI builds websites, apps, and growth systems for Jamaican businesses everywhere on the
-              island — from Montego Bay and Mandeville to Spanish Town, Ocho Rios, and beyond. We are
+              island, from Montego Bay and Mandeville to Spanish Town, Ocho Rios, and beyond. We are
               based in Kingston with active hubs in Portmore and St. Catherine, not limited to them.
             </p>
             <p className="body local-hero-lead">
@@ -136,7 +136,7 @@ export default function WebDesignJamaica() {
             <h2 className="heading-sm">Ready for a site that brings in leads?</h2>
             <p className="body local-cta-copy">
               Start with a free growth audit or book a 30-minute call. We will review your site, search
-              visibility, and next steps — wherever you are in Jamaica or abroad.
+              visibility, and next steps, wherever you are in Jamaica or abroad.
             </p>
             <div className="local-cta-actions">
               <GlowButton onClick={() => navigate('/growth-preview')} size="lg" data-testid="local-cta-audit">

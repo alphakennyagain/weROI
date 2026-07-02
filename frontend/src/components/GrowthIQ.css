@@ -1453,6 +1453,40 @@ html[data-theme="dark"] .giq-chat-panel {
   .giq-report-summary-card { padding: 18px; }
 }
 
+.giq-assessment-recap {
+  margin: 0 auto 32px;
+  max-width: 920px;
+  border: 1px solid rgba(32, 32, 32, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+}
+.giq-assessment-recap-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border: none;
+  background: var(--frost);
+  cursor: pointer;
+  font-family: var(--font-display);
+}
+.giq-assessment-recap-header h2 { margin: 0; font-size: 1.1rem; }
+.giq-assessment-recap-body { padding: 20px 22px 24px; }
+.giq-recap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px 20px;
+}
+.giq-recap-item { display: flex; flex-direction: column; gap: 4px; }
+.giq-recap-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.giq-recap-value { font-size: 14px; color: var(--ink); line-height: 1.45; }
+.giq-recap-presence { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(32, 32, 32, 0.08); }
+.giq-recap-presence h3 { margin: 0 0 10px; font-size: 14px; }
+.giq-recap-presence ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+
 @media (max-width: 600px) {
   .giq-steps-label { display: none; }
   .giq-chat-fab { bottom: 16px; right: 16px; width: 52px; height: 52px; }

@@ -2493,6 +2493,30 @@ html[data-theme="dark"] .audit-form-card--quote {
 .popup-input.error { border-color: var(--error); }
 .popup-disclaimer { font-size: 12px; color: var(--muted); letter-spacing: 0.02em; font-family: var(--font-mono); }
 
+.popup-success { display: flex; flex-direction: column; gap: var(--spacing-20); }
+.popup-giq-block {
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--frost);
+  border: 1px solid rgba(32, 32, 32, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.popup-giq-block h3 { margin: 0; font-size: 18px; font-family: var(--font-display); }
+.popup-giq-block p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--carbon); }
+.popup-maybe-later {
+  background: none;
+  border: none;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+  align-self: center;
+}
+.popup-maybe-later:hover { color: var(--ink); }
+
 /* =============================================================
    Thank You page
    ============================================================= */

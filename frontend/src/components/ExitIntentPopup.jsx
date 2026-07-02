@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, ArrowRight, BookOpen } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { X, ArrowRight, ClipboardList } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { getBackendUrl } from '../lib/apiConfig';
+import { TRUST_LINE } from '../data/siteStats';
+
+const API_URL = getBackendUrl();
 
 const ExitIntentPopup = () => {
-  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [triggered, setTriggered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '' });
+  const [success, setSuccess] = useState(false);
+  const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
 
-  const API_URL = process.env.REACT_APP_BACKEND_URL || '';
   const sid = sessionStorage.getItem('sessionId') || (() => {
     const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     sessionStorage.setItem('sessionId', id);
@@ -18,14 +21,17 @@ const ExitIntentPopup = () => {
   })();
 
   const track = useCallback(async (event_type) => {
+    if (!API_URL) return;
     try {
       await fetch(`${API_URL}/api/analytics/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event_type, page: '/', referrer: document.referrer || null, session_id: sid }),
       });
-    } catch {}
-  }, [API_URL, sid]);
+    } catch {
+      /* ignore */
+    }
+  }, [sid]);
 
   const show = useCallback(() => {
     if (!triggered) {
@@ -39,7 +45,7 @@ const ExitIntentPopup = () => {
   useEffect(() => {
     if (sessionStorage.getItem('exitPopupShown')) {
       setTriggered(true);
-      return;
+      return undefined;
     }
     const t1 = setTimeout(show, 5000);
     const onLeave = (e) => { if (e.clientY <= 0) show(); };
@@ -65,7 +71,8 @@ const ExitIntentPopup = () => {
     }, 2000);
 
     return () => {
-      clearTimeout(t1); clearTimeout(t2);
+      clearTimeout(t1);
+      clearTimeout(t2);
       document.removeEventListener('mouseleave', onLeave);
       window.removeEventListener('popstate', onPop);
       window.removeEventListener('scroll', onScroll);
@@ -76,9 +83,8 @@ const ExitIntentPopup = () => {
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim()) e.name = 'Name is required';
-    if (!form.email.trim()) e.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Enter a valid email';
+    if (!email.trim()) e.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Enter a valid email';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -91,108 +97,139 @@ const ExitIntentPopup = () => {
       return;
     }
     setSubmitting(true);
-    setErrors((prev) => ({ ...prev, submit: '' }));
+    setErrors({});
     try {
+      const priorName = (() => {
+        try {
+          const draft = JSON.parse(localStorage.getItem('weroi_growthiq_draft') || '{}');
+          return draft?.data?.full_name || '';
+        } catch {
+          return '';
+        }
+      })();
+
       const r = await fetch(`${API_URL}/api/leads/guide`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, referrer: document.referrer || null }),
+        body: JSON.stringify({
+          email: email.trim(),
+          name: priorName,
+          referrer: document.referrer || null,
+          source: 'exit_intent_checklist',
+        }),
       });
       const contentType = r.headers.get('content-type') || '';
       if (!r.ok || !contentType.includes('application/json')) {
         throw new Error(`Request failed (${r.status})`);
       }
       await r.json();
-      sessionStorage.setItem('guideFormData', JSON.stringify(form));
-      setVisible(false);
-      navigate('/thank-you?type=guide');
+      sessionStorage.setItem('checklistFormData', JSON.stringify({ email: email.trim() }));
+      track('popup_submit');
+      setSuccess(true);
     } catch {
-      setErrors((prev) => ({
-        ...prev,
-        submit: 'We could not send the guide. Please try again or email contact.weroi@gmail.com.',
-      }));
+      setErrors({
+        submit: 'We could not send the checklist. Please try again or email contact.weroi@gmail.com.',
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
+  const closeModal = () => setVisible(false);
+
   if (!visible) return null;
 
   return (
-    <div className="popup-overlay" onClick={() => setVisible(false)} data-testid="exit-popup">
-      <div className="popup-card" onClick={(e) => e.stopPropagation()}>
-        <button className="popup-close" onClick={() => setVisible(false)} data-testid="close-popup-btn" aria-label="Close">
+    <div className="popup-overlay" onClick={closeModal} data-testid="exit-popup">
+      <div className="popup-card" onClick={(ev) => ev.stopPropagation()}>
+        <button className="popup-close" onClick={closeModal} data-testid="close-popup-btn" aria-label="Close">
           <X size={16} />
         </button>
 
         <div className="popup-visual">
-          <div className="popup-tag">FREE GUIDE</div>
+          <div className="popup-tag">FREE CHECKLIST</div>
           <div>
             <h3 className="popup-visual-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 32, lineHeight: 1.0, letterSpacing: '-0.02em', margin: 0, color: 'var(--paper)' }}>
-              From $0 to $1M:<br />Your Growth Plan
+              5 Signs Your Business<br />Is Invisible Online
             </h3>
             <p className="popup-visual-desc" style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)', marginTop: 12, marginBottom: 0 }}>
-              The same plan we use with our clients. Get more customers, improve your website and systems, and stop wasting money on ads that do not pay off.
+              Not broken. Not bad. Just harder to find than it should be. A quick check. No website required.
             </p>
           </div>
 
           <div className="popup-guide-card">
             <div className="popup-guide-row">
-              <div className="popup-guide-icon"><BookOpen size={18} /></div>
+              <div className="popup-guide-icon"><ClipboardList size={18} /></div>
               <div>
-                <div className="popup-guide-title">weROI Growth Guide</div>
-                <div className="popup-guide-meta">24 pages · PDF</div>
+                <div className="popup-guide-title">weROI Visibility Checklist</div>
+                <div className="popup-guide-meta">1 page · 2 min read</div>
               </div>
             </div>
             <ul className="popup-guide-list">
-              <li>4 clear steps to grow your sales</li>
-              <li>Ready to use templates for your team</li>
-              <li>Real example: $0 to $1M in 12 months</li>
+              <li>5 quick signs your business is harder to find than it should be</li>
+              <li>Applies whether you have a website or not</li>
+              <li>Free GrowthIQ score if you want the full picture</li>
             </ul>
           </div>
         </div>
 
         <div className="popup-form-section">
-          <h2 className="popup-headline">
-            Take the plan<br />
-            <span className="accent">before you go.</span>
-          </h2>
-          <p className="popup-sub">
-            Enter your name and email. We will send the full guide to your inbox with clear steps to win more customers and grow your business.
-          </p>
+          {!success ? (
+            <>
+              <h2 className="popup-headline">
+                Before you go. See what might be<br />
+                <span className="accent">making you invisible.</span>
+              </h2>
+              <p className="popup-sub">
+                Enter your email. We&apos;ll send the checklist instantly, plus a link to get your free personalized
+                weROI GrowthIQ™ score if you want the full breakdown.
+              </p>
 
-          <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <input
-              type="text"
-              placeholder="Your name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className={`popup-input ${errors.name ? 'error' : ''}`}
-              data-testid="popup-name-input"
-            />
-            {errors.name && <span className="audit-error">{errors.name}</span>}
-            <input
-              type="email"
-              placeholder="Your email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className={`popup-input ${errors.email ? 'error' : ''}`}
-              data-testid="popup-email-input"
-            />
-            {errors.email && <span className="audit-error">{errors.email}</span>}
-            {errors.submit && <span className="audit-error" role="alert">{errors.submit}</span>}
-            <button
-              type="submit"
-              className="btn btn-primary btn-lg"
-              disabled={submitting}
-              data-testid="popup-submit-btn"
-              style={{ marginTop: 4 }}
-            >
-              {submitting ? 'Sending…' : 'Email me the free guide'} {!submitting && <ArrowRight size={16} />}
-            </button>
-          </form>
+              <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(ev) => setEmail(ev.target.value)}
+                  className={`popup-input ${errors.email ? 'error' : ''}`}
+                  data-testid="popup-email-input"
+                />
+                {errors.email && <span className="audit-error">{errors.email}</span>}
+                {errors.submit && <span className="audit-error" role="alert">{errors.submit}</span>}
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-lg"
+                  disabled={submitting}
+                  data-testid="popup-submit-btn"
+                  style={{ marginTop: 4 }}
+                >
+                  {submitting ? 'Sending…' : 'Send Me the Checklist'} {!submitting && <ArrowRight size={16} />}
+                </button>
+              </form>
 
-          <p className="popup-disclaimer">No spam. Unsubscribe anytime.</p>
+              <p className="popup-disclaimer">{TRUST_LINE}</p>
+            </>
+          ) : (
+            <div className="popup-success" data-testid="popup-success">
+              <h2 className="popup-headline">
+                Check your inbox.<br />
+                <span className="accent">your checklist is on the way.</span>
+              </h2>
+              <div className="popup-giq-block">
+                <h3>Want the full picture?</h3>
+                <p>
+                  The checklist tells you what to look for. GrowthIQ™ tells you exactly where you&apos;re invisible
+                  right now, website or not. Free, personalized, takes 3-5 minutes.
+                </p>
+                <Link to="/growth-preview" className="btn btn-primary btn-lg" onClick={closeModal}>
+                  Show Me My Score <ArrowRight size={16} />
+                </Link>
+                <button type="button" className="popup-maybe-later" onClick={closeModal}>
+                  Maybe later
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

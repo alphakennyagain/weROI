@@ -181,11 +181,85 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
                 break
 
         cta_patterns = re.compile(
-            r"<(a|button)[^>]*>([^<]*(?:contact|book|schedule|get started|sign up|buy|shop|quote|free|call|learn more)[^<]*)</\1>",
+            r"<(a|button)[^>]*>([\s\S]*?)</\1>",
             re.I,
         )
-        ctas = [_strip_tags(m.group(2))[:80] for m in list(cta_patterns.finditer(html))[:8]]
+        cta_keywords = re.compile(
+            r"contact|book|schedule|get started|sign up|buy|shop|quote|free|call|learn more|"
+            r"assessment|audit|growth|start|request|demo|consult|quote|hire|work with|"
+            r"see what|holding me back|view our|get my",
+            re.I,
+        )
+        ctas: list[str] = []
+        for m in cta_patterns.finditer(html):
+            text = _strip_tags(m.group(2))[:100].strip()
+            if text and cta_keywords.search(text):
+                ctas.append(text)
         ctas = list(dict.fromkeys([c for c in ctas if c]))
+
+        # Broader link labels (nav, footer, header) — catches React SSR shells with partial markup
+        for m in re.finditer(r'<a[^>]+href=["\']([^"\']+)["\'][^>]*>([\s\S]*?)</a>', html, re.I):
+            href = (m.group(1) or "").lower()
+            label = _strip_tags(m.group(2))[:80].strip()
+            if not label or href.startswith(("#", "javascript:")):
+                continue
+            if cta_keywords.search(label) or any(
+                p in href for p in ("/contact", "/book", "/growth", "/audit", "calendly", "mailto:", "tel:")
+            ):
+                ctas.append(label)
+        ctas = list(dict.fromkeys([c for c in ctas if c]))[:12]
+
+        # Class-based CTA hints in static HTML (common in CRA builds)
+        has_btn_classes = bool(
+            re.search(r'class=["\'][^"\']*\b(btn|button|cta|glow-btn|popup-submit)\b', html, re.I)
+        )
+        has_growth_route = bool(re.search(r"/growth-preview|/growthiq|/audit", html, re.I))
+
+        body_text = _strip_tags(html)
+        word_count = len(body_text.split())
+        is_spa_shell = bool(
+            re.search(r'<div[^>]+id=["\']root["\']', html, re.I)
+            and word_count < 400
+        )
+
+        # For JS-heavy sites, scan the main bundle for CTA strings (one lightweight request)
+        bundle_ctas: list[str] = []
+        if is_spa_shell or (not ctas and status < 400):
+            script_srcs = re.findall(
+                r'<script[^>]+src=["\']([^"\']+main\.[a-f0-9a-z]+\.js)["\']',
+                html,
+                re.I,
+            )
+            for src in script_srcs[:1]:
+                bundle_url = urljoin(final_url, src)
+                try:
+                    bundle_resp = requests.get(
+                        bundle_url,
+                        timeout=8,
+                        headers={"User-Agent": "GrowthIQ-Bot/1.0 (+https://weroi.net)"},
+                    )
+                    if bundle_resp.status_code < 400:
+                        bundle = bundle_resp.text[:600_000]
+                        bundle_cta_patterns = [
+                            "See What's Holding Me Back",
+                            "Get My GrowthIQ Score",
+                            "Show Me My Growth Plan",
+                            "Book a call",
+                            "View our work",
+                            "Free Assessment",
+                            "growth-preview",
+                            "book-call",
+                            "Contact",
+                            "Get started",
+                        ]
+                        for phrase in bundle_cta_patterns:
+                            if phrase.lower() in bundle.lower():
+                                bundle_ctas.append(phrase)
+                        bundle_ctas = list(dict.fromkeys(bundle_ctas))[:8]
+                except requests.RequestException:
+                    pass
+
+        all_ctas = list(dict.fromkeys(ctas + bundle_ctas))[:12]
 
         has_viewport = bool(re.search(r'<meta[^>]+name=["\']viewport["\']', html, re.I))
         has_canonical = bool(re.search(r'<link[^>]+rel=["\']canonical["\']', html, re.I))
@@ -208,28 +282,60 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
         has_tel = bool(re.search(r"href=[\"']tel:", html, re.I))
         has_email = bool(re.search(r"href=[\"']mailto:", html, re.I))
         has_h2 = len(re.findall(r"<h2\b", html, re.I))
-        word_count = len(_strip_tags(html).split())
         load_hint = "light" if len(html) < 80_000 else "heavy" if len(html) > 250_000 else "moderate"
 
         issues: list[str] = []
+        strengths: list[str] = []
         if not title:
             issues.append("Missing page title")
+        else:
+            strengths.append(f"Page title present: \"{title[:60]}\"")
         if not meta_desc:
             issues.append("Missing meta description")
+        else:
+            strengths.append("Meta description present")
         if not h1s:
-            issues.append("No H1 heading detected")
+            if not is_spa_shell:
+                issues.append("No H1 heading detected in static HTML")
         elif len(h1s) > 1:
             issues.append(f"Multiple H1 headings ({len(h1s)})")
+        else:
+            strengths.append(f"H1 present: \"{h1s[0][:60]}\"")
         if not has_viewport:
             issues.append("No viewport meta tag (mobile risk)")
         if not https:
             issues.append("Site not served over HTTPS")
         if alt_missing and img_count:
             issues.append(f"{alt_missing} of {img_count} images may lack alt text")
-        if not ctas:
-            issues.append("No clear call-to-action text detected")
-        if not has_form and not has_tel and not has_email:
-            issues.append("No contact form, phone, or email link detected")
+        if not all_ctas and not has_btn_classes and not has_growth_route and not bundle_ctas:
+            if is_spa_shell:
+                issues.append(
+                    "JavaScript app detected; static HTML alone did not reveal CTA text "
+                    "(CTAs may still exist after the page loads)"
+                )
+            else:
+                issues.append("No clear call-to-action text detected in static HTML")
+        elif all_ctas:
+            strengths.append(f"CTA language detected: {', '.join(all_ctas[:3])}")
+        if has_growth_route or bundle_ctas:
+            strengths.append("Growth or conversion paths detected in site assets")
+        if not has_form and not has_tel and not has_email and not is_spa_shell:
+            issues.append("No contact form, phone, or email link detected in static HTML")
+        elif has_form or has_tel or has_email:
+            contact_bits = []
+            if has_form:
+                contact_bits.append("form")
+            if has_tel:
+                contact_bits.append("phone link")
+            if has_email:
+                contact_bits.append("email link")
+            strengths.append(f"Contact paths in HTML: {', '.join(contact_bits)}")
+        if has_schema:
+            strengths.append("Structured data (JSON-LD) detected")
+        if has_og:
+            strengths.append("Open Graph meta tags present")
+        if nav_links:
+            strengths.append(f"Navigation with {len(nav_links)} links detected")
 
         return {
             "success": status < 400,
@@ -241,7 +347,10 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
             "meta_description": meta_desc,
             "h1_headings": h1s,
             "nav_links": nav_links[:12],
-            "cta_texts": ctas,
+            "cta_texts": all_ctas,
+            "bundle_ctas": bundle_ctas,
+            "is_spa_shell": is_spa_shell,
+            "strengths_detected": strengths[:10],
             "seo_signals": {
                 "has_viewport_meta": has_viewport,
                 "has_canonical": has_canonical,
@@ -258,7 +367,9 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
                 "has_form": has_form,
                 "has_tel_link": has_tel,
                 "has_email_link": has_email,
-                "cta_count": len(ctas),
+                "cta_count": len(all_ctas),
+                "has_button_classes": has_btn_classes,
+                "has_growth_route": has_growth_route,
             },
             "content_signals": {
                 "h2_count": has_h2,
@@ -795,7 +906,7 @@ Rules:
 - Use hedged language: "Based on the information provided...", "It appears...", "Potential opportunity..."
 - NO guarantees of revenue, rankings, or specific outcomes
 - Reference the user's ACTUAL answers by name (e.g. "You indicated SEO is No", "Primary goal: Get more leads")
-- If website_analysis is provided, cite ONLY verified signals (title, meta, h1, nav, CTAs, issues_detected, conversion_signals, seo_signals). Say "live website analysis" when citing these. NEVER invent website data.
+- If website_analysis is provided, cite ONLY verified signals (title, meta, h1, nav, CTAs, issues_detected, strengths_detected, bundle_ctas, is_spa_shell, conversion_signals, seo_signals). Say "live website analysis" when citing these. NEVER invent website data. If strengths_detected lists CTAs or contact paths, do NOT claim CTAs are missing. For is_spa_shell sites, note that static analysis is limited and avoid false negatives.
 - Every category MUST have specific finding text referencing real answers or verified site signals. NO generic advice like "your SEO could be better".
 - Scores 0-100 per category; overall_score is weighted average
 - score_label per category: "Strong" (85+), "Needs Attention" (60-84), "Priority Area" (below 60)
@@ -807,6 +918,7 @@ Rules:
 - business_summary: 2-3 sentence overview referencing industry, goals, and website if analyzed
 - weroi_help: one soft sentence per category on how weROI could help (not a hard sell)
 - report_summary: overall_meaning in plain language, priority_areas (top 2-3 lowest-scoring categories with scores), expert_review_invite (natural invite; high scorers should NOT feel pushed to a sales call)
+- Never use em dashes or en dashes in any user-facing text. Use periods, commas, or colons instead.
 
 Category labels to use:
 website=Website Experience, seo=SEO Potential, brand=Brand & Trust, performance=Performance,

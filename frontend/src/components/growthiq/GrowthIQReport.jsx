@@ -4,6 +4,8 @@ import {
   ArrowRight, Download, TrendingUp, AlertTriangle, Target, Zap, Map, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import GlowButton from '../ui/GlowButton';
+import AssessmentRecap from './AssessmentRecap';
+import { downloadGrowthIQPdf } from '../../lib/growthiqPdf';
 import { GROWTHIQ_BRAND } from '../../data/growthiqConstants';
 
 function useCountUp(target, duration = 1200) {
@@ -168,15 +170,15 @@ export default function GrowthIQReport({
   const business = assessment?.business_name || 'Your Business';
   const summary = r.report_summary || {};
 
-  const handleDownload = () => {
-    const content = JSON.stringify({ report_id: reportId, business, report: r, assessment }, null, 2);
-    const blob = new Blob([content], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `GrowthIQ-Report-${reportId.slice(0, 8)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handleDownload = async () => {
+    setPdfLoading(true);
+    try {
+      await downloadGrowthIQPdf({ report: r, assessment, reportId });
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   const ctaHeadline = (r.overall_score || 0) >= 85
@@ -205,6 +207,8 @@ export default function GrowthIQReport({
           {r.website_analysis_used ? ' plus live website signals' : ''}.
         </p>
       </section>
+
+      <AssessmentRecap assessment={assessment} />
 
       {(summary.overall_meaning || summary.priority_areas?.length > 0) && (
         <section className="giq-report-section giq-report-summary-card">
@@ -360,8 +364,8 @@ export default function GrowthIQReport({
           <button type="button" className="giq-cta-secondary" onClick={onMaybeLater} disabled={reviewLoading}>
             Maybe Later
           </button>
-          <button type="button" className="giq-cta-download" onClick={handleDownload}>
-            <Download size={16} /> Download Report
+          <button type="button" className="giq-cta-download" onClick={handleDownload} disabled={pdfLoading}>
+            <Download size={16} /> {pdfLoading ? 'Building PDF…' : 'Download PDF Report'}
           </button>
         </div>
         <p className="giq-cta-micro">

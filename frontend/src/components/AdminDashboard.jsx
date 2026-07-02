@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Lock, Users, FileText, Download, BarChart3, Eye, ArrowUpRight, LogOut,
   Trash2, AlertTriangle, X, RefreshCw, Globe, MousePointer, UserPlus,
-  Pencil, Save, Search, WifiOff, Loader2
+  Pencil, Save, Search, WifiOff, Loader2, Calendar
 } from 'lucide-react';
 import Logo from './brand/Logo';
 import './AdminDashboard.css';
@@ -33,6 +33,8 @@ const AdminDashboard = () => {
   const [giqViewTarget, setGiqViewTarget] = useState(null);
   const [giqNotes, setGiqNotes] = useState('');
   const [giqStatus, setGiqStatus] = useState('');
+  const [meetingLinkSending, setMeetingLinkSending] = useState(null);
+  const [meetingLinkFeedback, setMeetingLinkFeedback] = useState('');
 
   const fetchDashboardData = useCallback(async (isInitial = false) => {
     const storedPassword = sessionStorage.getItem('adminAuth');
@@ -141,6 +143,34 @@ const AdminDashboard = () => {
     setGiqViewTarget(assessment);
     setGiqNotes(assessment.internal_notes || '');
     setGiqStatus(assessment.crm_status || 'analytics_only');
+    setMeetingLinkFeedback('');
+  };
+
+  const handleSendMeetingLink = async (reportId) => {
+    const storedPassword = sessionStorage.getItem('adminAuth');
+    if (!storedPassword || !API_URL) return;
+    setMeetingLinkSending(reportId);
+    setMeetingLinkFeedback('');
+    try {
+      const response = await fetch(
+        `${API_URL}/api/growthiq/assessment/${reportId}/send-meeting-link?password=${encodeURIComponent(storedPassword)}`,
+        { method: 'POST' }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || `Request failed (${response.status})`);
+      }
+      setMeetingLinkFeedback('Meeting link sent successfully.');
+      if (data.assessment) {
+        setGiqViewTarget(data.assessment);
+        setGiqStatus(data.assessment.crm_status || giqStatus);
+      }
+      fetchDashboardData();
+    } catch (err) {
+      setMeetingLinkFeedback(err.message || 'Could not send meeting link.');
+    } finally {
+      setMeetingLinkSending(null);
+    }
   };
 
   const handleLogout = () => {
@@ -406,6 +436,32 @@ const AdminDashboard = () => {
               <label htmlFor="giq-notes">Internal Notes</label>
               <textarea id="giq-notes" rows={4} value={giqNotes} onChange={(e) => setGiqNotes(e.target.value)} />
             </div>
+            {giqViewTarget.expert_review_requested && (
+              <div className="giq-meeting-action">
+                <button
+                  type="button"
+                  className="admin-submit-btn giq-send-meeting-btn"
+                  disabled={meetingLinkSending === giqViewTarget.report_id}
+                  onClick={() => handleSendMeetingLink(giqViewTarget.report_id)}
+                >
+                  {meetingLinkSending === giqViewTarget.report_id ? (
+                    <><Loader2 size={16} className="spin" /> Sending…</>
+                  ) : (
+                    <><Calendar size={16} /> Send Meeting Link</>
+                  )}
+                </button>
+                {giqViewTarget.meeting_link_sent_at && (
+                  <p className="giq-meeting-sent-note">
+                    Last sent: {formatDate(giqViewTarget.meeting_link_sent_at)}
+                  </p>
+                )}
+                {meetingLinkFeedback && (
+                  <p className={`giq-meeting-feedback${meetingLinkFeedback.includes('success') ? ' is-success' : ' is-error'}`} role="status">
+                    {meetingLinkFeedback}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="modal-actions">
               <button type="button" className="btn-cancel" onClick={() => setGiqViewTarget(null)}>Close</button>
               <button type="button" className="admin-submit-btn" onClick={() => handleGiqUpdate(giqViewTarget.report_id)}>Save</button>
@@ -868,6 +924,21 @@ const AdminDashboard = () => {
                         <button type="button" className="btn-edit-row" onClick={() => openGiqView(g)} title="View report">
                           <Eye size={16} />
                         </button>
+                        {g.expert_review_requested && (
+                          <button
+                            type="button"
+                            className="btn-edit-row"
+                            onClick={() => handleSendMeetingLink(g.report_id)}
+                            title="Send meeting link"
+                            disabled={meetingLinkSending === g.report_id}
+                          >
+                            {meetingLinkSending === g.report_id ? (
+                              <Loader2 size={16} className="spin" />
+                            ) : (
+                              <Calendar size={16} />
+                            )}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

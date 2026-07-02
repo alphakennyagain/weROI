@@ -24,6 +24,8 @@ from email_templates import (
     get_audit_confirmation_email,
     get_audit_owner_notification_email,
     get_email_1_content,
+    get_growthiq_meeting_email,
+    get_visibility_checklist_email_content,
     get_email_2_content,
     get_email_3_content,
     get_growth_audit_email,
@@ -152,16 +154,18 @@ class AuditLead(BaseModel):
 
 # Guide Lead Model
 class GuideLeadCreate(BaseModel):
-    name: str
+    name: str = ""
     email: EmailStr
     referrer: Optional[str] = None
+    source: Optional[str] = "guide"
 
 class GuideLead(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    name: str
+    name: str = ""
     email: EmailStr
     referrer: Optional[str] = None
+    source: str = "guide"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     email_1_sent: bool = False
     email_2_sent: bool = False
@@ -266,6 +270,7 @@ class GrowthAssessment(BaseModel):
     crm_status: str = "analytics_only"
     expert_review_requested: bool = False
     expert_review_requested_at: Optional[str] = None
+    meeting_link_sent_at: Optional[str] = None
     internal_notes: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -382,6 +387,29 @@ async def send_audit_emails(lead: AuditLead) -> dict[str, bool]:
             results,
         )
     return results
+
+
+async def send_checklist_email(lead_id: str, email: str, name: str = ""):
+    """Send visibility checklist email immediately (exit-intent lead magnet)."""
+    prior_name = name.strip()
+    if not prior_name:
+        growthiq = await db.growth_assessments.find_one(
+            {"business_email": email},
+            {"_id": 0, "full_name": 1},
+            sort=[("created_at", -1)],
+        )
+        if growthiq and growthiq.get("full_name"):
+            prior_name = growthiq["full_name"]
+
+    email_content = get_visibility_checklist_email_content(prior_name or None)
+    success = await _send_template_email(email, email_content, include_unsubscribe=True)
+    if success:
+        await db.guide_leads.update_one(
+            {"id": lead_id},
+            {"$set": {"email_1_sent": True}},
+        )
+        logger.info("Checklist email sent to %s", email)
+    return success
 
 
 async def send_email_sequence(lead_id: str, name: str, email: str, company_name: str = ""):
@@ -763,6 +791,43 @@ async def update_growth_assessment(report_id: str, update: GrowthAssessmentUpdat
     updated = await db.growth_assessments.find_one({"report_id": report_id}, {"_id": 0})
     return updated
 
+@api_router.post("/growthiq/assessment/{report_id}/send-meeting-link")
+async def send_growthiq_meeting_link(report_id: str, password: str = Query(...)):
+    """Admin: email Calendly booking link to assessment contact."""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    doc = await db.growth_assessments.find_one({"report_id": report_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    email = doc.get("business_email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Assessment has no email on file")
+
+    name = doc.get("full_name") or ""
+    business = doc.get("business_name") or "your business"
+    email_content = get_growthiq_meeting_email(name, business, CALENDLY_URL)
+    success = await _send_template_email(email, email_content, include_unsubscribe=True)
+    if not success:
+        raise HTTPException(
+            status_code=502,
+            detail="Email could not be sent. Check RESEND_API_KEY and sender domain.",
+        )
+
+    now = datetime.now(timezone.utc).isoformat()
+    update_fields: dict = {
+        "meeting_link_sent_at": now,
+        "updated_at": now,
+    }
+    if doc.get("crm_status") in (None, "", "analytics_only", "expert_review_requested"):
+        update_fields["crm_status"] = "contacted"
+
+    await db.growth_assessments.update_one({"report_id": report_id}, {"$set": update_fields})
+    updated = await db.growth_assessments.find_one({"report_id": report_id}, {"_id": 0})
+    logger.info("Meeting link sent to %s for report %s", email, report_id)
+    return {"status": "sent", "report_id": report_id, "email": email, "assessment": updated}
+
 @api_router.get("/growthiq/export/csv")
 async def export_growthiq_csv(password: str = Query(...)):
     """Admin: export GrowthIQ assessments to CSV."""
@@ -819,22 +884,24 @@ async def delete_growth_assessment(report_id: str, password: str = Query(...)):
 
 @api_router.post("/leads/guide", response_model=GuideLead)
 async def create_guide_lead(input: GuideLeadCreate, background_tasks: BackgroundTasks):
-    """Submit a guide download lead and trigger email sequence"""
+    """Submit a guide/checklist lead and trigger the appropriate email."""
     lead_obj = GuideLead(**input.model_dump())
     doc = lead_obj.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     
     await db.guide_leads.insert_one(doc)
-    logger.info(f"New guide lead created: {lead_obj.email}")
+    logger.info("New guide lead created: %s (source=%s)", lead_obj.email, lead_obj.source)
     
-    # Trigger email sequence in background
-    background_tasks.add_task(
-        send_email_sequence,
-        lead_obj.id,
-        input.name,
-        input.email,
-        ""
-    )
+    if input.source == "exit_intent_checklist":
+        background_tasks.add_task(send_checklist_email, lead_obj.id, input.email, input.name or "")
+    else:
+        background_tasks.add_task(
+            send_email_sequence,
+            lead_obj.id,
+            input.name or "there",
+            input.email,
+            "",
+        )
     
     return lead_obj
 

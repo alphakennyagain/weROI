@@ -21,7 +21,7 @@ const FOUNDERS = [
 
 const TEAM_STATS = [
   { value: '20+', label: 'Live portfolio builds shipped' },
-  { value: 'Jamaica', label: 'Kingston HQ — islandwide and international clients' },
+  { value: 'Jamaica', label: 'Kingston HQ. Islandwide and international clients' },
   { value: 'One team', label: 'Build and marketing under one roof' },
   { value: 'End-to-end', label: 'Sites, apps, and campaigns in one delivery' },
   { value: '2024', label: 'Founded with a focus on measurable ROI' },

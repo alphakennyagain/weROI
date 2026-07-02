@@ -39,6 +39,8 @@ const PHASE = {
   THANKS: 'thanks',
 };
 
+const showMarketing = (phase) => phase === PHASE.LANDING || phase === PHASE.FORM;
+
 export default function GrowthPreview() {
   const [phase, setPhase] = useState(() => (hasDraft() ? PHASE.FORM : PHASE.LANDING));
   const [assessmentData, setAssessmentData] = useState(null);
@@ -289,7 +291,7 @@ export default function GrowthPreview() {
         </div>
       </section>
 
-      {phase === PHASE.LANDING && (
+      {showMarketing(phase) && (
         <section className="giq-hero-preview">
           <div className="container">
             <PreviewReport />
@@ -297,7 +299,7 @@ export default function GrowthPreview() {
         </section>
       )}
 
-      {phase === PHASE.LANDING && (
+      {showMarketing(phase) && (
         <section className="giq-section giq-explainer">
           <div className="container giq-explainer-inner">
             <h2 className="giq-section-title">{WHAT_IS_GROWTHIQ.title}</h2>
