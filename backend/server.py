@@ -58,7 +58,7 @@ def get_db():
                 status_code=503,
                 detail="Database not configured: set MONGO_URL and DB_NAME in Railway Variables",
             )
-        _mongo_client = AsyncIOMotorClient(mongo_url)
+        _mongo_client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
         _mongo_db = _mongo_client[_db_name()]
     return _mongo_db
 
@@ -515,6 +515,16 @@ async def root():
     return {
         "message": "weROI API",
         "growthiq": True,
+        "commit": _deploy_commit(),
+        "features": _api_features(),
+    }
+
+
+@api_router.get("/health/live")
+async def health_live():
+    """Fast liveness probe for Railway — no database calls."""
+    return {
+        "status": "ok",
         "commit": _deploy_commit(),
         "features": _api_features(),
     }
@@ -1432,38 +1442,7 @@ async def process_scheduled_emails_job():
 
 @app.on_event("startup")
 async def startup_event():
-    """Start the background scheduler on app startup"""
-    mongo_url = os.environ.get("MONGO_URL")
-    if not mongo_url:
-        logger.error(
-            "MONGO_URL is not set — API will return 503 on data routes. "
-            "Add MONGO_URL and DB_NAME in Railway → Variables."
-        )
-    else:
-        try:
-            database = get_db()
-            await database.command("ping")
-            logger.info("MongoDB connected (db=%s)", _db_name())
-            updated = 0
-            cursor = db.growth_assessments.find(
-                {"business_email_normalized": {"$exists": False}, "business_email": {"$exists": True, "$ne": ""}},
-                {"report_id": 1, "business_email": 1},
-            )
-            async for row in cursor:
-                await db.growth_assessments.update_one(
-                    {"report_id": row["report_id"]},
-                    {"$set": {"business_email_normalized": _normalize_email(row.get("business_email"))}},
-                )
-                updated += 1
-            if updated:
-                logger.info("Backfilled business_email_normalized on %s assessments", updated)
-        except Exception as exc:
-            logger.error(
-                "MongoDB ping failed at startup: %s. "
-                "In Atlas → Network Access, allow 0.0.0.0/0 for Railway.",
-                exc,
-            )
-
+    """Start scheduler immediately; warm up MongoDB in the background."""
     email_status = _email_config_status()
     if email_status["warnings"]:
         for warning in email_status["warnings"]:
@@ -1485,3 +1464,37 @@ async def startup_event():
     )
     scheduler.start()
     logger.info("Background email scheduler started - checking every 15 minutes")
+
+    async def _warmup_database() -> None:
+        mongo_url = os.environ.get("MONGO_URL")
+        if not mongo_url:
+            logger.error(
+                "MONGO_URL is not set — API will return 503 on data routes. "
+                "Add MONGO_URL and DB_NAME in Railway Variables."
+            )
+            return
+        try:
+            database = get_db()
+            await database.command("ping")
+            logger.info("MongoDB connected (db=%s)", _db_name())
+            updated = 0
+            cursor = db.growth_assessments.find(
+                {"business_email_normalized": {"$exists": False}, "business_email": {"$exists": True, "$ne": ""}},
+                {"report_id": 1, "business_email": 1},
+            )
+            async for row in cursor:
+                await db.growth_assessments.update_one(
+                    {"report_id": row["report_id"]},
+                    {"$set": {"business_email_normalized": _normalize_email(row.get("business_email"))}},
+                )
+                updated += 1
+            if updated:
+                logger.info("Backfilled business_email_normalized on %s assessments", updated)
+        except Exception as exc:
+            logger.error(
+                "MongoDB warmup failed: %s. "
+                "In Atlas → Network Access, allow 0.0.0.0/0 for Railway.",
+                exc,
+            )
+
+    asyncio.create_task(_warmup_database())
