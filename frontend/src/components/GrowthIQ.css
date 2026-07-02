@@ -1279,6 +1279,187 @@ html[data-theme="dark"] .giq-report-card {
 .giq-thanks-icon { color: var(--lime-ink); margin-bottom: 20px; }
 .giq-thanks h1 { font-size: 2rem; margin-bottom: 12px; }
 .giq-thanks p { color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.giq-thanks-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+/* My Past Reports */
+.giq-my-reports {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+.giq-my-reports-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.giq-my-reports-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  color: var(--lime-ink);
+}
+.giq-my-reports-title {
+  font-size: 1.35rem;
+  margin-bottom: 4px;
+  text-align: left;
+}
+.giq-my-reports-sub {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.giq-my-reports-lookup {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.giq-my-reports-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.giq-my-reports-input:focus {
+  outline: 2px solid var(--lime);
+  outline-offset: 1px;
+}
+.giq-my-reports-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--carbon);
+  color: var(--lime);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.giq-my-reports-btn:disabled { opacity: 0.6; cursor: wait; }
+.giq-my-reports-error,
+.giq-my-reports-page-error {
+  font-size: 0.875rem;
+  color: #c44;
+  margin: 0 0 12px;
+}
+.giq-my-reports-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.giq-my-reports-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.giq-my-reports-item:hover {
+  border-color: var(--lime-ink);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+.giq-my-reports-score {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--carbon);
+  color: var(--lime);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+}
+.giq-my-reports-grade {
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.giq-my-reports-num {
+  font-size: 1rem;
+  font-weight: 800;
+}
+.giq-my-reports-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.giq-my-reports-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.giq-my-reports-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.giq-my-reports-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--lime-ink);
+  background: rgba(198, 255, 0, 0.15);
+  padding: 2px 8px;
+  border-radius: 999px;
+  width: fit-content;
+}
+.giq-my-reports-view {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--lime-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.giq-my-reports-view:hover { background: rgba(198, 255, 0, 0.12); }
+.giq-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.giq-nav-reports {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+}
+.giq-nav-reports:hover { color: var(--lime-ink); }
+.giq-spin { animation: giq-spin 0.8s linear infinite; }
+@keyframes giq-spin { to { transform: rotate(360deg); } }
 
 /* Chat widget */
 .giq-chat-fab {
@@ -1450,6 +1631,10 @@ html[data-theme="dark"] .giq-chat-panel {
   .giq-cat-score-bar { width: 56px; }
   .giq-cat-right svg { flex-shrink: 0; }
   .giq-report-grid { grid-template-columns: 1fr; }
+  .giq-my-reports-lookup { flex-direction: column; }
+  .giq-my-reports-btn { width: 100%; justify-content: center; }
+  .giq-nav-links { gap: 10px; }
+  .giq-nav-reports { font-size: 0.8rem; }
   .giq-report-summary-card { padding: 18px; }
 }
 

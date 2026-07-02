@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone, timedelta
+import re
 import resend
 import csv
 import io
@@ -290,6 +291,9 @@ class GrowthIQGenerateRequest(BaseModel):
 
 class GrowthIQChatRequest(BaseModel):
     message: str = Field(..., max_length=500)
+
+class GrowthIQReportLookup(BaseModel):
+    email: EmailStr
 
 # ========================================
 # EMAIL SENDING FUNCTIONS
@@ -739,12 +743,51 @@ async def growthiq_maybe_later(input: GrowthExpertReviewRequest):
     return {"status": "saved", "report_id": input.report_id}
 
 @api_router.get("/growthiq/assessment/{report_id}")
-async def get_growth_assessment(report_id: str):
-    """Retrieve assessment by report ID."""
+async def get_growth_assessment(report_id: str, email: Optional[EmailStr] = Query(None)):
+    """Retrieve assessment by report ID. Public access requires matching email."""
     doc = await db.growth_assessments.find_one({"report_id": report_id}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Report not found")
+    if email is not None:
+        stored = (doc.get("business_email") or "").strip().lower()
+        if stored != str(email).strip().lower():
+            raise HTTPException(status_code=403, detail="Email does not match this report")
     return doc
+
+@api_router.post("/growthiq/reports/lookup")
+async def lookup_growthiq_reports(body: GrowthIQReportLookup):
+    """Return compact report summaries for a business email (max 20, newest first)."""
+    email = str(body.email).strip().lower()
+    assessments = await db.growth_assessments.find(
+        {"business_email": {"$regex": f"^{re.escape(email)}$", "$options": "i"}},
+        {
+            "_id": 0,
+            "report_id": 1,
+            "business_name": 1,
+            "business_email": 1,
+            "created_at": 1,
+            "expert_review_requested": 1,
+            "report.overall_score": 1,
+            "report.letter_grade": 1,
+            "report.growth_level": 1,
+        },
+    ).sort("created_at", -1).to_list(20)
+
+    return {
+        "reports": [
+            {
+                "report_id": a.get("report_id"),
+                "business_name": a.get("business_name"),
+                "business_email": a.get("business_email"),
+                "created_at": a.get("created_at"),
+                "expert_review_requested": bool(a.get("expert_review_requested")),
+                "overall_score": (a.get("report") or {}).get("overall_score"),
+                "letter_grade": (a.get("report") or {}).get("letter_grade"),
+                "growth_level": (a.get("report") or {}).get("growth_level"),
+            }
+            for a in assessments
+        ]
+    }
 
 @api_router.get("/growthiq/assessments")
 async def list_growth_assessments(

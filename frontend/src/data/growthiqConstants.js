@@ -1,4 +1,5 @@
 export const STORAGE_KEY = 'weroi_growthiq_draft';
+export const REPORTS_LIBRARY_KEY = 'weroi_growthiq_reports';
 
 export const GROWTHIQ_BRAND = 'weROI GrowthIQ™';
 
@@ -437,4 +438,38 @@ export function getEstimatedMinutesRemaining(step, subStep) {
   const pct = getProgressPercent(step, subStep);
   const remaining = Math.max(1, Math.ceil((100 - pct) / 100 * 5));
   return remaining;
+}
+
+export function saveReportToLibrary(assessment) {
+  if (!assessment?.report_id || !assessment?.business_email) return;
+  try {
+    const existing = JSON.parse(localStorage.getItem(REPORTS_LIBRARY_KEY) || '[]');
+    const entry = {
+      report_id: assessment.report_id,
+      business_email: assessment.business_email,
+      business_name: assessment.business_name,
+      overall_score: assessment.report?.overall_score,
+      letter_grade: assessment.report?.letter_grade,
+      growth_level: assessment.report?.growth_level,
+      expert_review_requested: !!assessment.expert_review_requested,
+      created_at: assessment.created_at || new Date().toISOString(),
+    };
+    const next = [entry, ...existing.filter((r) => r.report_id !== entry.report_id)].slice(0, 12);
+    localStorage.setItem(REPORTS_LIBRARY_KEY, JSON.stringify(next));
+    localStorage.setItem('weroi_growthiq_email', assessment.business_email);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getSavedReports() {
+  try {
+    return JSON.parse(localStorage.getItem(REPORTS_LIBRARY_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function getSavedReportEmail() {
+  return localStorage.getItem('weroi_growthiq_email') || '';
 }

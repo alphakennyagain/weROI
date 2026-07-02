@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowRight, Sparkles, Check, Target, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import GrowthIQNav from './growthiq/GrowthIQNav';
@@ -7,6 +8,7 @@ import GrowthIQWizard from './growthiq/GrowthIQWizard';
 import GrowthIQProcessing from './growthiq/GrowthIQProcessing';
 import GrowthIQReport from './growthiq/GrowthIQReport';
 import PreviewReport from './growthiq/PreviewReport';
+import MyReports from './growthiq/MyReports';
 import {
   HOW_IT_WORKS,
   PREMIUM_CARDS,
@@ -17,6 +19,7 @@ import {
   WHAT_IS_GROWTHIQ,
   hasDraft,
   clearDraft,
+  saveReportToLibrary,
 } from '../data/growthiqConstants';
 import { getBackendUrl } from '../lib/apiConfig';
 import './GrowthIQ.css';
@@ -42,12 +45,14 @@ const PHASE = {
 const showMarketing = (phase) => phase === PHASE.LANDING || phase === PHASE.FORM;
 
 export default function GrowthPreview() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [phase, setPhase] = useState(() => (hasDraft() ? PHASE.FORM : PHASE.LANDING));
   const [assessmentData, setAssessmentData] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [expertRequested, setExpertRequested] = useState(false);
+  const [reportLoadError, setReportLoadError] = useState('');
 
   const sid = (() => {
     const e = sessionStorage.getItem('sessionId');
@@ -70,6 +75,46 @@ export default function GrowthPreview() {
       }),
     }).catch(() => {});
   }, [sid]);
+
+  const loadReport = useCallback(async (reportId, email) => {
+    if (!reportId || !email) return;
+    if (!API_URL) {
+      setReportLoadError('We could not reach the report service. Please try again shortly.');
+      return;
+    }
+    setReportLoadError('');
+    try {
+      const res = await fetch(
+        `${API_URL}/api/growthiq/assessment/${encodeURIComponent(reportId)}?email=${encodeURIComponent(email)}`
+      );
+      if (!res.ok) {
+        if (res.status === 403) {
+          setReportLoadError('That email does not match this report. Use the email from your assessment.');
+        } else {
+          setReportLoadError('Report not found. Check your email or complete a new assessment.');
+        }
+        return;
+      }
+      const json = await res.json();
+      saveReportToLibrary(json);
+      setResult(json);
+      setExpertRequested(!!json.expert_review_requested);
+      setPhase(PHASE.REPORT);
+      setSearchParams({}, { replace: true });
+      window.scrollTo(0, 0);
+      track('growthiq_report_reopened');
+    } catch {
+      setReportLoadError('Could not load your report. Please try again.');
+    }
+  }, [setSearchParams, track]);
+
+  useEffect(() => {
+    const reportId = searchParams.get('report');
+    const email = searchParams.get('email');
+    if (reportId && email) {
+      loadReport(reportId, email);
+    }
+  }, [searchParams, loadReport]);
 
   useEffect(() => {
     document.title = PAGE_TITLE;
@@ -153,6 +198,7 @@ export default function GrowthPreview() {
       delete window.__giqPendingResult;
       if (json) {
         clearDraft();
+        saveReportToLibrary(json);
         setResult(json);
         setPhase(PHASE.REPORT);
         window.scrollTo(0, 0);
@@ -171,6 +217,7 @@ export default function GrowthPreview() {
       });
       if (!res.ok) throw new Error('Failed');
       setExpertRequested(true);
+      saveReportToLibrary({ ...result, expert_review_requested: true });
       track('growthiq_expert_review_requested');
       setPhase(PHASE.THANKS);
     } catch {
@@ -231,9 +278,20 @@ export default function GrowthPreview() {
           {result?.report_id && (
             <p className="giq-report-id">Report ID: {result.report_id}</p>
           )}
-          <GlowButton onClick={() => window.location.href = '/'} size="lg">
-            Back to weROI <ArrowRight size={16} />
-          </GlowButton>
+          <div className="giq-thanks-actions">
+            {result?.report_id && result?.business_email && (
+              <GlowButton
+                onClick={() => loadReport(result.report_id, result.business_email)}
+                size="lg"
+                variant="outline"
+              >
+                View my report again
+              </GlowButton>
+            )}
+            <GlowButton onClick={() => window.location.href = '/'} size="lg">
+              Back to weROI <ArrowRight size={16} />
+            </GlowButton>
+          </div>
         </div>
       </div>
     );
@@ -358,6 +416,17 @@ export default function GrowthPreview() {
           </div>
         </div>
       </section>
+
+      {showMarketing(phase) && (
+        <>
+          <MyReports onViewReport={loadReport} />
+          {reportLoadError && (
+            <p className="giq-error giq-error--center giq-my-reports-page-error" role="alert">
+              {reportLoadError}
+            </p>
+          )}
+        </>
+      )}
 
       {(phase === PHASE.FORM || phase === PHASE.LANDING) && (
         <section className={`giq-section giq-form-section${phase === PHASE.FORM ? ' giq-form-section--active' : ''}`}>
