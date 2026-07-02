@@ -23,6 +23,14 @@ import './GrowthIQ.css';
 
 const API_URL = getBackendUrl();
 
+const PAGE_TITLE = 'Free Business Growth Assessment | weROI GrowthIQ™ Jamaica';
+const PAGE_DESCRIPTION =
+  'Get your free weROI GrowthIQ™ score in minutes. A personalized review of your business, website, and growth gaps, built by a Jamaican digital agency, not a generic AI template.';
+const CANONICAL = 'https://weroi.net/growth-preview';
+const DEFAULT_TITLE = 'weROI | Digital Growth Agency in Jamaica';
+const DEFAULT_DESCRIPTION =
+  'weROI is a Jamaican digital growth agency. We build websites, SEO, custom software, marketing funnels, CRM, automation, and ad systems so local businesses get found on Google and scale with measurable ROI.';
+
 const PHASE = {
   LANDING: 'landing',
   FORM: 'form',
@@ -62,6 +70,17 @@ export default function GrowthPreview() {
   }, [sid]);
 
   useEffect(() => {
+    document.title = PAGE_TITLE;
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', PAGE_DESCRIPTION);
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', CANONICAL);
+
     window.scrollTo(0, 0);
     track('page_view');
     if (hasDraft()) {
@@ -72,6 +91,13 @@ export default function GrowthPreview() {
     } else {
       track('growthiq_landing_view');
     }
+
+    return () => {
+      document.title = DEFAULT_TITLE;
+      const defaultDesc = document.querySelector('meta[name="description"]');
+      if (defaultDesc) defaultDesc.setAttribute('content', DEFAULT_DESCRIPTION);
+      if (canonical) canonical.setAttribute('href', 'https://weroi.net/');
+    };
   }, [track]);
 
   const startAssessment = () => {

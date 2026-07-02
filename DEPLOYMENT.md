@@ -104,7 +104,16 @@ CORS_ORIGINS=https://weroi.net,https://your-vercel-app.vercel.app
 | `SENDER_EMAIL` | No | `growth@weroi.net` (verified domain in Resend) |
 | `ADMIN_EMAIL` | No | `contact.weroi@gmail.com` |
 | `ADMIN_PASSWORD` | No | Dashboard login at `/admin`. **Set a strong value in Railway/production** — the repo default (`Zachattack01@`) is a dev fallback only; override via env var. |
-| `CORS_ORIGINS` | No | `https://weroi.net,https://your-app.vercel.app` |
+| `CORS_ORIGINS` | No | `https://weroi.net,https://www.weroi.net,https://your-app.vercel.app` |
+| `GROQ_API_KEY` | No (GrowthIQ) | Groq API key — free tier works for reports |
+| `AI_PROVIDER` | No (GrowthIQ) | `groq` (recommended) or `auto` |
+| `GROQ_MODEL` | No (GrowthIQ) | `llama-3.3-70b-versatile` |
+
+**Verify GrowthIQ is live after deploy**
+
+1. Open `https://YOUR-RAILWAY-URL/docs`
+2. Confirm you see `POST /api/growthiq/assessment` and `POST /api/growthiq/chat`
+3. If those routes are missing, the service is still on old code — check **Root Directory** is `backend` and redeploy
 
 **MongoDB Atlas checklist**
 
