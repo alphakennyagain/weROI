@@ -8,6 +8,7 @@ import Logo from './brand/Logo';
 import './AdminDashboard.css';
 
 import { getBackendUrl } from '../lib/apiConfig';
+import { CALENDLY_30MIN_URL } from '../constants/contactLinks';
 
 const API_URL = getBackendUrl();
 
@@ -35,6 +36,10 @@ const AdminDashboard = () => {
   const [giqStatus, setGiqStatus] = useState('');
   const [meetingLinkSending, setMeetingLinkSending] = useState(null);
   const [meetingLinkFeedback, setMeetingLinkFeedback] = useState('');
+  const [meetingComposeTarget, setMeetingComposeTarget] = useState(null);
+  const [meetingCalendlyUrl, setMeetingCalendlyUrl] = useState(CALENDLY_30MIN_URL);
+  const [meetingProposedTimes, setMeetingProposedTimes] = useState('');
+  const [meetingPersonalNote, setMeetingPersonalNote] = useState('');
 
   const fetchDashboardData = useCallback(async (isInitial = false) => {
     const storedPassword = sessionStorage.getItem('adminAuth');
@@ -146,7 +151,19 @@ const AdminDashboard = () => {
     setMeetingLinkFeedback('');
   };
 
-  const handleSendMeetingLink = async (reportId) => {
+  const openMeetingCompose = (assessment) => {
+    const business = assessment.business_name || 'your business';
+    setMeetingComposeTarget(assessment);
+    setMeetingCalendlyUrl(assessment.last_meeting_calendly_url || CALENDLY_30MIN_URL);
+    setMeetingProposedTimes(assessment.last_meeting_proposed_times || '');
+    setMeetingPersonalNote(
+      assessment.last_meeting_personal_message
+        || `We reviewed your GrowthIQ report for ${business} and would love to walk through the findings with you.`
+    );
+    setMeetingLinkFeedback('');
+  };
+
+  const handleSendMeetingLink = async (reportId, payload = {}) => {
     const storedPassword = sessionStorage.getItem('adminAuth');
     if (!storedPassword || !API_URL) return;
     setMeetingLinkSending(reportId);
@@ -154,13 +171,26 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(
         `${API_URL}/api/growthiq/assessment/${reportId}/send-meeting-link?password=${encodeURIComponent(storedPassword)}`,
-        { method: 'POST' }
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            calendly_url: payload.calendlyUrl || CALENDLY_30MIN_URL,
+            proposed_times: payload.proposedTimes || '',
+            personal_message: payload.personalMessage || '',
+          }),
+        }
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data.detail || `Request failed (${response.status})`);
+        const detail = data.detail || `Request failed (${response.status})`;
+        if (response.status === 404 && detail === 'Not Found') {
+          throw new Error('Meeting link API is not live yet. Redeploy the Railway backend, then try again.');
+        }
+        throw new Error(typeof detail === 'string' ? detail : 'Could not send meeting link.');
       }
       setMeetingLinkFeedback('Meeting link sent successfully.');
+      setMeetingComposeTarget(null);
       if (data.assessment) {
         setGiqViewTarget(data.assessment);
         setGiqStatus(data.assessment.crm_status || giqStatus);
@@ -171,6 +201,16 @@ const AdminDashboard = () => {
     } finally {
       setMeetingLinkSending(null);
     }
+  };
+
+  const submitMeetingCompose = (e) => {
+    e.preventDefault();
+    if (!meetingComposeTarget?.report_id) return;
+    handleSendMeetingLink(meetingComposeTarget.report_id, {
+      calendlyUrl: meetingCalendlyUrl.trim(),
+      proposedTimes: meetingProposedTimes.trim(),
+      personalMessage: meetingPersonalNote.trim(),
+    });
   };
 
   const handleLogout = () => {
@@ -442,7 +482,7 @@ const AdminDashboard = () => {
                   type="button"
                   className="admin-submit-btn giq-send-meeting-btn"
                   disabled={meetingLinkSending === giqViewTarget.report_id}
-                  onClick={() => handleSendMeetingLink(giqViewTarget.report_id)}
+                  onClick={() => openMeetingCompose(giqViewTarget)}
                 >
                   {meetingLinkSending === giqViewTarget.report_id ? (
                     <><Loader2 size={16} className="spin" /> Sending…</>
@@ -466,6 +506,78 @@ const AdminDashboard = () => {
               <button type="button" className="btn-cancel" onClick={() => setGiqViewTarget(null)}>Close</button>
               <button type="button" className="admin-submit-btn" onClick={() => handleGiqUpdate(giqViewTarget.report_id)}>Save</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {meetingComposeTarget && (
+        <div className="delete-modal-overlay" onClick={() => setMeetingComposeTarget(null)}>
+          <div className="edit-modal meeting-compose-modal" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close" onClick={() => setMeetingComposeTarget(null)}>
+              <X size={20} />
+            </button>
+            <Calendar size={32} className="modal-edit-icon" />
+            <h3>Send Meeting Link</h3>
+            <p className="meeting-compose-recipient">
+              To <strong>{meetingComposeTarget.full_name || 'Contact'}</strong> at{' '}
+              <strong>{meetingComposeTarget.business_email}</strong>
+              {meetingComposeTarget.business_name ? ` · ${meetingComposeTarget.business_name}` : ''}
+            </p>
+
+            <form className="edit-form meeting-compose-form" onSubmit={submitMeetingCompose}>
+              <div className="edit-field">
+                <label htmlFor="meeting-calendly-url">Calendly link</label>
+                <input
+                  id="meeting-calendly-url"
+                  type="url"
+                  value={meetingCalendlyUrl}
+                  onChange={(e) => setMeetingCalendlyUrl(e.target.value)}
+                  placeholder="https://calendly.com/contact-weroi/30min"
+                  required
+                />
+              </div>
+              <div className="edit-field">
+                <label htmlFor="meeting-proposed-times">Suggested times (optional)</label>
+                <textarea
+                  id="meeting-proposed-times"
+                  rows={3}
+                  value={meetingProposedTimes}
+                  onChange={(e) => setMeetingProposedTimes(e.target.value)}
+                  placeholder="e.g. Tuesday 2:00 PM EST or Wednesday 10:30 AM EST"
+                />
+              </div>
+              <div className="edit-field">
+                <label htmlFor="meeting-personal-note">Personal message</label>
+                <textarea
+                  id="meeting-personal-note"
+                  rows={4}
+                  value={meetingPersonalNote}
+                  onChange={(e) => setMeetingPersonalNote(e.target.value)}
+                  placeholder="Short note that appears in the branded email..."
+                  required
+                />
+              </div>
+              <p className="meeting-compose-hint">
+                They will receive a branded weROI email with your message, suggested times, and a Book Your Call button.
+              </p>
+              {meetingLinkFeedback && !meetingLinkFeedback.includes('success') && (
+                <p className="giq-meeting-feedback is-error" role="alert">{meetingLinkFeedback}</p>
+              )}
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setMeetingComposeTarget(null)}>Cancel</button>
+                <button
+                  type="submit"
+                  className="admin-submit-btn"
+                  disabled={meetingLinkSending === meetingComposeTarget.report_id}
+                >
+                  {meetingLinkSending === meetingComposeTarget.report_id ? (
+                    <><Loader2 size={16} className="spin" /> Sending…</>
+                  ) : (
+                    <><Calendar size={16} /> Send branded email</>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -928,7 +1040,7 @@ const AdminDashboard = () => {
                           <button
                             type="button"
                             className="btn-edit-row"
-                            onClick={() => handleSendMeetingLink(g.report_id)}
+                            onClick={() => openMeetingCompose(g)}
                             title="Send meeting link"
                             disabled={meetingLinkSending === g.report_id}
                           >

@@ -896,6 +896,20 @@
 }
 .giq-meeting-feedback.is-success { color: #1a7f4b; }
 .giq-meeting-feedback.is-error { color: #c0392b; }
+.meeting-compose-modal { max-width: 520px; }
+.meeting-compose-recipient {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.meeting-compose-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.meeting-compose-form .modal-actions { margin-top: 8px; }
 .admin-dashboard .spin {
   animation: admin-spin 0.8s linear infinite;
 }

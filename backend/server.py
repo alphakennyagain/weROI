@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks, Query, Response, Request
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks, Query, Response, Request, Body
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -294,6 +294,11 @@ class GrowthIQChatRequest(BaseModel):
 
 class GrowthIQReportLookup(BaseModel):
     email: EmailStr
+
+class GrowthIQMeetingLinkRequest(BaseModel):
+    calendly_url: Optional[str] = Field(None, max_length=500)
+    proposed_times: Optional[str] = Field(None, max_length=500)
+    personal_message: Optional[str] = Field(None, max_length=1200)
 
 # ========================================
 # EMAIL SENDING FUNCTIONS
@@ -835,7 +840,11 @@ async def update_growth_assessment(report_id: str, update: GrowthAssessmentUpdat
     return updated
 
 @api_router.post("/growthiq/assessment/{report_id}/send-meeting-link")
-async def send_growthiq_meeting_link(report_id: str, password: str = Query(...)):
+async def send_growthiq_meeting_link(
+    report_id: str,
+    body: GrowthIQMeetingLinkRequest = Body(default_factory=GrowthIQMeetingLinkRequest),
+    password: str = Query(...),
+):
     """Admin: email Calendly booking link to assessment contact."""
     if password != ADMIN_PASSWORD:
         raise HTTPException(status_code=401, detail="Invalid password")
@@ -848,9 +857,22 @@ async def send_growthiq_meeting_link(report_id: str, password: str = Query(...))
     if not email:
         raise HTTPException(status_code=400, detail="Assessment has no email on file")
 
+    calendly_url = (body.calendly_url or "").strip() or CALENDLY_URL
+    if not calendly_url.startswith("http"):
+        raise HTTPException(status_code=400, detail="Calendly URL must start with http:// or https://")
+
     name = doc.get("full_name") or ""
     business = doc.get("business_name") or "your business"
-    email_content = get_growthiq_meeting_email(name, business, CALENDLY_URL)
+    report = doc.get("report") or {}
+    email_content = get_growthiq_meeting_email(
+        name,
+        business,
+        calendly_url,
+        proposed_times=body.proposed_times,
+        personal_message=body.personal_message,
+        overall_score=report.get("overall_score"),
+        letter_grade=report.get("letter_grade"),
+    )
     success = await _send_template_email(email, email_content, include_unsubscribe=True)
     if not success:
         raise HTTPException(
@@ -862,7 +884,12 @@ async def send_growthiq_meeting_link(report_id: str, password: str = Query(...))
     update_fields: dict = {
         "meeting_link_sent_at": now,
         "updated_at": now,
+        "last_meeting_calendly_url": calendly_url,
     }
+    if body.proposed_times and body.proposed_times.strip():
+        update_fields["last_meeting_proposed_times"] = body.proposed_times.strip()
+    if body.personal_message and body.personal_message.strip():
+        update_fields["last_meeting_personal_message"] = body.personal_message.strip()
     if doc.get("crm_status") in (None, "", "analytics_only", "expert_review_requested"):
         update_fields["crm_status"] = "contacted"
 
@@ -935,7 +962,7 @@ async def create_guide_lead(input: GuideLeadCreate, background_tasks: Background
     await db.guide_leads.insert_one(doc)
     logger.info("New guide lead created: %s (source=%s)", lead_obj.email, lead_obj.source)
     
-    if input.source == "exit_intent_checklist":
+    if (input.source or "").strip().lower() == "exit_intent_checklist":
         background_tasks.add_task(send_checklist_email, lead_obj.id, input.email, input.name or "")
     else:
         background_tasks.add_task(

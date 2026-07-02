@@ -360,17 +360,25 @@ Additional details:
     }
 
 
+def _greeting(name: str | None) -> str:
+    if name and str(name).strip():
+        return f"Hi {_e(str(name).strip())},"
+    return "Hi there,"
+
+
 def get_email_1_content(name: str) -> dict:
+    display_name = str(name).strip() if name and str(name).strip() else "there"
+    greeting = _greeting(name)
     content = f"""
-    <p style="margin: 0 0 20px 0;">{_e(name)},</p>
+    <p style="margin: 0 0 20px 0;">{greeting}</p>
     <p style="margin: 0 0 20px 0;">You made a smart move.</p>
-    <p style="margin: 0 0 20px 0;">Most businesses stay small because they lack the systems to scale — you just took the first step to changing that.</p>
+    <p style="margin: 0 0 20px 0;">Most businesses stay small because they lack the systems to scale. You just took the first step to changing that.</p>
     <p style="margin: 0 0 8px 0; color: {BRAND_DARK}; font-weight: 500;">Your blueprint is ready.</p>
-    <p style="margin: 0 0 20px 0;">Inside, pay close attention to <strong style="color: {BRAND_DARK};">Step 3: The Trust Architecture</strong> — it is the missing link for most of our clients.</p>
+    <p style="margin: 0 0 20px 0;">Inside, pay close attention to <strong style="color: {BRAND_DARK};">Step 3: The Trust Architecture</strong>. It is the missing link for most of our clients.</p>
     {_section_box("weROI Insight", '<em>"Structure beats strategy. Systems beat talent."</em>')}
     <p style="margin: 0;">Talk soon,<br><strong style="color: {BRAND_DARK};">The weROI Team</strong></p>
     """
-    text = f"""{name},
+    text = f"""{greeting}
 
 You made a smart move. Your scaling blueprint is ready.
 
@@ -386,7 +394,7 @@ The weROI Team
         "html": get_premium_email_template(
             content,
             headline="Your Growth Guide",
-            cta_text=f"Download {name}'s Growth Guide",
+            cta_text="Download Your Growth Guide",
             cta_link=GROWTH_GUIDE_PDF,
             preheader="Your growth guide is ready to download.",
         ),
@@ -462,12 +470,42 @@ def get_growthiq_meeting_email(
     name: str,
     business_name: str,
     calendly_url: str = CALENDLY_URL,
+    proposed_times: str | None = None,
+    personal_message: str | None = None,
+    overall_score: int | None = None,
+    letter_grade: str | None = None,
 ) -> dict:
     """Email with booking link after admin sends meeting request from dashboard."""
-    display_name = name.strip() if name and name.strip() else "there"
+    greeting = _greeting(name)
+    score_line = ""
+    if overall_score is not None:
+        grade_part = f" ({letter_grade})" if letter_grade else ""
+        score_line = (
+            f'<p style="margin: 0 0 20px 0;">Your GrowthIQ™ score: '
+            f'<strong style="color: {BRAND_DARK};">{overall_score}{_e(grade_part)}</strong></p>'
+        )
+
+    personal_block = ""
+    if personal_message and personal_message.strip():
+        personal_block = _section_box(
+            "A note from our team",
+            _e(personal_message.strip()).replace("\n", "<br>"),
+        )
+
+    times_block = ""
+    if proposed_times and proposed_times.strip():
+        times_block = _section_box(
+            "Suggested times",
+            f'<p style="margin: 0; white-space: pre-line;">{_e(proposed_times.strip())}</p>',
+            dark=True,
+        )
+
     content = f"""
-    <p style="margin: 0 0 20px 0;">Hi {_e(display_name)},</p>
+    <p style="margin: 0 0 20px 0;">{greeting}</p>
     <p style="margin: 0 0 20px 0;">Thanks for requesting your complimentary expert review from weROI. We have reviewed your GrowthIQ™ assessment for <strong style="color: {BRAND_DARK};">{_e(business_name)}</strong> and would love to walk through the findings with you.</p>
+    {score_line}
+    {personal_block}
+    {times_block}
     {_section_box(
         "Book your call",
         "Pick a time that works for you. This is a short, no-pressure conversation to review your report and answer questions.",
@@ -475,10 +513,14 @@ def get_growthiq_meeting_email(
     <p style="margin: 0 0 20px 0;">If none of the listed times work, reply to this email and we will find another slot.</p>
     <p style="margin: 0;">Talk soon,<br><strong style="color: {BRAND_DARK};">The weROI Team</strong></p>
     """
+    times_text = f"\n\nSuggested times:\n{proposed_times.strip()}\n" if proposed_times and proposed_times.strip() else ""
+    note_text = f"\n\n{personal_message.strip()}\n" if personal_message and personal_message.strip() else ""
+    score_text = f"\nYour GrowthIQ score: {overall_score}{f' ({letter_grade})' if letter_grade else ''}\n" if overall_score is not None else ""
+    display_name = str(name).strip() if name and str(name).strip() else "there"
     text = f"""Hi {display_name},
 
 Thanks for requesting your complimentary expert review from weROI. We have reviewed your GrowthIQ assessment for {business_name} and would love to walk through the findings with you.
-
+{score_text}{note_text}{times_text}
 Book your call: {calendly_url}
 
 Pick a time that works for you. This is a short, no-pressure conversation to review your report and answer questions.
@@ -506,75 +548,76 @@ GROWTHIQ_URL = f"{SITE_URL}/growth-preview"
 
 def get_visibility_checklist_email_content(name: str | None = None) -> dict:
     """Exit-intent checklist email for visibility lead magnet."""
-    greeting = _e(name.strip()) if name and name.strip() else "there"
-    growthiq_btn = _cta_button("Get My Free GrowthIQ Score →", GROWTHIQ_URL)
+    greeting = _greeting(name)
+
+    checklist_items = [
+        (
+            "People can't find you when they search",
+            "If someone searches for what you do, nearby, on Google or Instagram, and your business doesn't show up, you're not even in the running.",
+        ),
+        (
+            "Your online presence doesn't match how good you actually are",
+            "Weak signals like a missing Google Business Profile, no photos, or an inactive Instagram make customers assume what they see is what they'll get.",
+        ),
+        (
+            "There's no way to prove you're trustworthy at a glance",
+            "No reviews, no real photos, no clear way to contact you. Strangers decide in seconds whether to trust you enough to reach out.",
+        ),
+        (
+            "Interested customers fall through the cracks",
+            "Without a simple follow-up system, leads get forgotten. Not because you don't care, but because nothing is catching them.",
+        ),
+        (
+            "You don't know where you're actually losing people",
+            "Most owners are guessing. Without visibility into your numbers, you're solving problems you haven't identified yet.",
+        ),
+    ]
+
+    items_html = "".join(
+        f'<p style="margin: 0 0 16px 0;"><strong style="color: {BRAND_DARK};">{i}. {_e(title)}</strong><br>'
+        f'<span style="color: #555;">{_e(desc)}</span></p>'
+        for i, (title, desc) in enumerate(checklist_items, 1)
+    )
 
     body_html = f"""
     <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      Hey {greeting},
+      {greeting}
     </p>
     <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      Here's your checklist. Five quick things to check. No website required. Just an honest look at how visible your business actually is.
+      You asked for the checklist. Here are <strong style="color: {BRAND_DARK};">5 signs your business may be invisible online</strong>.
+      No website required. Just an honest look at how findable you really are.
     </p>
-    <p style="margin: 0 0 12px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      <strong>1. People can't find you when they search.</strong><br />
-      If someone searches for what you do, nearby, on Google, on Instagram, and your business doesn't show up, it doesn't matter how good you are. You're not competing for their business. You're not even in the running.
-    </p>
-    <p style="margin: 0 0 12px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      <strong>2. Your online presence doesn't match how good you actually are.</strong><br />
-      Great businesses get judged by weak signals: a missing Google Business Profile, no photos, an inactive Instagram, or a website that doesn't reflect the quality of what you offer. Customers assume what they see is what they'll get.
-    </p>
-    <p style="margin: 0 0 12px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      <strong>3. There's no way to prove you're trustworthy at a glance.</strong><br />
-      No reviews, no real photos, no clear way to contact you. A stranger decides in seconds whether to trust a business enough to reach out. Without visible proof, even great businesses get skipped.
-    </p>
-    <p style="margin: 0 0 12px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      <strong>4. Interested customers fall through the cracks.</strong><br />
-      Someone messages you, calls, or visits. But if there's no simple way to follow up, no list, no reminder system, no CRM, they get forgotten. Not because you don't care, but because there's no system catching them.
-    </p>
-    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      <strong>5. You don't know where you're actually losing people.</strong><br />
-      Most small business owners are guessing. Are people finding you and leaving? Never finding you at all? Finding you but not reaching out? Without visibility into your own numbers, you're solving problems you haven't actually identified yet.
-    </p>
+    {_section_box("Your visibility checklist", items_html)}
+    {_section_box("weROI Insight", '<em>"Visibility problems look like business problems. Fix findability first."</em>')}
     <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      If two or more of these sound familiar, your business likely isn't the problem. Visibility is.
+      If two or more of these sound familiar, your business likely isn't the problem. <strong style="color: {BRAND_DARK};">Visibility is.</strong>
     </p>
     <p style="margin: 0 0 8px 0; font-size: 16px; line-height: 1.7; color: #333;">
       Want to know exactly where you're invisible, and what to do about it?
     </p>
-    {growthiq_btn}
     <p style="margin: 24px 0 0 0; font-size: 14px; line-height: 1.6; color: #666;">
       No obligation. Takes 3-5 minutes. No sales call unless you ask for one.
     </p>
-    <p style="margin: 24px 0 0 0; font-size: 14px; color: #666;">The weROI Team</p>
+    <p style="margin: 24px 0 0 0; font-size: 14px; color: #666;">Talk soon,<br><strong style="color: {BRAND_DARK};">The weROI Team</strong></p>
     """
 
-    text = f"""Hey {greeting},
+    text_items = "\n\n".join(
+        f"{i}. {title}\n{desc}" for i, (title, desc) in enumerate(checklist_items, 1)
+    )
+    text = f"""{greeting.replace(',', '')}
 
-Here's your checklist. Five quick things to check. No website required. Just an honest look at how visible your business actually is.
+You asked for the checklist. Here are 5 signs your business may be invisible online. No website required.
 
-1. People can't find you when they search.
-If someone searches for what you do, nearby, on Google, on Instagram, and your business doesn't show up, it doesn't matter how good you are. You're not competing for their business. You're not even in the running.
+{text_items}
 
-2. Your online presence doesn't match how good you actually are.
-Great businesses get judged by weak signals: a missing Google Business Profile, no photos, an inactive Instagram, or a website that doesn't reflect the quality of what you offer. Customers assume what they see is what they'll get.
+If two or more of these sound familiar, visibility is likely the issue.
 
-3. There's no way to prove you're trustworthy at a glance.
-No reviews, no real photos, no clear way to contact you. A stranger decides in seconds whether to trust a business enough to reach out. Without visible proof, even great businesses get skipped.
-
-4. Interested customers fall through the cracks.
-Someone messages you, calls, or visits. But if there's no simple way to follow up, no list, no reminder system, no CRM, they get forgotten. Not because you don't care, but because there's no system catching them.
-
-5. You don't know where you're actually losing people.
-Most small business owners are guessing. Are people finding you and leaving? Never finding you at all? Finding you but not reaching out? Without visibility into your own numbers, you're solving problems you haven't actually identified yet.
-
-If two or more of these sound familiar, your business likely isn't the problem. Visibility is.
-
-Want to know exactly where you're invisible, and what to do about it?
+Want to know exactly where you're invisible?
 Get My Free GrowthIQ Score: {GROWTHIQ_URL}
 
-No obligation. Takes 3-5 minutes. No sales call unless you ask for one.
+No obligation. Takes 3-5 minutes.
 
+Talk soon,
 The weROI Team
 """
 
@@ -583,6 +626,8 @@ The weROI Team
         "html": get_premium_email_template(
             body_html,
             headline="5 Signs Your Business Is Invisible Online",
+            cta_text="Get My Free GrowthIQ Score",
+            cta_link=GROWTHIQ_URL,
             preheader="Five quick checks. No website required.",
         ),
         "text": text,
