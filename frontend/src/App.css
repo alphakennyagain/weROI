@@ -2311,7 +2311,7 @@ html[data-theme="dark"] .audit-form-card--quote {
 }
 @media (max-width: 760px) {
   .popup-overlay {
-    padding: var(--spacing-16);
+    padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom));
     align-items: center;
   }
 
@@ -2319,53 +2319,155 @@ html[data-theme="dark"] .audit-form-card--quote {
     grid-template-columns: 1fr;
     display: flex;
     flex-direction: column;
-    max-width: 400px;
-    max-height: min(85vh, 620px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    max-width: min(380px, 100%);
+    max-height: calc(100dvh - 20px);
+    max-height: calc(100svh - 20px);
+    overflow: hidden;
     border-radius: var(--radius-lg);
   }
 
   .popup-close {
-    position: sticky;
-    top: var(--spacing-12);
-    align-self: flex-end;
-    width: 40px;
-    height: 40px;
-    margin: var(--spacing-12) var(--spacing-12) 0 auto;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    margin: 0;
     z-index: 10;
     box-shadow: 0 2px 12px rgba(32, 32, 32, 0.12);
   }
 
-  .popup-visual {
-    min-height: 0;
-    padding: var(--spacing-20) var(--spacing-20) var(--spacing-16);
-    gap: var(--spacing-12);
-  }
-
-  .popup-visual-title {
-    font-size: 22px !important;
-  }
-
-  .popup-visual-desc {
-    font-size: 13px !important;
-    margin-top: 8px !important;
-  }
-
-  .popup-guide-card {
+  .popup-visual--desktop {
     display: none;
   }
 
+  .popup-mobile-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .popup-mobile-eyebrow::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    background: var(--lime);
+    border-radius: 50%;
+  }
+
   .popup-form-section {
-    padding: var(--spacing-20) var(--spacing-20) var(--spacing-24);
-    gap: var(--spacing-16);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 44px 18px 16px;
+    gap: 10px;
+    justify-content: flex-start;
   }
 
   .popup-headline {
-    font-size: 24px;
+    font-size: 22px;
+    line-height: 1.05;
+  }
+
+  .popup-headline-full,
+  .popup-sub--full,
+  .popup-giq-copy--full {
+    display: none;
+  }
+
+  .popup-headline-short,
+  .popup-sub--short,
+  .popup-giq-copy--short {
+    display: block;
   }
 
   .popup-sub {
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .popup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .popup-input {
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .popup-submit-btn.btn-lg {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .popup-disclaimer {
+    font-size: 10px;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .popup-success {
+    gap: 10px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .popup-giq-block {
+    padding: 12px 14px;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .popup-giq-block h3 {
+    font-size: 15px;
+  }
+
+  .popup-giq-copy {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .popup-maybe-later {
+    padding: 4px 0;
+    font-size: 12px;
+  }
+
+  .audit-error {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 760px) and (max-height: 700px) {
+  .popup-form-section {
+    padding: 38px 16px 12px;
+    gap: 8px;
+  }
+
+  .popup-headline {
+    font-size: 20px;
+  }
+
+  .popup-sub {
+    font-size: 12px;
+  }
+
+  .popup-giq-block {
+    padding: 10px 12px;
+  }
+
+  .popup-giq-block h3 {
     font-size: 14px;
   }
 }
@@ -2460,6 +2562,34 @@ html[data-theme="dark"] .audit-form-card--quote {
 .popup-guide-list li::before {
   content: ""; width: 4px; height: 4px; background: var(--ink); border-radius: 50%; flex: 0 0 auto;
 }
+
+.popup-visual-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--paper);
+}
+.popup-visual-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.popup-mobile-eyebrow { display: none; }
+.popup-headline-short,
+.popup-sub--short,
+.popup-giq-copy--short { display: none; }
+.popup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.popup-giq-copy { margin: 0; font-size: 14px; line-height: 1.55; color: var(--carbon); }
 
 .popup-form-section {
   padding: var(--spacing-40);

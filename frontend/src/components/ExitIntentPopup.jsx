@@ -162,13 +162,13 @@ const ExitIntentPopup = () => {
           <X size={16} />
         </button>
 
-        <div className="popup-visual">
+        <div className="popup-visual popup-visual--desktop">
           <div className="popup-tag">FREE CHECKLIST</div>
           <div>
-            <h3 className="popup-visual-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: 32, lineHeight: 1.0, letterSpacing: '-0.02em', margin: 0, color: 'var(--paper)' }}>
+            <h3 className="popup-visual-title">
               5 Signs Your Business<br />Is Invisible Online
             </h3>
-            <p className="popup-visual-desc" style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)', marginTop: 12, marginBottom: 0 }}>
+            <p className="popup-visual-desc">
               Not broken. Not bad. Just harder to find than it should be. A quick check. No website required.
             </p>
           </div>
@@ -184,24 +184,28 @@ const ExitIntentPopup = () => {
             <ul className="popup-guide-list">
               <li>5 quick signs your business is harder to find than it should be</li>
               <li>Applies whether you have a website or not</li>
-              <li>Free GrowthIQ score if you want the full picture</li>
+              <li>Free audit if you want the full picture</li>
             </ul>
           </div>
         </div>
 
         <div className="popup-form-section">
+          <div className="popup-mobile-eyebrow">Free checklist</div>
           {!success ? (
             <>
               <h2 className="popup-headline">
-                Before you go. See what might be<br />
-                <span className="accent">making you invisible.</span>
+                <span className="popup-headline-full">Before you go. See what might be<br /><span className="accent">making you invisible.</span></span>
+                <span className="popup-headline-short">See what might be <span className="accent">making you invisible</span></span>
               </h2>
-              <p className="popup-sub">
+              <p className="popup-sub popup-sub--full">
                 Enter your email. We&apos;ll send the checklist instantly, plus a link to get your free personalized
                 weROI GrowthIQ™ score if you want the full breakdown.
               </p>
+              <p className="popup-sub popup-sub--short">
+                Enter your email. We&apos;ll send the 5-sign checklist PDF instantly.
+              </p>
 
-              <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <form className="popup-form" onSubmit={submit}>
                 <input
                   type="email"
                   placeholder="Your email"
@@ -214,10 +218,9 @@ const ExitIntentPopup = () => {
                 {errors.submit && <span className="audit-error" role="alert">{errors.submit}</span>}
                 <button
                   type="submit"
-                  className="btn btn-primary btn-lg"
+                  className="btn btn-primary btn-lg popup-submit-btn"
                   disabled={submitting}
                   data-testid="popup-submit-btn"
-                  style={{ marginTop: 4 }}
                 >
                   {submitting ? 'Sending…' : 'Send Me the Checklist'} {!submitting && <ArrowRight size={16} />}
                 </button>
@@ -228,21 +231,27 @@ const ExitIntentPopup = () => {
           ) : (
             <div className="popup-success" data-testid="popup-success">
               <h2 className="popup-headline">
-                Check your inbox.<br />
-                <span className="accent">your checklist PDF is on the way.</span>
+                <span className="popup-headline-full">Check your inbox.<br /><span className="accent">your checklist PDF is on the way.</span></span>
+                <span className="popup-headline-short">Check your inbox.<br /><span className="accent">PDF on the way.</span></span>
               </h2>
-              <p className="popup-sub" style={{ marginBottom: 16 }}>
+              <p className="popup-sub popup-sub--full">
                 We sent the full <strong>5 Signs Your Business Is Invisible Online</strong> checklist as a
                 weROI-branded PDF. It is attached to the email and ready to download.
               </p>
+              <p className="popup-sub popup-sub--short">
+                Your <strong>5 Signs</strong> checklist PDF is attached to the email.
+              </p>
               <div className="popup-giq-block">
                 <h3>Want the full picture?</h3>
-                <p>
+                <p className="popup-giq-copy popup-giq-copy--full">
                   The checklist tells you what to look for. GrowthIQ™ tells you exactly where you&apos;re invisible
                   right now, website or not. Free, personalized, takes 3-5 minutes.
                 </p>
-                <Link to="/growth-preview" className="btn btn-primary btn-lg" onClick={closeModal}>
-                  Show Me My Score <ArrowRight size={16} />
+                <p className="popup-giq-copy popup-giq-copy--short">
+                  Get a free personalized audit in 3-5 minutes.
+                </p>
+                <Link to="/growth-preview" className="btn btn-primary btn-lg popup-submit-btn" onClick={closeModal}>
+                  Start Your Free Audit <ArrowRight size={16} />
                 </Link>
                 <button type="button" className="popup-maybe-later" onClick={closeModal}>
                   Maybe later
