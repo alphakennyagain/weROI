@@ -97,13 +97,22 @@ export default function GrowthPreview() {
       body: JSON.stringify({ ...data, referrer: document.referrer || null }),
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        if (!res.ok) {
+          const err = new Error(`Request failed (${res.status})`);
+          err.status = res.status;
+          throw err;
+        }
         const json = await res.json();
         track('growthiq_report_generated');
         return json;
       })
-      .catch(() => {
-        setError('We could not generate your report. Please try again or email growth@weroi.net.');
+      .catch((err) => {
+        const status = err?.status;
+        if (status === 404 || status === 503) {
+          setError('Our report service is updating. Please try again in a few minutes or email growth@weroi.net.');
+        } else {
+          setError('We could not generate your report. Please try again or email growth@weroi.net.');
+        }
         setPhase(PHASE.FORM);
         return null;
       });
