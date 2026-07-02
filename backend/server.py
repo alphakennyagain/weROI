@@ -415,7 +415,13 @@ async def send_email_sequence(lead_id: str, name: str, email: str, company_name:
 
 @api_router.get("/")
 async def root():
-    return {"message": "weROI API - Lead Generation System"}
+    return {
+        "message": "weROI API",
+        "growthiq": True,
+        "commit": os.environ.get("RAILWAY_GIT_COMMIT_SHA")
+        or os.environ.get("VERCEL_GIT_COMMIT_SHA")
+        or "local",
+    }
 
 
 @api_router.get("/health")
@@ -439,6 +445,10 @@ async def health():
             "status": status,
             "database": "connected",
             "db_name": _db_name(),
+            "growthiq": True,
+            "commit": os.environ.get("RAILWAY_GIT_COMMIT_SHA")
+            or os.environ.get("VERCEL_GIT_COMMIT_SHA")
+            or "local",
             "email": email_status,
         }
     except Exception as exc:

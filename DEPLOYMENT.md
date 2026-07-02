@@ -195,6 +195,28 @@ npx vercel --prod
 
 Or connect GitHub for automatic deploys on push.
 
+**If live site looks stale after a push**
+
+1. Vercel → Project → **Deployments** → confirm latest commit (`main`) shows **Ready**
+2. Root directory must be **`frontend`** (not repo root)
+3. Git repo must be **`zacharyahutton/weROI`** (not an old fork)
+4. Hard refresh: `Ctrl+Shift+R` on `weroi.net/growth-preview`
+5. Compare bundle: view page source → `main.*.js` hash should change after each deploy
+
+**Verify frontend is current**
+
+Open `https://weroi.net/` → View Source → search for `What Is GrowthIQ` in the JS bundle (or use DevTools → Network → `main.*.js`).
+
+**Verify backend is current**
+
+```bash
+curl https://weroi-production.up.railway.app/api/health
+```
+
+Expect `"growthiq": true` and a recent `"commit"` SHA. Then open `/docs` and confirm `POST /api/growthiq/assessment` exists.
+
+If `growthiq` is missing or `/docs` has no GrowthIQ routes, Railway is still on old code — set **Root Directory** to `backend` and redeploy.
+
 ---
 
 ## 4. Connect weroi.net Domain (Vercel)
