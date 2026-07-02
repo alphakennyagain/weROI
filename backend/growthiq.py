@@ -99,6 +99,260 @@ CATEGORY_DISPLAY = {
     "digital_presence": "Digital Presence",
 }
 
+PRESENCE_LABELS = {
+    "website": "Website",
+    "seo": "SEO",
+    "brand_guidelines": "Brand guidelines",
+    "social_media": "Social media",
+    "gbp": "Google Business Profile",
+    "email_marketing": "Email marketing",
+    "crm": "CRM",
+    "analytics": "Analytics",
+    "paid_ads": "Paid ads",
+    "online_booking": "Online booking",
+    "automation": "Automation",
+    "blog": "Blog",
+    "live_chat": "Live chat",
+    "online_reviews": "Online reviews",
+    "accessibility": "Accessibility",
+    "ssl": "SSL certificate",
+    "performance_optimization": "Performance optimization",
+}
+
+VISIBILITY_KEYS = (
+    "website",
+    "seo",
+    "gbp",
+    "social_media",
+    "online_reviews",
+    "analytics",
+    "email_marketing",
+    "crm",
+)
+
+
+def _primary_goal_label(assessment: dict[str, Any]) -> str:
+    goal = (assessment.get("primary_goal") or "").strip()
+    if goal == "Other":
+        return (assessment.get("primary_goal_other") or "Custom growth goal").strip()
+    return goal or "Grow the business"
+
+
+def _presence_answer(presence: dict[str, Any], key: str) -> str:
+    return (presence.get(key) or "Not Sure").strip()
+
+
+def _build_business_snapshot(
+    assessment: dict[str, Any],
+    website_analysis: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    presence = assessment.get("digital_presence") or {}
+    business = assessment.get("business_name") or "Your business"
+    goal = _primary_goal_label(assessment)
+    website_status = _presence_answer(presence, "website")
+    gaps: list[str] = []
+    for key in VISIBILITY_KEYS:
+        val = _presence_answer(presence, key).lower()
+        label = PRESENCE_LABELS.get(key, key.replace("_", " ").title())
+        if val in ("no", "not sure", "unsure"):
+            gaps.append(f"{label}: {presence.get(key) or 'Not Sure'}")
+
+    wa = website_analysis or {}
+    if wa.get("success"):
+        for issue in (wa.get("issues_detected") or [])[:4]:
+            gaps.append(f"Live site: {issue}")
+
+    return {
+        "business_name": business,
+        "industry": assessment.get("industry") or "Not specified",
+        "country": assessment.get("country") or "Not specified",
+        "team_size": assessment.get("business_size") or "Not specified",
+        "years_in_business": assessment.get("years_in_business") or "Not specified",
+        "primary_goal": goal,
+        "website_status": website_status,
+        "website_url": assessment.get("website") or assessment.get("website_url") or "",
+        "contact_name": assessment.get("full_name") or "",
+        "visibility_gaps": gaps[:8],
+        "digital_strengths": [
+            f"{PRESENCE_LABELS.get(k, k)}: {presence.get(k)}"
+            for k in VISIBILITY_KEYS
+            if _presence_answer(presence, k).lower() == "yes"
+        ][:6],
+    }
+
+
+def _build_visibility_profile(
+    assessment: dict[str, Any],
+    website_analysis: dict[str, Any] | None,
+    overall_score: int,
+) -> dict[str, Any]:
+    presence = assessment.get("digital_presence") or {}
+    business = assessment.get("business_name") or "your business"
+    industry = assessment.get("industry") or "your industry"
+    country = assessment.get("country") or "your market"
+    goal = _primary_goal_label(assessment)
+
+    invisible_reasons: list[dict[str, str]] = []
+    for key in VISIBILITY_KEYS:
+        val = _presence_answer(presence, key).lower()
+        label = PRESENCE_LABELS.get(key, key)
+        if val == "no":
+            invisible_reasons.append({
+                "area": label,
+                "severity": "high",
+                "detail": f"{business} indicated {label} is No. Customers searching for {industry} services in {country} may not find or trust you through this channel.",
+            })
+        elif val in ("not sure", "unsure"):
+            invisible_reasons.append({
+                "area": label,
+                "severity": "medium",
+                "detail": f"You were unsure about {label}. That uncertainty often means this channel is not working consistently for {business} yet.",
+            })
+
+    wa = website_analysis or {}
+    if wa.get("success"):
+        for issue in (wa.get("issues_detected") or [])[:3]:
+            invisible_reasons.append({
+                "area": "Website",
+                "severity": "high",
+                "detail": f"Live website analysis for {business}: {issue}",
+            })
+        if not wa.get("cta_texts") and not wa.get("conversion_signals", {}).get("has_form"):
+            invisible_reasons.append({
+                "area": "Conversion paths",
+                "severity": "medium",
+                "detail": f"Static analysis did not detect clear contact or booking paths on {business}'s site. Visitors may leave without reaching you.",
+            })
+    elif _presence_answer(presence, "website").lower() == "no":
+        invisible_reasons.append({
+            "area": "Website",
+            "severity": "high",
+            "detail": f"{business} does not have a live website. For a {industry} business aiming to {goal.lower()}, that is often the biggest visibility gap.",
+        })
+
+    visible_strengths: list[str] = []
+    if _presence_answer(presence, "gbp").lower() == "yes":
+        visible_strengths.append(f"{business} has Google Business Profile active, which helps local discovery in {country}.")
+    if _presence_answer(presence, "social_media").lower() == "yes":
+        visible_strengths.append("Active social media gives you channels to stay visible between searches.")
+    if _presence_answer(presence, "online_reviews").lower() == "yes":
+        visible_strengths.append("Online reviews build trust when prospects compare you to competitors.")
+    for sig in (wa.get("strengths_detected") or [])[:3]:
+        visible_strengths.append(sig)
+
+    visibility_score = max(15, min(95, overall_score))
+    headline = (
+        f"{business} has strong visibility foundations, but a few gaps may still hide you from ideal customers."
+        if visibility_score >= 70
+        else f"Several gaps may be making {business} harder to find online for {goal.lower()}."
+        if visibility_score >= 45
+        else f"{business} likely has significant visibility gaps. Prospects in {industry} may not see you when they search."
+    )
+
+    return {
+        "visibility_score": visibility_score,
+        "headline": headline,
+        "invisible_reasons": invisible_reasons[:6],
+        "visible_strengths": visible_strengths[:5],
+        "primary_goal_context": f"Your stated priority is {goal}. The gaps below matter most for that outcome.",
+    }
+
+
+def _build_personalized_insights(
+    assessment: dict[str, Any],
+    website_analysis: dict[str, Any] | None,
+    categories: list[dict[str, Any]],
+) -> list[str]:
+    business = assessment.get("business_name") or "Your business"
+    industry = assessment.get("industry") or "your industry"
+    country = assessment.get("country") or "your market"
+    goal = _primary_goal_label(assessment)
+    team = assessment.get("business_size") or "your team size"
+    years = assessment.get("years_in_business") or "your timeline"
+    presence = assessment.get("digital_presence") or {}
+    goals_text = (assessment.get("business_goals") or "").strip()
+
+    insights: list[str] = [
+        f"{business} ({industry}, {country}) is focused on {goal.lower()}. Your report weights categories against that goal, not generic SEO advice.",
+        f"With {team} and {years} in business, your growth systems should match how you actually sell. Gaps in CRM or follow-up hit harder at your stage.",
+    ]
+
+    if goals_text:
+        snippet = goals_text[:160] + ("..." if len(goals_text) > 160 else "")
+        insights.append(f"You told us: \"{snippet}\". Recommendations below tie back to this context.")
+
+    lowest = sorted(categories, key=lambda c: c.get("score", 0))[:2]
+    for cat in lowest:
+        insights.append(
+            f"{cat.get('label', 'Area')} scored {cat.get('score', 0)}/100 for {business}. "
+            f"{(cat.get('finding') or cat.get('explanation') or '')[:180]}"
+        )
+
+    wa = website_analysis or {}
+    if wa.get("success"):
+        title = wa.get("title") or ""
+        if title:
+            insights.append(
+                f"Live analysis of your site found title \"{title[:70]}\". "
+                f"{'This supports brand recognition in search.' if len(title) < 60 else 'Consider whether this title clearly states what you offer in ' + country + '.'}"
+            )
+        issues = wa.get("issues_detected") or []
+        if issues:
+            insights.append(f"On your live website, we flagged: {issues[0]}. Fixing this is specific to {business}, not a generic template fix.")
+
+    if country.lower() == "jamaica" and _presence_answer(presence, "gbp").lower() != "yes":
+        insights.append(
+            f"For a Jamaican {industry} business like {business}, Google Business Profile is often the first place locals search. You indicated GBP is {_presence_answer(presence, 'gbp')}."
+        )
+
+    return insights[:6]
+
+
+def _build_live_site_summary(website_analysis: dict[str, Any] | None) -> dict[str, Any] | None:
+    wa = website_analysis or {}
+    if not wa.get("success"):
+        return None
+    return {
+        "url": wa.get("final_url") or wa.get("requested_url") or "",
+        "page_title": wa.get("title") or "",
+        "meta_description": wa.get("meta_description") or "",
+        "h1_headings": wa.get("h1_headings") or [],
+        "cta_texts": wa.get("cta_texts") or [],
+        "nav_link_count": len(wa.get("nav_links") or []),
+        "issues": wa.get("issues_detected") or [],
+        "strengths": wa.get("strengths_detected") or [],
+        "is_spa_shell": bool(wa.get("is_spa_shell")),
+    }
+
+
+def _enrich_report(
+    report: dict[str, Any],
+    assessment: dict[str, Any],
+    website_analysis: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Ensure business-specific sections exist for UI and PDF."""
+    business = assessment.get("business_name") or "your business"
+    categories = report.get("categories") or []
+    overall = int(report.get("overall_score") or 0)
+
+    if not report.get("business_snapshot"):
+        report["business_snapshot"] = _build_business_snapshot(assessment, website_analysis)
+    if not report.get("visibility_profile"):
+        report["visibility_profile"] = _build_visibility_profile(assessment, website_analysis, overall)
+    if not report.get("personalized_insights"):
+        report["personalized_insights"] = _build_personalized_insights(assessment, website_analysis, categories)
+    if not report.get("live_site_summary") and website_analysis:
+        report["live_site_summary"] = _build_live_site_summary(website_analysis)
+
+    if not report.get("business_summary"):
+        snap = report["business_snapshot"]
+        report["business_summary"] = (
+            f"{business} operates in {snap.get('industry')} ({snap.get('country')}). "
+            f"Primary goal: {snap.get('primary_goal')}. Team: {snap.get('team_size')}."
+        )
+
+    return report
+
 
 def _hedged(text: str) -> str:
     if not text.startswith("Based on"):
@@ -241,12 +495,12 @@ def analyze_website(url: str, timeout: int = 12) -> dict[str, Any]:
                     if bundle_resp.status_code < 400:
                         bundle = bundle_resp.text[:600_000]
                         bundle_cta_patterns = [
-                            "See What's Holding Me Back",
-                            "Get My GrowthIQ Score",
-                            "Show Me My Growth Plan",
+                            "Get Your Free Audit",
+                            "Start Your Free Audit",
+                            "See what's making your business invisible",
+                            "Free Audit",
                             "Book a call",
                             "View our work",
-                            "Free Assessment",
                             "growth-preview",
                             "book-call",
                             "Contact",
@@ -781,7 +1035,7 @@ def _build_fallback_report(assessment: dict[str, Any], website_analysis: dict[st
         "report_summary": _build_report_summary(business, overall, categories),
         "whats_included": _whats_included_summary(),
     }
-    return report
+    return _enrich_report(report, assessment, website_analysis)
 
 
 def _build_report_summary(business: str, overall: int, categories: list[dict[str, Any]]) -> dict[str, Any]:
@@ -872,7 +1126,7 @@ def _normalize_report(report: dict[str, Any], assessment: dict[str, Any], websit
         report["confidence_score"] = _confidence_from_assessment(assessment, website_analysis)
     if website_analysis:
         report["website_analysis_used"] = bool(website_analysis.get("success"))
-    return report
+    return _enrich_report(report, assessment, website_analysis)
 
 
 def _whats_included_summary() -> list[str]:
@@ -906,6 +1160,11 @@ Rules:
 - Use hedged language: "Based on the information provided...", "It appears...", "Potential opportunity..."
 - NO guarantees of revenue, rankings, or specific outcomes
 - Reference the user's ACTUAL answers by name (e.g. "You indicated SEO is No", "Primary goal: Get more leads")
+- Use the business name at least once in executive_summary and twice across personalized_insights
+- Tie recommendations to their primary_goal, industry, country, business_size, and business_goals text when provided
+- visibility_profile: explain what may make THIS business invisible online (not generic). invisible_reasons must cite their answers or live site signals
+- personalized_insights: 5-6 bullets, each must reference business name, industry, goal, or a specific answer. No generic tips
+- business_snapshot: structured facts from their submission
 - If website_analysis is provided, cite ONLY verified signals (title, meta, h1, nav, CTAs, issues_detected, strengths_detected, bundle_ctas, is_spa_shell, conversion_signals, seo_signals). Say "live website analysis" when citing these. NEVER invent website data. If strengths_detected lists CTAs or contact paths, do NOT claim CTAs are missing. For is_spa_shell sites, note that static analysis is limited and avoid false negatives.
 - Every category MUST have specific finding text referencing real answers or verified site signals. NO generic advice like "your SEO could be better".
 - Scores 0-100 per category; overall_score is weighted average
@@ -935,6 +1194,37 @@ Return JSON matching this schema:
   "confidence_score": number,
   "potential_impact_areas": [string],
   "top_next_actions": [string, string, string],
+  "business_snapshot": {
+    "business_name": string,
+    "industry": string,
+    "country": string,
+    "team_size": string,
+    "years_in_business": string,
+    "primary_goal": string,
+    "website_status": string,
+    "website_url": string,
+    "visibility_gaps": [string],
+    "digital_strengths": [string]
+  },
+  "visibility_profile": {
+    "visibility_score": number,
+    "headline": string,
+    "primary_goal_context": string,
+    "invisible_reasons": [{"area": string, "severity": string, "detail": string}],
+    "visible_strengths": [string]
+  },
+  "personalized_insights": [string],
+  "live_site_summary": {
+    "url": string,
+    "page_title": string,
+    "meta_description": string,
+    "h1_headings": [string],
+    "cta_texts": [string],
+    "nav_link_count": number,
+    "issues": [string],
+    "strengths": [string],
+    "is_spa_shell": boolean
+  },
   "report_summary": {
     "overall_meaning": string,
     "priority_areas": [string],
