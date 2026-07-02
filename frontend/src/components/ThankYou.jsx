@@ -79,7 +79,7 @@ const ThankYou = () => {
         <div className="thanks-actions">
           {!isAudit && (
             <button className="btn btn-primary btn-lg" onClick={() => navigate('/growth-preview')} data-testid="claim-audit-btn">
-              Start My Free Audit <ArrowRight size={16} />
+              Start Your Free Audit <ArrowRight size={16} />
             </button>
           )}
           <button className="btn btn-ghost btn-lg" onClick={() => navigate('/')} data-testid="back-home-btn">

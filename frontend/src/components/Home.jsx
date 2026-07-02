@@ -273,7 +273,7 @@ return { roi: "proven" };`}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <GlowButton onClick={goGrowthPreview} data-testid="hero-cta-btn" size="lg" className="glow-btn">
-                Get My Free Audit <ArrowRight size={18} />
+                Get Your Free Audit <ArrowRight size={18} />
               </GlowButton>
               <GlowButton onClick={goCaseStudies} data-testid="hero-view-work-btn" size="lg" variant="ghost">
                 View our work <ArrowUpRight size={18} />
@@ -557,7 +557,7 @@ return { roi: "proven" };`}
             </div>
             <div>
               <GlowButton onClick={goGrowthPreview} data-testid="cta-btn" size="lg" className="glow-btn">
-                Start My Free Audit <ArrowRight size={18} />
+                Start Your Free Audit <ArrowRight size={18} />
               </GlowButton>
             </div>
           </div>

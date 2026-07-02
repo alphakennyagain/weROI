@@ -442,7 +442,7 @@ export default function AuditForm() {
                     data-testid="submit-audit-btn"
                     className="audit-nav-btn audit-nav-primary"
                   >
-                    {submitting ? 'Submitting…' : 'Get My Free Audit'}
+                    {submitting ? 'Submitting…' : 'Get Your Free Audit'}
                     {!submitting && <ArrowRight size={16} />}
                   </GlowButton>
                 )}

@@ -140,7 +140,7 @@ export default function WebDesignJamaica() {
             </p>
             <div className="local-cta-actions">
               <GlowButton onClick={() => navigate('/growth-preview')} size="lg" data-testid="local-cta-audit">
-                <ClipboardList size={16} /> Get My Free Audit <ArrowRight size={16} />
+                <ClipboardList size={16} /> Get Your Free Audit <ArrowRight size={16} />
               </GlowButton>
               <GlowButton onClick={() => navigate('/book-call')} size="lg" variant="outline" data-testid="local-cta-book">
                 <Calendar size={16} /> Book a call <ArrowRight size={16} />
