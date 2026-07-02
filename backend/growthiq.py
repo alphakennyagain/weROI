@@ -681,3 +681,58 @@ async def generate_growthiq_report(
         report = _build_fallback_report(assessment, website_analysis)
         report["generation_mode"] = f"fallback_{provider}_error"
         return report
+
+
+CHAT_SYSTEM = """You are the weROI GrowthIQ™ assistant on weroi.net.
+Answer in 2 to 4 short sentences. Be helpful, warm, and professional — not salesy.
+Topics: GrowthIQ free assessment, what the report includes, expert review (optional, may include strategic ideas or visual concepts at weROI's discretion — not guaranteed), weROI services (websites, SEO, funnels, automation, Jamaica).
+When someone wants their score or report, suggest they start the free assessment at /growth-preview.
+Never guarantee rankings, revenue, or specific outcomes. Never invent pricing."""
+
+
+def _fallback_chat_answer(message: str) -> str:
+    lower = message.lower()
+    if any(w in lower for w in ("free", "cost", "price", "pay")):
+        return "GrowthIQ™ is completely free with no obligation. You get an instant AI report; an expert review is optional afterward."
+    if any(w in lower for w in ("long", "time", "minute")):
+        return "The assessment takes about 3 to 5 minutes. Your progress saves automatically if you leave and come back."
+    if any(w in lower for w in ("expert", "review", "mockup", "mock")):
+        return "After your free report, you can request a complimentary expert review. Our team may share deeper strategy and, when appropriate, visual concepts to show what working with weROI could look like. This is at our discretion and not guaranteed."
+    if any(w in lower for w in ("service", "weroi", "agency", "do you")):
+        return "weROI is a digital growth partner in Jamaica. We build websites, SEO, marketing systems, automation, and custom software focused on measurable growth."
+    if any(w in lower for w in ("score", "assessment", "growthiq", "start", "report")):
+        return "Start your free GrowthIQ™ assessment to get your personalized growth score, opportunities, and roadmap in minutes."
+    return "I can help with GrowthIQ™, the free assessment, expert reviews, and weROI services. What would you like to know?"
+
+
+async def answer_growthiq_chat(message: str) -> str:
+    text = (message or "").strip()[:500]
+    if not text:
+        return "Ask me anything about GrowthIQ or weROI."
+
+    resolved = _resolve_ai_provider()
+    if not resolved:
+        return _fallback_chat_answer(text)
+
+    provider, api_key, model = resolved
+    try:
+        from openai import AsyncOpenAI
+
+        client_kwargs: dict[str, Any] = {"api_key": api_key}
+        if provider == "groq":
+            client_kwargs["base_url"] = "https://api.groq.com/openai/v1"
+        client = AsyncOpenAI(**client_kwargs)
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": CHAT_SYSTEM},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.5,
+            max_tokens=150,
+        )
+        reply = (response.choices[0].message.content or "").strip()
+        return reply or _fallback_chat_answer(text)
+    except Exception as exc:
+        logger.warning("GrowthIQ chat failed: %s", exc)
+        return _fallback_chat_answer(text)

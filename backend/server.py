@@ -28,7 +28,7 @@ from email_templates import (
     get_email_3_content,
     get_growth_audit_email,
 )
-from growthiq import analyze_website, generate_growthiq_report
+from growthiq import analyze_website, answer_growthiq_chat, generate_growthiq_report
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -282,6 +282,9 @@ class GrowthAssessmentUpdate(BaseModel):
 
 class GrowthIQGenerateRequest(BaseModel):
     assessment: dict
+
+class GrowthIQChatRequest(BaseModel):
+    message: str = Field(..., max_length=500)
 
 # ========================================
 # EMAIL SENDING FUNCTIONS
@@ -571,6 +574,12 @@ async def generate_growthiq(input: GrowthIQGenerateRequest):
     """Generate AI GrowthIQ report from assessment answers."""
     report = await generate_growthiq_report(input.assessment)
     return {"report": report}
+
+@api_router.post("/growthiq/chat")
+async def growthiq_chat(input: GrowthIQChatRequest):
+    """Lightweight GrowthIQ assistant — short answers, token-capped."""
+    reply = await answer_growthiq_chat(input.message)
+    return {"reply": reply}
 
 @api_router.post("/growthiq/assessment", response_model=GrowthAssessment)
 async def create_growth_assessment(input: GrowthAssessmentCreate, background_tasks: BackgroundTasks):

@@ -327,6 +327,85 @@ html[data-theme="dark"] .giq-premium-card {
 
 /* Form */
 .giq-form-section { padding-top: 0; }
+.giq-form-section--active {
+  padding: clamp(32px, 5vw, 56px) 0 clamp(48px, 8vw, 80px);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200, 245, 66, 0.12), transparent 70%),
+    linear-gradient(180deg, rgba(32, 32, 32, 0.02) 0%, transparent 100%);
+  border-top: 1px solid rgba(200, 245, 66, 0.2);
+}
+.giq-assessment-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.giq-assessment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--carbon);
+  background: rgba(200, 245, 66, 0.25);
+  border: 1px solid rgba(200, 245, 66, 0.45);
+  padding: 8px 14px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+.giq-assessment-shell {
+  background: var(--paper);
+  border: 1px solid rgba(32, 32, 32, 0.08);
+  border-radius: 20px;
+  padding: clamp(20px, 4vw, 32px);
+  box-shadow: 0 20px 60px rgba(32, 32, 32, 0.08);
+}
+html[data-theme="dark"] .giq-assessment-shell {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+.giq-intro-ctas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.giq-intro-cta-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+.giq-field-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 4px 0 8px;
+  line-height: 1.45;
+}
+.giq-input-prefix-wrap {
+  display: flex;
+  align-items: stretch;
+}
+.giq-input-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: rgba(32, 32, 32, 0.06);
+  border: 1px solid rgba(32, 32, 32, 0.12);
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.giq-input--prefixed {
+  border-radius: 0 10px 10px 0;
+  flex: 1;
+}
+.giq-toggle-group--stack .giq-toggle-btn {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+}
 .giq-form-container { max-width: 720px; }
 .giq-form-intro {
   text-align: center;
@@ -428,6 +507,12 @@ html[data-theme="dark"] .giq-form-card {
   letter-spacing: -0.02em;
 }
 .giq-step-micro { font-size: 13px; color: var(--muted); }
+.giq-step-saved-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  opacity: 0.85;
+}
 
 .giq-fields-grid {
   display: grid;
@@ -1177,8 +1262,59 @@ html[data-theme="dark"] .giq-chat-panel {
 }
 .giq-chat-cta:hover { background: #333; }
 
+.giq-chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px 8px;
+}
+.giq-chat-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(32, 32, 32, 0.12);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--frost);
+}
+.giq-chat-send {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: var(--carbon);
+  color: var(--lime);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.giq-chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+.giq-chat-typing { font-style: italic; opacity: 0.7; }
+
+@media (max-width: 768px) {
+  .giq-hero-title { font-size: 1.75rem; }
+  .giq-hero-checkmarks { flex-direction: column; align-items: center; gap: 6px; }
+  .giq-cards-grid { grid-template-columns: 1fr; }
+  .giq-premium-grid { grid-template-columns: 1fr; }
+  .giq-form-card, .giq-assessment-shell { border-radius: 16px; padding: 16px; }
+  .giq-toggle-group { flex-wrap: wrap; }
+  .giq-toggle-btn { flex: 1 1 auto; min-height: 44px; font-size: 13px; }
+  .giq-nav { flex-direction: column-reverse; gap: 10px; }
+  .giq-nav-btn { width: 100%; justify-content: center; }
+  .giq-report-cta { padding: 28px 16px; }
+  .giq-cta-actions { flex-direction: column; }
+}
+
 @media (max-width: 600px) {
   .giq-steps-label { display: none; }
-  .giq-chat-fab { bottom: 16px; right: 16px; }
-  .giq-chat-panel { right: 16px; bottom: 80px; }
+  .giq-chat-fab { bottom: 16px; right: 16px; width: 52px; height: 52px; }
+  .giq-chat-panel {
+    right: 12px;
+    left: 12px;
+    bottom: 80px;
+    width: auto;
+    max-width: none;
+  }
+  .giq-progress-stats { flex-direction: column; gap: 4px; align-items: flex-start; }
 }

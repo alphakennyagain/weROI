@@ -24,6 +24,7 @@ import {
   getProgressPercent,
   getEstimatedMinutesRemaining,
   prepareSubmissionData,
+  SOCIAL_USERNAME_PLACEHOLDERS,
 } from '../../data/growthiqConstants';
 
 const TOTAL_STEPS = 4;
@@ -76,16 +77,14 @@ function CheckboxGroup({ options, values, onChange }) {
   );
 }
 
-export default function GrowthIQWizard({ onComplete, onStepChange, initialResume }) {
+export default function GrowthIQWizard({ onComplete, onStepChange }) {
   const draft = loadDraft();
-  const [step, setStep] = useState(initialResume && draft ? draft.step : 1);
-  const [subStep, setSubStep] = useState(initialResume && draft ? draft.subStep : 0);
+  const hadSavedProgress = Boolean(draft);
+  const [step, setStep] = useState(draft?.step || 1);
+  const [subStep, setSubStep] = useState(draft?.subStep || 0);
   const [direction, setDirection] = useState(1);
   const [gbpHelpOpen, setGbpHelpOpen] = useState(false);
-  const [data, setData] = useState(() => {
-    if (initialResume && draft) return draft.data;
-    return { ...INITIAL_FORM_DATA };
-  });
+  const [data, setData] = useState(() => (draft ? draft.data : { ...INITIAL_FORM_DATA }));
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -185,6 +184,13 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
     const e = {};
     const q = GOAL_QUESTIONS[subStep];
     if (!q) return e;
+    if (q.type === 'select') {
+      if (!data[q.key]) e[q.key] = 'Please select an option';
+      if (data[q.key] === 'Other' && !data.goal_one_improvement_other?.trim()) {
+        e.goal_one_improvement_other = 'Please describe what you want to improve';
+      }
+      return e;
+    }
     if (!data[q.key]?.trim() || data[q.key].trim().length < 10) {
       e[q.key] = 'Please share at least a sentence (10+ characters)';
     }
@@ -236,16 +242,6 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
 
   const handleStartOver = () => {
     if (window.confirm('Start over? Your saved progress will be cleared.')) {
-      clearDraft();
-      setData({ ...INITIAL_FORM_DATA });
-      setStep(1);
-      setSubStep(0);
-      setErrors({});
-    }
-  };
-
-  const handleClearProgress = () => {
-    if (window.confirm('Clear saved progress? You will start from the beginning.')) {
       clearDraft();
       setData({ ...INITIAL_FORM_DATA });
       setStep(1);
@@ -361,7 +357,8 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
         {field.key === 'website' && val === 'Yes' && (
           <div className="giq-conditional">
             <label className="giq-label" htmlFor="giq-website-url">Website URL</label>
-            <input id="giq-website-url" className={`giq-input ${errors.website_url ? 'error' : ''}`} value={data.website_url} onChange={(e) => onChange('website_url', e.target.value)} placeholder="https://yourbusiness.com" />
+            <p className="giq-field-hint">Enter your domain (e.g. yourbusiness.com). We add https:// automatically.</p>
+            <input id="giq-website-url" className={`giq-input ${errors.website_url ? 'error' : ''}`} value={data.website_url} onChange={(e) => onChange('website_url', e.target.value)} placeholder="yourbusiness.com" />
             {errors.website_url && <span className="giq-error">{errors.website_url}</span>}
           </div>
         )}
@@ -374,8 +371,9 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
 
         {field.key === 'gbp' && val === 'Yes' && (
           <div className="giq-conditional">
-            <label className="giq-label" htmlFor="giq-gbp">Google Business Profile link</label>
-            <input id="giq-gbp" className={`giq-input ${errors.google_business_profile ? 'error' : ''}`} value={data.google_business_profile} onChange={(e) => onChange('google_business_profile', e.target.value)} placeholder="https://maps.google.com/..." />
+            <label className="giq-label" htmlFor="giq-gbp">Google Business Profile</label>
+            <p className="giq-field-hint">Enter your business name as it appears on Google. We format the Maps link for you.</p>
+            <input id="giq-gbp" className={`giq-input ${errors.google_business_profile ? 'error' : ''}`} value={data.google_business_profile} onChange={(e) => onChange('google_business_profile', e.target.value)} placeholder="Your Business Name, City" />
             {errors.google_business_profile && <span className="giq-error">{errors.google_business_profile}</span>}
             <button type="button" className="giq-expand-help" onClick={() => setGbpHelpOpen(!gbpHelpOpen)}>
               How to copy your GBP link {gbpHelpOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -400,13 +398,17 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
             {errors.social_platforms && <span className="giq-error">{errors.social_platforms}</span>}
             {data.social_platforms.filter((p) => p !== 'Other').map((platform) => (
               <div key={platform} className="giq-field giq-field--mt">
-                <label className="giq-label">{platform} profile URL</label>
-                <input
-                  className={`giq-input ${errors.social_links ? 'error' : ''}`}
-                  value={data.social_platform_links[platform] || ''}
-                  onChange={(e) => onChange('social_platform_links', { ...data.social_platform_links, [platform]: e.target.value })}
-                  placeholder={`https://${platform.toLowerCase().replace(/[^a-z]/g, '')}.com/yourprofile`}
-                />
+                <label className="giq-label">{platform} username</label>
+                <p className="giq-field-hint">Username only — we build the full profile link (e.g. instagram.com/yourname).</p>
+                <div className="giq-input-prefix-wrap">
+                  <span className="giq-input-prefix">@</span>
+                  <input
+                    className={`giq-input giq-input--prefixed ${errors.social_links ? 'error' : ''}`}
+                    value={(data.social_platform_links[platform] || '').replace(/^@/, '')}
+                    onChange={(e) => onChange('social_platform_links', { ...data.social_platform_links, [platform]: e.target.value.replace(/^@/, '') })}
+                    placeholder={SOCIAL_USERNAME_PLACEHOLDERS[platform] || 'username'}
+                  />
+                </div>
               </div>
             ))}
             {data.social_platforms.includes('Other') && (
@@ -458,15 +460,44 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
       <div className="giq-fields-grid">
         <div className="giq-field giq-field--full">
           <label className="giq-label" htmlFor={`giq-${q.key}`}>{q.label}</label>
-          <textarea
-            id={`giq-${q.key}`}
-            className={`giq-textarea ${errors[q.key] ? 'error' : ''}`}
-            rows={4}
-            value={data[q.key]}
-            onChange={(e) => onChange(q.key, e.target.value)}
-            placeholder={q.placeholder}
-          />
-          {errors[q.key] && <span className="giq-error">{errors[q.key]}</span>}
+          {q.type === 'select' ? (
+            <>
+              <div className="giq-toggle-group giq-toggle-group--wrap giq-toggle-group--stack">
+                {q.options.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    className={`giq-toggle-btn${data[q.key] === opt ? ' is-selected' : ''}`}
+                    onClick={() => onChange(q.key, opt)}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              {data[q.key] === 'Other' && (
+                <input
+                  className={`giq-input giq-input--mt ${errors.goal_one_improvement_other ? 'error' : ''}`}
+                  value={data.goal_one_improvement_other}
+                  onChange={(e) => onChange('goal_one_improvement_other', e.target.value)}
+                  placeholder="What would you like to improve?"
+                />
+              )}
+              {errors[q.key] && <span className="giq-error">{errors[q.key]}</span>}
+              {errors.goal_one_improvement_other && <span className="giq-error">{errors.goal_one_improvement_other}</span>}
+            </>
+          ) : (
+            <>
+              <textarea
+                id={`giq-${q.key}`}
+                className={`giq-textarea ${errors[q.key] ? 'error' : ''}`}
+                rows={4}
+                value={data[q.key]}
+                onChange={(e) => onChange(q.key, e.target.value)}
+                placeholder={q.placeholder}
+              />
+              {errors[q.key] && <span className="giq-error">{errors[q.key]}</span>}
+            </>
+          )}
           <p className="giq-presence-progress">
             Question {subStep + 1} of {GOAL_QUESTIONS.length}
           </p>
@@ -489,7 +520,7 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
   };
 
   return (
-    <div className="giq-wizard" id="giq-assessment-form">
+    <div className="giq-wizard giq-assessment-shell" id="giq-assessment-form">
       <div className="giq-progress-meta">
         <div className="giq-progress-stats">
           <span>Progress: <strong>{progress}%</strong></span>
@@ -530,12 +561,14 @@ export default function GrowthIQWizard({ onComplete, onStepChange, initialResume
               <span className="giq-step-key">Step {step} of {TOTAL_STEPS}</span>
               <h2 className="giq-step-title">{stepTitle()}</h2>
               <p className="giq-step-micro giq-encouragement">{encouragement()}</p>
+              {hadSavedProgress && (
+                <p className="giq-step-saved-hint">Your progress is saved automatically.</p>
+              )}
             </div>
 
             {stepContent()}
 
             <div className="giq-wizard-actions">
-              <button type="button" className="giq-text-btn" onClick={handleClearProgress}>Clear Saved Progress</button>
               <button type="button" className="giq-text-btn" onClick={handleStartOver}>Start Over</button>
             </div>
 

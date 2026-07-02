@@ -170,12 +170,81 @@ export const PROCESSING_STEPS = [
 ];
 
 export const GOAL_QUESTIONS = [
-  { key: 'goal_customers', label: 'Who are your ideal customers?', placeholder: 'Describe who you sell to and what they need...' },
-  { key: 'goal_differentiator', label: 'What makes you different from competitors?', placeholder: 'Your unique value, specialty, or approach...' },
-  { key: 'goal_challenges', label: 'What are your biggest growth challenges right now?', placeholder: 'What is holding you back or causing friction...' },
-  { key: 'goal_twelve_month', label: 'What do you want to achieve in the next 12 months?', placeholder: 'Revenue goals, new markets, launches, hires...' },
-  { key: 'goal_one_improvement', label: 'If you could improve one thing about your digital presence, what would it be?', placeholder: 'Website, SEO, social, leads, automation...' },
+  { key: 'goal_customers', type: 'text', label: 'Who are your ideal customers?', placeholder: 'Describe who you sell to and what they need...' },
+  { key: 'goal_differentiator', type: 'text', label: 'What makes you different from competitors?', placeholder: 'Your unique value, specialty, or approach...' },
+  { key: 'goal_challenges', type: 'text', label: 'What are your biggest growth challenges right now?', placeholder: 'What is holding you back or causing friction...' },
+  { key: 'goal_twelve_month', type: 'text', label: 'What do you want to achieve in the next 12 months?', placeholder: 'Revenue goals, new markets, launches, hires...' },
+  {
+    key: 'goal_one_improvement',
+    type: 'select',
+    label: 'If you could improve one thing about your digital presence, what would it be?',
+    options: [
+      'Website design and conversions',
+      'Search visibility (SEO)',
+      'Social media presence',
+      'Lead generation and follow-up',
+      'Brand consistency and trust',
+      'Marketing and paid ads',
+      'Automation and CRM',
+      'Speed and mobile experience',
+      'Not sure yet',
+      'Other',
+    ],
+  },
 ];
+
+export const SOCIAL_PROFILE_BASE = {
+  Instagram: 'https://www.instagram.com/',
+  Facebook: 'https://www.facebook.com/',
+  LinkedIn: 'https://www.linkedin.com/in/',
+  TikTok: 'https://www.tiktok.com/@',
+  'X (Twitter)': 'https://x.com/',
+  YouTube: 'https://www.youtube.com/@',
+};
+
+export const SOCIAL_USERNAME_PLACEHOLDERS = {
+  Instagram: 'yourbusiness',
+  Facebook: 'yourbusiness',
+  LinkedIn: 'your-name',
+  TikTok: 'yourbusiness',
+  'X (Twitter)': 'yourbusiness',
+  YouTube: 'yourchannel',
+};
+
+export function formatSocialProfile(platform, raw) {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const handle = trimmed.replace(/^@+/, '').replace(/\s/g, '');
+  const base = SOCIAL_PROFILE_BASE[platform];
+  if (!base) return trimmed;
+  return `${base}${handle}`;
+}
+
+export function formatGbpUrl(raw) {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trimmed)}`;
+}
+
+export function formatWebsiteUrl(raw) {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed.replace(/^\/+/, '')}`;
+}
+
+export function buildSocialLinks(data) {
+  const handles = data.social_platform_links || {};
+  return Object.entries(handles)
+    .map(([platform, handle]) => {
+      const url = formatSocialProfile(platform, handle);
+      return url ? `${platform}: ${url}` : null;
+    })
+    .filter(Boolean)
+    .join('\n');
+}
 
 export const STEP_ENCOURAGEMENT = {
   1: [
@@ -231,6 +300,7 @@ export const INITIAL_FORM_DATA = {
   goal_challenges: '',
   goal_twelve_month: '',
   goal_one_improvement: '',
+  goal_one_improvement_other: '',
   business_goals: '',
 };
 
@@ -240,26 +310,24 @@ export function buildBusinessGoals(data) {
     data.goal_differentiator && `Differentiator: ${data.goal_differentiator}`,
     data.goal_challenges && `Challenges: ${data.goal_challenges}`,
     data.goal_twelve_month && `12-month goals: ${data.goal_twelve_month}`,
-    data.goal_one_improvement && `Top improvement: ${data.goal_one_improvement}`,
+    data.goal_one_improvement && `Top improvement: ${data.goal_one_improvement === 'Other' ? data.goal_one_improvement_other : data.goal_one_improvement}`,
   ].filter(Boolean);
   return parts.join('\n\n');
-}
-
-export function buildSocialLinks(data) {
-  const links = data.social_platform_links || {};
-  return Object.entries(links)
-    .filter(([, url]) => url?.trim())
-    .map(([platform, url]) => `${platform}: ${url}`)
-    .join('\n');
 }
 
 export function prepareSubmissionData(data) {
   const industry = data.industry === 'Other' ? data.industry_other : data.industry;
   const country = data.country === 'Other' ? data.country_other : data.country;
   const primary_goal = data.primary_goal === 'Other' ? data.primary_goal_other : data.primary_goal;
-  const website = data.digital_presence?.website === 'Yes' ? data.website_url : '';
+  const website = data.digital_presence?.website === 'Yes' ? formatWebsiteUrl(data.website_url) : '';
   const social_links = buildSocialLinks(data);
   const business_goals = buildBusinessGoals(data);
+  const google_business_profile = data.digital_presence?.gbp === 'Yes'
+    ? formatGbpUrl(data.google_business_profile)
+    : undefined;
+  const goal_one_improvement = data.goal_one_improvement === 'Other'
+    ? data.goal_one_improvement_other
+    : data.goal_one_improvement;
 
   return {
     full_name: data.full_name,
@@ -274,7 +342,7 @@ export function prepareSubmissionData(data) {
     primary_goal,
     website: website || undefined,
     social_links: social_links || undefined,
-    google_business_profile: data.google_business_profile || undefined,
+    google_business_profile,
     digital_presence: data.digital_presence,
     business_goals,
     industry_other: data.industry_other,
@@ -291,7 +359,8 @@ export function prepareSubmissionData(data) {
     goal_differentiator: data.goal_differentiator,
     goal_challenges: data.goal_challenges,
     goal_twelve_month: data.goal_twelve_month,
-    goal_one_improvement: data.goal_one_improvement,
+    goal_one_improvement,
+    goal_one_improvement_other: data.goal_one_improvement_other,
   };
 }
 

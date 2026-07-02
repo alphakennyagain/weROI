@@ -15,9 +15,10 @@ import {
   hasDraft,
   clearDraft,
 } from '../data/growthiqConstants';
+import { getBackendUrl } from '../lib/apiConfig';
 import './GrowthIQ.css';
 
-const API_URL = (process.env.REACT_APP_BACKEND_URL || '').replace(/\/$/, '');
+const API_URL = getBackendUrl();
 
 const PHASE = {
   LANDING: 'landing',
@@ -28,14 +29,12 @@ const PHASE = {
 };
 
 export default function GrowthPreview() {
-  const [phase, setPhase] = useState(PHASE.LANDING);
+  const [phase, setPhase] = useState(() => (hasDraft() ? PHASE.FORM : PHASE.LANDING));
   const [assessmentData, setAssessmentData] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [expertRequested, setExpertRequested] = useState(false);
-  const [showResumeBanner, setShowResumeBanner] = useState(false);
-  const [resumeWizard, setResumeWizard] = useState(false);
 
   const sid = (() => {
     const e = sessionStorage.getItem('sessionId');
@@ -62,22 +61,19 @@ export default function GrowthPreview() {
   useEffect(() => {
     window.scrollTo(0, 0);
     track('page_view');
-    track('growthiq_landing_view');
-    setShowResumeBanner(hasDraft());
+    if (hasDraft()) {
+      track('growthiq_form_resume');
+      requestAnimationFrame(() => {
+        document.getElementById('giq-assessment-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    } else {
+      track('growthiq_landing_view');
+    }
   }, [track]);
 
   const startAssessment = () => {
     track('growthiq_form_start');
-    setResumeWizard(false);
     setPhase(PHASE.FORM);
-    document.getElementById('giq-assessment-form')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const resumeAssessment = () => {
-    track('growthiq_form_resume');
-    setResumeWizard(true);
-    setPhase(PHASE.FORM);
-    setShowResumeBanner(false);
     document.getElementById('giq-assessment-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -87,7 +83,7 @@ export default function GrowthPreview() {
     setError('');
 
     if (!API_URL) {
-      setError('Assessment service is not configured. Please contact growth@weroi.net.');
+      setError('We could not reach the assessment service. Please try again in a moment or email growth@weroi.net.');
       setPhase(PHASE.FORM);
       return;
     }
@@ -119,7 +115,6 @@ export default function GrowthPreview() {
         clearDraft();
         setResult(json);
         setPhase(PHASE.REPORT);
-        setShowResumeBanner(false);
         window.scrollTo(0, 0);
       }
     }
@@ -225,18 +220,6 @@ export default function GrowthPreview() {
         }
       />
 
-      {showResumeBanner && phase === PHASE.LANDING && (
-        <div className="giq-resume-banner">
-          <div className="container giq-resume-inner">
-            <p>You have a saved assessment in progress.</p>
-            <div className="giq-resume-actions">
-              <GlowButton size="sm" onClick={resumeAssessment}>Resume Assessment</GlowButton>
-              <button type="button" className="giq-text-btn" onClick={() => { clearDraft(); setShowResumeBanner(false); }}>Start Over</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <section className="giq-hero">
         <div className="container">
           <motion.span
@@ -320,7 +303,7 @@ export default function GrowthPreview() {
       </section>
 
       {(phase === PHASE.FORM || phase === PHASE.LANDING) && (
-        <section className="giq-section giq-form-section">
+        <section className={`giq-section giq-form-section${phase === PHASE.FORM ? ' giq-form-section--active' : ''}`}>
           <div className="container giq-form-container">
             {phase === PHASE.LANDING && (
               <div className="giq-form-intro">
@@ -330,17 +313,24 @@ export default function GrowthPreview() {
                   our expert reviews are completed for a limited number of businesses each week.
                 </p>
                 <h2>Ready to see your growth score?</h2>
-                <p>Complete the assessment below or tap the button above to begin.</p>
-                <GlowButton onClick={startAssessment} size="lg">
-                  Start My Assessment <ArrowRight size={16} />
-                </GlowButton>
+                <p>About 3 to 5 minutes · Instant AI report · No obligation</p>
+                <div className="giq-intro-ctas">
+                  <GlowButton onClick={startAssessment} size="lg">
+                    Start My Assessment <ArrowRight size={16} />
+                  </GlowButton>
+                  <p className="giq-intro-cta-note">Scroll down when you are ready — your progress saves automatically.</p>
+                </div>
               </div>
             )}
             {phase === PHASE.FORM && (
-              <>
+              <div className="giq-assessment-wrap">
+                <div className="giq-assessment-badge">
+                  <Sparkles size={16} />
+                  <span>GrowthIQ™ Assessment</span>
+                </div>
                 {error && <p className="giq-error giq-error--center" role="alert">{error}</p>}
-                <GrowthIQWizard onComplete={handleFormComplete} initialResume={resumeWizard} />
-              </>
+                <GrowthIQWizard onComplete={handleFormComplete} />
+              </div>
             )}
           </div>
         </section>

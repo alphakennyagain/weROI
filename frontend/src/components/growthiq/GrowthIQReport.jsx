@@ -233,13 +233,14 @@ export default function GrowthIQReport({
       )}
 
       <section className="giq-report-cta" id="giq-expert-review">
-        <h2>Would you like a complimentary expert review from weROI?</h2>
+        <h2>Imagine what we could uncover with a full expert review.</h2>
         <p>
-          Your GrowthIQ™ report is a starting point based on your answers
-          {r.website_analysis_used ? ' and verified website signals' : ''}.
-          Our team can validate findings against your live digital presence and build a custom growth plan.
-          Expert reviews are offered at our discretion for a limited number of businesses each week.
-          There is no obligation and no guarantee of specific outcomes.
+          Your GrowthIQ™ report is a strong starting point. If you would like us to go deeper,
+          request a complimentary expert review. Our team will personally validate your assessment,
+          identify additional opportunities, and show you what partnering with weROI could look like
+          for your business — including strategic recommendations and, when appropriate, visual
+          concepts or website mockups to illustrate the path forward. These are provided at our
+          discretion and are not guaranteed with every review.
         </p>
         <div className="giq-cta-actions">
           <GlowButton
@@ -248,7 +249,7 @@ export default function GrowthIQReport({
             disabled={reviewLoading}
             className="giq-cta-primary"
           >
-            {reviewLoading ? 'Submitting...' : 'Request Expert Review'}
+            {reviewLoading ? 'Submitting...' : 'Get My Free Expert Growth Review'}
             {!reviewLoading && <ArrowRight size={18} />}
           </GlowButton>
           <button type="button" className="giq-cta-secondary" onClick={onMaybeLater} disabled={reviewLoading}>

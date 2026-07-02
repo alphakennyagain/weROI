@@ -7,7 +7,9 @@ import {
 import Logo from './brand/Logo';
 import './AdminDashboard.css';
 
-const API_URL = (process.env.REACT_APP_BACKEND_URL || '').replace(/\/$/, '');
+import { getBackendUrl } from '../lib/apiConfig';
+
+const API_URL = getBackendUrl();
 
 const AdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -352,12 +354,42 @@ const AdminDashboard = () => {
             </button>
             <h3>GrowthIQ™ Report — {giqViewTarget.business_name}</h3>
             <p className="giq-modal-meta">
+              {giqViewTarget.full_name} · {giqViewTarget.business_email} · {giqViewTarget.phone || 'No phone'}
+            </p>
+            <p className="giq-modal-meta">
+              {giqViewTarget.industry || '—'} · {giqViewTarget.business_size || '—'} · Goal: {giqViewTarget.primary_goal || '—'}
+            </p>
+            <p className="giq-modal-meta">
               Score: {giqViewTarget.report?.overall_score ?? '—'} · Grade: {giqViewTarget.report?.letter_grade ?? '—'} · {giqViewTarget.report?.growth_level ?? ''}
+              {giqViewTarget.report?.confidence_score != null ? ` · Confidence: ${giqViewTarget.report.confidence_score}%` : ''}
             </p>
             <p className="giq-modal-meta">Report ID: {giqViewTarget.report_id}</p>
+            {giqViewTarget.website && <p className="giq-modal-meta">Website: {giqViewTarget.website}</p>}
             <div className="giq-modal-summary">
               <strong>Executive Summary</strong>
               <p>{giqViewTarget.report?.executive_summary || '—'}</p>
+            </div>
+            {giqViewTarget.report?.business_summary && (
+              <div className="giq-modal-summary">
+                <strong>Business Summary</strong>
+                <p>{giqViewTarget.report.business_summary}</p>
+              </div>
+            )}
+            {(giqViewTarget.report?.top_opportunities || []).length > 0 && (
+              <div className="giq-modal-summary">
+                <strong>Top Opportunities</strong>
+                <ul>{giqViewTarget.report.top_opportunities.map((o) => <li key={o}>{o}</li>)}</ul>
+              </div>
+            )}
+            {(giqViewTarget.report?.quick_wins || []).length > 0 && (
+              <div className="giq-modal-summary">
+                <strong>Quick Wins</strong>
+                <ul>{giqViewTarget.report.quick_wins.map((w) => <li key={w}>{w}</li>)}</ul>
+              </div>
+            )}
+            <div className="giq-modal-summary">
+              <strong>Business Goals (submitted)</strong>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{giqViewTarget.business_goals || '—'}</p>
             </div>
             <div className="edit-field">
               <label htmlFor="giq-status">CRM Status</label>
@@ -784,6 +816,12 @@ const AdminDashboard = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <select className="leads-filter" value={giqFilter.industry} onChange={(e) => setGiqFilter({ ...giqFilter, industry: e.target.value })} aria-label="Filter by industry">
+                <option value="">All industries</option>
+                {[...new Set((dashboardData?.growth_assessments || []).map((g) => g.industry).filter(Boolean))].sort().map((ind) => (
+                  <option key={ind} value={ind}>{ind}</option>
+                ))}
+              </select>
               <select className="leads-filter" value={giqFilter.crmStatus} onChange={(e) => setGiqFilter({ ...giqFilter, crmStatus: e.target.value })} aria-label="Filter by CRM status">
                 <option value="">All CRM statuses</option>
                 <option value="analytics_only">Analytics Only</option>

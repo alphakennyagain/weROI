@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { MessageCircle, X, Sparkles, ArrowRight } from 'lucide-react';
+import { MessageCircle, X, Sparkles, ArrowRight, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getApiUrl } from '../lib/apiConfig';
 import './GrowthIQ.css';
 
 const QUICK_REPLIES = [
@@ -11,56 +12,58 @@ const QUICK_REPLIES = [
   },
   {
     q: 'How long does it take?',
-    a: 'About 3 to 5 minutes. Your progress saves automatically, so you can pause and resume anytime.',
+    a: 'About 3 to 5 minutes. Your progress saves automatically — close the tab anytime and you will pick up right where you left off.',
   },
   {
     q: 'Is it really free?',
     a: 'Yes. The GrowthIQ™ report is completely free with no obligation. After your report, you can optionally request a complimentary expert review from our team.',
   },
   {
-    q: 'What do I get in the report?',
-    a: 'An overall GrowthIQ score with letter grade, category breakdowns (website, SEO, brand, leads, and more), quick wins, top opportunities, and a suggested 30/60/90 day roadmap.',
-  },
-  {
-    q: 'Do you analyze my website?',
-    a: 'If you provide your website URL, GrowthIQ™ fetches your homepage and analyzes title tags, headings, navigation, CTAs, and basic SEO signals. We never invent data we cannot verify.',
+    q: 'What is the expert review?',
+    a: 'After your free AI report, you can request a complimentary expert review. Our team may validate findings, share deeper strategy, and in some cases provide visual concepts or website ideas so you can see what working with weROI looks like. Provided at our discretion — not guaranteed.',
   },
   {
     q: 'What services does weROI offer?',
     a: 'weROI is a digital growth agency in Jamaica. We build websites, SEO, marketing funnels, CRM systems, automation, and custom software for businesses that want measurable ROI.',
   },
-  {
-    q: 'What is the expert review?',
-    a: 'After your free report, you can request a complimentary expert review. Our team validates findings against your live digital presence. Reviews are offered for a limited number of businesses each week, at our discretion.',
-  },
-  {
-    q: 'Will you sell me something?',
-    a: 'No pressure. The assessment and report are free. An expert review is optional. We only follow up if you request it.',
-  },
 ];
+
+const FAQ_MATCH = [
+  { keys: ['free', 'cost', 'price'], a: QUICK_REPLIES[2].a },
+  { keys: ['long', 'minute', 'time'], a: QUICK_REPLIES[1].a },
+  { keys: ['growthiq', 'what is', 'assessment'], a: QUICK_REPLIES[0].a },
+  { keys: ['expert', 'review', 'mockup'], a: QUICK_REPLIES[3].a },
+  { keys: ['service', 'weroi', 'agency'], a: QUICK_REPLIES[4].a },
+];
+
+function localFaqAnswer(text) {
+  const lower = text.toLowerCase();
+  const hit = FAQ_MATCH.find((f) => f.keys.some((k) => lower.includes(k)));
+  return hit?.a || null;
+}
 
 export default function GrowthIQChat() {
   const [open, setOpen] = useState(false);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'bot',
-      text: 'Hi! I\'m the GrowthIQ™ assistant. Ask me about the free assessment, what\'s included, or how weROI can help your business grow online.',
+      text: 'Hi! I\'m the GrowthIQ™ assistant. Ask me anything about the free assessment, expert review, or weROI services.',
     },
   ]);
+  const bottomRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const apiUrl = getApiUrl();
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
   if (location.pathname === '/admin' || location.pathname.startsWith('/admin')) {
     return null;
   }
-
-  const handleQuick = (item) => {
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', text: item.q },
-      { role: 'bot', text: item.a },
-    ]);
-  };
 
   const goAssessment = () => {
     setOpen(false);
@@ -69,6 +72,56 @@ export default function GrowthIQChat() {
     } else {
       navigate('/growth-preview');
     }
+  };
+
+  const sendMessage = async (text) => {
+    const trimmed = text.trim();
+    if (!trimmed || loading) return;
+
+    setMessages((prev) => [...prev, { role: 'user', text: trimmed }]);
+    setInput('');
+    setLoading(true);
+
+    const local = localFaqAnswer(trimmed);
+    if (local) {
+      setMessages((prev) => [...prev, { role: 'bot', text: local }]);
+      setLoading(false);
+      return;
+    }
+
+    if (!apiUrl) {
+      setMessages((prev) => [...prev, {
+        role: 'bot',
+        text: 'Start your free GrowthIQ™ assessment to get your personalized growth score and roadmap in minutes.',
+      }]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${apiUrl}/growthiq/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: trimmed }),
+      });
+      if (!res.ok) throw new Error('chat failed');
+      const data = await res.json();
+      setMessages((prev) => [...prev, { role: 'bot', text: data.reply || 'Try the free assessment at /growth-preview for your personalized report.' }]);
+    } catch {
+      setMessages((prev) => [...prev, {
+        role: 'bot',
+        text: localFaqAnswer(trimmed) || 'I can help with GrowthIQ™, the free assessment, and weROI services. Start your free assessment anytime.',
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQuick = (item) => sendMessage(item.q);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendMessage(input);
   };
 
   return (
@@ -99,14 +152,31 @@ export default function GrowthIQChat() {
                   {m.text}
                 </div>
               ))}
+              {loading && <div className="giq-chat-msg giq-chat-msg--bot giq-chat-typing">Thinking…</div>}
+              <div ref={bottomRef} />
             </div>
             <div className="giq-chat-quick">
-              {QUICK_REPLIES.map((item) => (
-                <button key={item.q} type="button" onClick={() => handleQuick(item)}>
+              {QUICK_REPLIES.slice(0, 4).map((item) => (
+                <button key={item.q} type="button" onClick={() => handleQuick(item)} disabled={loading}>
                   {item.q}
                 </button>
               ))}
             </div>
+            <form className="giq-chat-form" onSubmit={handleSubmit}>
+              <input
+                type="text"
+                className="giq-chat-input"
+                placeholder="Ask anything about GrowthIQ…"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                maxLength={500}
+                disabled={loading}
+                aria-label="Chat message"
+              />
+              <button type="submit" className="giq-chat-send" disabled={loading || !input.trim()} aria-label="Send">
+                <Send size={16} />
+              </button>
+            </form>
             <button type="button" className="giq-chat-cta" onClick={goAssessment}>
               Get My Free Assessment <ArrowRight size={14} />
             </button>
