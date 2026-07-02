@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 import asyncio
+import base64
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
@@ -32,6 +33,7 @@ from email_templates import (
     get_growth_audit_email,
 )
 from growthiq import analyze_website, answer_growthiq_chat, generate_growthiq_report
+from checklist_pdf import build_visibility_checklist_pdf
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -331,6 +333,7 @@ async def send_email_async(
     text_content: str = "",
     reply_to: str | None = None,
     include_unsubscribe: bool = False,
+    attachments: list[dict] | None = None,
 ) -> bool:
     """Send email using Resend with HTML + plain-text parts."""
     if not resend.api_key:
@@ -347,6 +350,8 @@ async def send_email_async(
         }
         if text_content:
             params["text"] = text_content
+        if attachments:
+            params["attachments"] = attachments
         if include_unsubscribe:
             params["headers"] = {
                 "List-Unsubscribe": f"<mailto:{SENDER_EMAIL}?subject=unsubscribe>",
@@ -361,13 +366,19 @@ async def send_email_async(
         return False
 
 
-async def _send_template_email(to_email: str, email_data: dict, include_unsubscribe: bool = False) -> bool:
+async def _send_template_email(
+    to_email: str,
+    email_data: dict,
+    include_unsubscribe: bool = False,
+    attachments: list[dict] | None = None,
+) -> bool:
     return await send_email_async(
         to_email,
         email_data["subject"],
         email_data["html"],
         email_data.get("text", ""),
         include_unsubscribe=include_unsubscribe,
+        attachments=attachments,
     )
 
 
@@ -431,7 +442,17 @@ async def send_checklist_email(lead_id: str, email: str, name: str = ""):
             prior_name = growthiq["full_name"]
 
     email_content = get_visibility_checklist_email_content(prior_name or None)
-    success = await _send_template_email(email, email_content, include_unsubscribe=True)
+    pdf_bytes = build_visibility_checklist_pdf()
+    attachments = [{
+        "filename": "weROI-Visibility-Checklist.pdf",
+        "content": base64.b64encode(pdf_bytes).decode("ascii"),
+    }]
+    success = await _send_template_email(
+        email,
+        email_content,
+        include_unsubscribe=True,
+        attachments=attachments,
+    )
     if success:
         await db.guide_leads.update_one(
             {"id": lead_id},
@@ -505,6 +526,7 @@ async def health():
             "growthiq": True,
             "report_lookup": True,
             "meeting_link_send": True,
+            "visibility_checklist_pdf": True,
             "commit": os.environ.get("RAILWAY_GIT_COMMIT_SHA")
             or os.environ.get("VERCEL_GIT_COMMIT_SHA")
             or "local",
@@ -973,6 +995,16 @@ async def delete_growth_assessment(report_id: str, password: str = Query(...)):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Report not found")
     return {"deleted": True, "report_id": report_id}
+
+@api_router.get("/leads/visibility-checklist.pdf")
+async def download_visibility_checklist_pdf():
+    """Public PDF download for the visibility checklist lead magnet."""
+    pdf_bytes = build_visibility_checklist_pdf()
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="weROI-Visibility-Checklist.pdf"'},
+    )
 
 @api_router.post("/leads/guide", response_model=GuideLead)
 async def create_guide_lead(input: GuideLeadCreate, background_tasks: BackgroundTasks):

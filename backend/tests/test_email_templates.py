@@ -56,6 +56,17 @@ def test_owner_notification_includes_lead_details():
 
 def test_guide_email_1_has_pdf_link():
     email = get_email_1_content("Jane")
-    assert "Scaling Blueprint" in email["subject"]
-    assert "GROWTH" in email["html"] or "growth" in email["html"].lower()
+    assert "growth guide" in email["subject"].lower()
+    assert "Download Your Growth Guide" in email["html"]
     assert email["text"]
+
+
+def test_visibility_checklist_email_branded():
+    from email_templates import get_visibility_checklist_email_content
+
+    email = get_visibility_checklist_email_content()
+    assert "Invisible Online" in email["subject"]
+    assert "Download Your Checklist" in email["html"]
+    assert "weROI-Visibility-Checklist.pdf" in email["html"]
+    assert "Growth Guide" not in email["subject"]
+    assert "Hi there," in email["html"]

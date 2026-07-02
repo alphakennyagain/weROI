@@ -229,8 +229,12 @@ const ExitIntentPopup = () => {
             <div className="popup-success" data-testid="popup-success">
               <h2 className="popup-headline">
                 Check your inbox.<br />
-                <span className="accent">your checklist is on the way.</span>
+                <span className="accent">your checklist PDF is on the way.</span>
               </h2>
+              <p className="popup-sub" style={{ marginBottom: 16 }}>
+                We sent the full <strong>5 Signs Your Business Is Invisible Online</strong> checklist as a
+                weROI-branded PDF. It is attached to the email and ready to download.
+              </p>
               <div className="popup-giq-block">
                 <h3>Want the full picture?</h3>
                 <p>

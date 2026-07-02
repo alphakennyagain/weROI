@@ -9,6 +9,13 @@ from __future__ import annotations
 from html import escape
 from typing import Any
 
+from visibility_checklist_content import (
+    VISIBILITY_CHECKLIST_CLOSING,
+    VISIBILITY_CHECKLIST_INTRO,
+    VISIBILITY_CHECKLIST_ITEMS,
+    VISIBILITY_CHECKLIST_TITLE,
+)
+
 # Brand
 BRAND_LIME = "#c8f542"
 BRAND_DARK = "#111113"
@@ -26,6 +33,7 @@ ANTI_DIY_PDF = (
     "https://customer-assets.emergentagent.com/job_premium-scale-3/"
     "artifacts/g2op5jfz_WEROI%20ANTI%20DIY%20FRAMEWORK.pdf"
 )
+VISIBILITY_CHECKLIST_PDF_URL = f"{SITE_URL}/downloads/weROI-Visibility-Checklist.pdf"
 AUDIT_URL = f"{SITE_URL}/audit"
 
 
@@ -462,6 +470,15 @@ Claim your free audit: {audit_url}
 
 The weROI Team
 """
+    return {
+        "subject": f"A custom roadmap for {company_display}?",
+        "html": get_premium_email_template(
+            content,
+            headline="Ready for Your Custom Roadmap?",
+            cta_text="Claim Your Free Audit",
+            cta_link=audit_url,
+            preheader=f"Your personalized growth audit for {company_display}.",
+        ),
         "text": text,
     }
 
@@ -547,88 +564,75 @@ GROWTHIQ_URL = f"{SITE_URL}/growth-preview"
 
 
 def get_visibility_checklist_email_content(name: str | None = None) -> dict:
-    """Exit-intent checklist email for visibility lead magnet."""
+    """Exit-intent checklist email with PDF download link (weROI branded, not legacy growth guide)."""
     greeting = _greeting(name)
 
-    checklist_items = [
-        (
-            "People can't find you when they search",
-            "If someone searches for what you do, nearby, on Google or Instagram, and your business doesn't show up, you're not even in the running.",
-        ),
-        (
-            "Your online presence doesn't match how good you actually are",
-            "Weak signals like a missing Google Business Profile, no photos, or an inactive Instagram make customers assume what they see is what they'll get.",
-        ),
-        (
-            "There's no way to prove you're trustworthy at a glance",
-            "No reviews, no real photos, no clear way to contact you. Strangers decide in seconds whether to trust you enough to reach out.",
-        ),
-        (
-            "Interested customers fall through the cracks",
-            "Without a simple follow-up system, leads get forgotten. Not because you don't care, but because nothing is catching them.",
-        ),
-        (
-            "You don't know where you're actually losing people",
-            "Most owners are guessing. Without visibility into your numbers, you're solving problems you haven't identified yet.",
-        ),
-    ]
-
     items_html = "".join(
-        f'<p style="margin: 0 0 16px 0;"><strong style="color: {BRAND_DARK};">{i}. {_e(title)}</strong><br>'
+        f'<p style="margin: 0 0 14px 0;"><strong style="color: {BRAND_DARK};">{i}. {_e(title)}</strong><br>'
         f'<span style="color: #555;">{_e(desc)}</span></p>'
-        for i, (title, desc) in enumerate(checklist_items, 1)
+        for i, (title, desc) in enumerate(VISIBILITY_CHECKLIST_ITEMS, 1)
     )
 
     body_html = f"""
     <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.7; color: #333;">
       {greeting}
     </p>
-    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      You asked for the checklist. Here are <strong style="color: {BRAND_DARK};">5 signs your business may be invisible online</strong>.
-      No website required. Just an honest look at how findable you really are.
+    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.7; color: #333;">
+      You made a smart move. Most business owners never pause to ask whether they are actually visible online.
+      You did. That is the first step to fixing what is quietly costing you customers.
     </p>
-    {_section_box("Your visibility checklist", items_html)}
+    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.7; color: #333;">
+      {_e(VISIBILITY_CHECKLIST_INTRO)}
+    </p>
+    {_section_box("Inside your PDF checklist", items_html)}
     {_section_box("weROI Insight", '<em>"Visibility problems look like business problems. Fix findability first."</em>')}
     <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      If two or more of these sound familiar, your business likely isn't the problem. <strong style="color: {BRAND_DARK};">Visibility is.</strong>
+      {_e(VISIBILITY_CHECKLIST_CLOSING)}
     </p>
-    <p style="margin: 0 0 8px 0; font-size: 16px; line-height: 1.7; color: #333;">
-      Want to know exactly where you're invisible, and what to do about it?
+    <p style="margin: 0 0 12px 0; font-size: 15px; line-height: 1.7; color: #333;">
+      <strong style="color: {BRAND_DARK};">Your PDF is attached to this email.</strong>
+      You can also download it anytime using the button below.
     </p>
-    <p style="margin: 24px 0 0 0; font-size: 14px; line-height: 1.6; color: #666;">
-      No obligation. Takes 3-5 minutes. No sales call unless you ask for one.
+    <p style="margin: 0 0 8px 0; font-size: 15px; line-height: 1.7; color: #333;">
+      Want the full picture? Get your free personalized
+      <a href="{GROWTHIQ_URL}" style="color: {BRAND_DARK}; font-weight: 600;">weROI GrowthIQ™ score</a>
+      in 3-5 minutes. No sales call unless you ask for one.
     </p>
     <p style="margin: 24px 0 0 0; font-size: 14px; color: #666;">Talk soon,<br><strong style="color: {BRAND_DARK};">The weROI Team</strong></p>
     """
 
     text_items = "\n\n".join(
-        f"{i}. {title}\n{desc}" for i, (title, desc) in enumerate(checklist_items, 1)
+        f"{i}. {title}\n{desc}" for i, (title, desc) in enumerate(VISIBILITY_CHECKLIST_ITEMS, 1)
     )
-    text = f"""{greeting.replace(',', '')}
+    display = "there" if not name or not str(name).strip() else str(name).strip()
+    text = f"""Hi {display},
 
-You asked for the checklist. Here are 5 signs your business may be invisible online. No website required.
+You made a smart move. Most business owners never pause to ask whether they are actually visible online.
+
+{VISIBILITY_CHECKLIST_INTRO}
+
+YOUR CHECKLIST (also attached as PDF):
 
 {text_items}
 
-If two or more of these sound familiar, visibility is likely the issue.
+{VISIBILITY_CHECKLIST_CLOSING}
 
-Want to know exactly where you're invisible?
-Get My Free GrowthIQ Score: {GROWTHIQ_URL}
+Download your PDF: {VISIBILITY_CHECKLIST_PDF_URL}
 
-No obligation. Takes 3-5 minutes.
+Get your free GrowthIQ score: {GROWTHIQ_URL}
 
 Talk soon,
 The weROI Team
 """
 
     return {
-        "subject": "Your checklist: 5 Signs Your Business Is Invisible Online",
+        "subject": f"Your PDF: {VISIBILITY_CHECKLIST_TITLE} | weROI",
         "html": get_premium_email_template(
             body_html,
-            headline="5 Signs Your Business Is Invisible Online",
-            cta_text="Get My Free GrowthIQ Score",
-            cta_link=GROWTHIQ_URL,
-            preheader="Five quick checks. No website required.",
+            headline=VISIBILITY_CHECKLIST_TITLE,
+            cta_text="Download Your Checklist (PDF)",
+            cta_link=VISIBILITY_CHECKLIST_PDF_URL,
+            preheader="Your weROI visibility checklist PDF is ready. Five quick signs to review.",
         ),
         "text": text,
     }

@@ -13,3 +13,4 @@ APScheduler==3.11.2
 dnspython==2.8.0
 python-multipart==0.0.21
 starlette==0.37.2
+fpdf2==2.8.2
