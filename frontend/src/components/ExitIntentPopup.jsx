@@ -1,18 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ArrowRight, ClipboardList } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { getBackendUrl } from '../lib/apiConfig';
 import { TRUST_LINE } from '../data/siteStats';
 
 const API_URL = getBackendUrl();
+const AUTO_SHOW_MS = 3000;
+const SESSION_KEY = 'exitPopupShown';
 
 const ExitIntentPopup = () => {
+  const location = useLocation();
   const [visible, setVisible] = useState(false);
-  const [triggered, setTriggered] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
+  const triggeredRef = useRef(false);
 
   const sid = sessionStorage.getItem('sessionId') || (() => {
     const id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -26,28 +29,34 @@ const ExitIntentPopup = () => {
       await fetch(`${API_URL}/api/analytics/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_type, page: '/', referrer: document.referrer || null, session_id: sid }),
+        body: JSON.stringify({
+          event_type,
+          page: location.pathname || '/',
+          referrer: document.referrer || null,
+          session_id: sid,
+        }),
       });
     } catch {
       /* ignore */
     }
-  }, [sid]);
+  }, [sid, location.pathname]);
 
   const show = useCallback(() => {
-    if (!triggered) {
-      setVisible(true);
-      setTriggered(true);
-      sessionStorage.setItem('exitPopupShown', 'true');
-      track('popup_shown');
-    }
-  }, [triggered, track]);
+    if (triggeredRef.current) return;
+    triggeredRef.current = true;
+    setVisible(true);
+    sessionStorage.setItem(SESSION_KEY, 'true');
+    track('popup_shown');
+  }, [track]);
 
   useEffect(() => {
-    if (sessionStorage.getItem('exitPopupShown')) {
-      setTriggered(true);
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      triggeredRef.current = true;
       return undefined;
     }
-    const t1 = setTimeout(show, 5000);
+
+    const autoTimer = setTimeout(show, AUTO_SHOW_MS);
+
     const onLeave = (e) => { if (e.clientY <= 0) show(); };
     const onPop = () => { show(); window.history.pushState(null, '', window.location.href); };
     let lastY = window.scrollY;
@@ -62,17 +71,17 @@ const ExitIntentPopup = () => {
 
     window.history.pushState(null, '', window.location.href);
 
-    const t2 = setTimeout(() => {
+    const intentTimer = setTimeout(() => {
       document.addEventListener('mouseleave', onLeave);
       window.addEventListener('popstate', onPop);
       window.addEventListener('scroll', onScroll, { passive: true });
       document.addEventListener('touchstart', onTouchStart, { passive: true });
       document.addEventListener('touchend', onTouchEnd, { passive: true });
-    }, 2000);
+    }, 1500);
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
+      clearTimeout(autoTimer);
+      clearTimeout(intentTimer);
       document.removeEventListener('mouseleave', onLeave);
       window.removeEventListener('popstate', onPop);
       window.removeEventListener('scroll', onScroll);
@@ -80,6 +89,13 @@ const ExitIntentPopup = () => {
       document.removeEventListener('touchend', onTouchEnd);
     };
   }, [show]);
+
+  useEffect(() => {
+    if (!visible) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [visible]);
 
   const validate = () => {
     const e = {};

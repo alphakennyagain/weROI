@@ -5,7 +5,6 @@ import SiteHeader, { SITE_NAV_LINKS } from './SiteHeader';
 import Logo from './brand/Logo';
 import { CASE_STUDIES_SECTION, scrollToSection } from '../utils/scrollToSection';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import ExitIntentPopup from './ExitIntentPopup';
 import InfiniteSlider from './ui/InfiniteSlider';
 import CaseStudyCard from './ui/CaseStudyCard';
 import GlowButton from './ui/GlowButton';
@@ -181,8 +180,6 @@ export default function Home() {
 
   return (
     <div data-testid="home-page" className="home-page">
-      <ExitIntentPopup />
-
       <SiteHeader
         variant="home"
         logoTestId="home-logo"

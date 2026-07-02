@@ -15,14 +15,23 @@ import TermsOfService from "./components/TermsOfService";
 import WebDesignJamaica from "./components/WebDesignJamaica";
 import ScrollTriggerRefresh from "./components/ScrollTriggerRefresh";
 import GrowthIQChat from "./components/GrowthIQChat";
+import ExitIntentPopup from "./components/ExitIntentPopup";
+import { useLocation } from "react-router-dom";
 
 ScrollTrigger.config({ ignoreMobileResize: true });
+
+function SiteExitPopup() {
+  const location = useLocation();
+  if (location.pathname.startsWith("/admin")) return null;
+  return <ExitIntentPopup />;
+}
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <ScrollTriggerRefresh />
+        <SiteExitPopup />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/growth-preview" element={<GrowthPreview />} />
