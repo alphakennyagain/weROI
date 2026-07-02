@@ -806,13 +806,26 @@ html[data-theme="dark"] .giq-form-card {
 .giq-nav {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  width: 100%;
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid rgba(32, 32, 32, 0.06);
 }
 .giq-nav-spacer { flex: 1; }
+.giq-nav-btn {
+  flex: 1;
+  max-width: none;
+  justify-content: center;
+}
 .giq-nav-primary { flex: 1.4; }
+.giq-nav .glow-button-content {
+  gap: 8px;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.25;
+}
 
 /* Processing */
 .giq-processing {
@@ -1621,10 +1634,39 @@ html[data-theme="dark"] .giq-chat-panel {
   .giq-cards-grid { grid-template-columns: 1fr; }
   .giq-premium-grid { grid-template-columns: 1fr; }
   .giq-form-card, .giq-assessment-shell { border-radius: 16px; padding: 16px; }
+  .giq-form-card { padding-bottom: 8px; }
   .giq-toggle-group { flex-wrap: wrap; }
   .giq-toggle-btn { flex: 1 1 auto; min-height: 44px; font-size: 13px; }
-  .giq-nav { flex-direction: column-reverse; gap: 10px; }
-  .giq-nav-btn { width: 100%; justify-content: center; }
+  .giq-nav {
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: -8px;
+    width: calc(100% + 32px);
+    padding: 14px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(245, 245, 240, 0) 0%, var(--paper) 28%);
+    border-top: 1px solid rgba(32, 32, 32, 0.08);
+    box-shadow: 0 -10px 28px rgba(32, 32, 32, 0.06);
+  }
+  html[data-theme="dark"] .giq-nav {
+    background: linear-gradient(180deg, transparent 0%, rgba(18, 18, 18, 0.98) 28%);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.35);
+  }
+  .giq-nav-btn,
+  .giq-nav-primary {
+    width: 100%;
+    flex: none;
+    min-height: 48px;
+  }
+  .giq-nav-btn.glow-button { width: 100%; }
+  .giq-nav-spacer { display: none; }
+  .giq-nav-primary .glow-button-content { font-size: 13px; }
   .giq-report-cta { padding: 28px 16px; }
   .giq-cta-actions { flex-direction: column; }
   .giq-cat-header { padding: 14px 16px; min-height: 60px; }
@@ -1636,6 +1678,12 @@ html[data-theme="dark"] .giq-chat-panel {
   .giq-nav-links { gap: 10px; }
   .giq-nav-reports { font-size: 0.8rem; }
   .giq-report-summary-card { padding: 18px; }
+}
+
+@media (max-width: 480px) {
+  .giq-steps-bar { gap: 6px; }
+  .giq-steps-label { font-size: 11px; }
+  .giq-nav-primary .glow-button-content { font-size: 12px; }
 }
 
 .giq-assessment-recap {
