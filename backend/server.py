@@ -27,6 +27,7 @@ from email_templates import (
     get_audit_owner_notification_email,
     get_email_1_content,
     get_growthiq_meeting_email,
+    get_growthiq_report_confirmation_email,
     get_visibility_checklist_email_content,
     get_email_2_content,
     get_email_3_content,
@@ -294,6 +295,7 @@ class GrowthAssessment(BaseModel):
     expert_review_requested: bool = False
     expert_review_requested_at: Optional[str] = None
     meeting_link_sent_at: Optional[str] = None
+    confirmation_email_sent_at: Optional[str] = None
     internal_notes: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -315,6 +317,7 @@ class GrowthIQChatRequest(BaseModel):
     message: str = Field(..., max_length=500)
 
 class GrowthIQReportLookup(BaseModel):
+    report_id: str = Field(..., min_length=8, max_length=64)
     email: EmailStr
 
 class GrowthIQMeetingLinkRequest(BaseModel):
@@ -718,10 +721,36 @@ async def create_growth_assessment(input: GrowthAssessmentCreate, background_tas
     await db.growth_assessments.insert_one(doc)
     logger.info("GrowthIQ assessment created: %s (%s)", assessment_obj.report_id, assessment_obj.business_email)
 
-    # Notify admin only for analytics storage (not active sales lead yet)
+    # Notify admin + send report confirmation to user
     background_tasks.add_task(_notify_growthiq_analytics, assessment_obj)
+    background_tasks.add_task(_send_growthiq_report_confirmation, assessment_obj)
 
     return assessment_obj
+
+async def _send_growthiq_report_confirmation(assessment: GrowthAssessment):
+    """Email user their report ID and reopen link (no PDF attachment)."""
+    email_content = get_growthiq_report_confirmation_email(
+        assessment.full_name,
+        assessment.business_name,
+        assessment.report_id,
+        str(assessment.business_email),
+        (assessment.report or {}).get("overall_score"),
+        (assessment.report or {}).get("letter_grade"),
+    )
+    success = await _send_template_email(
+        str(assessment.business_email),
+        email_content,
+        include_unsubscribe=True,
+    )
+    if success:
+        await db.growth_assessments.update_one(
+            {"report_id": assessment.report_id},
+            {"$set": {
+                "confirmation_email_sent_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }},
+        )
+        logger.info("GrowthIQ confirmation email sent to %s (%s)", assessment.business_email, assessment.report_id)
 
 async def _notify_growthiq_analytics(assessment: GrowthAssessment):
     """Lightweight admin notification for new assessment (analytics)."""
@@ -816,37 +845,26 @@ async def get_growth_assessment(report_id: str, email: Optional[EmailStr] = Quer
 
 @api_router.post("/growthiq/reports/lookup")
 async def lookup_growthiq_reports(body: GrowthIQReportLookup):
-    """Return compact report summaries for a business email (max 20, newest first)."""
-    email = _normalize_email(str(body.email))
-    assessments = await db.growth_assessments.find(
-        _growthiq_email_query(email),
-        {
-            "_id": 0,
-            "report_id": 1,
-            "business_name": 1,
-            "business_email": 1,
-            "created_at": 1,
-            "expert_review_requested": 1,
-            "report.overall_score": 1,
-            "report.letter_grade": 1,
-            "report.growth_level": 1,
-        },
-    ).sort("created_at", -1).to_list(20)
+    """Return one report summary when report ID and email both match."""
+    report_id = body.report_id.strip()
+    doc = await db.growth_assessments.find_one({"report_id": report_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Report not found")
+    if not _emails_match(doc.get("business_email"), str(body.email)):
+        raise HTTPException(status_code=403, detail="Email does not match this report")
 
+    report = doc.get("report") or {}
     return {
-        "reports": [
-            {
-                "report_id": a.get("report_id"),
-                "business_name": a.get("business_name"),
-                "business_email": a.get("business_email"),
-                "created_at": a.get("created_at"),
-                "expert_review_requested": bool(a.get("expert_review_requested")),
-                "overall_score": (a.get("report") or {}).get("overall_score"),
-                "letter_grade": (a.get("report") or {}).get("letter_grade"),
-                "growth_level": (a.get("report") or {}).get("growth_level"),
-            }
-            for a in assessments
-        ]
+        "report": {
+            "report_id": doc.get("report_id"),
+            "business_name": doc.get("business_name"),
+            "business_email": doc.get("business_email"),
+            "created_at": doc.get("created_at"),
+            "expert_review_requested": bool(doc.get("expert_review_requested")),
+            "overall_score": report.get("overall_score"),
+            "letter_grade": report.get("letter_grade"),
+            "growth_level": report.get("growth_level"),
+        }
     }
 
 @api_router.get("/growthiq/assessments")

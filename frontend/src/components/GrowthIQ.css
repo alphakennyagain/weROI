@@ -912,6 +912,18 @@ html[data-theme="dark"] .giq-form-card {
   font-size: 11px;
   color: var(--muted);
 }
+.giq-report-save-notice {
+  max-width: 520px;
+  margin: 12px auto 20px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(200, 245, 66, 0.12);
+  border: 1px solid rgba(200, 245, 66, 0.35);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--carbon);
+  text-align: left;
+}
 
 .giq-report-score-block {
   display: flex;
@@ -1298,6 +1310,36 @@ html[data-theme="dark"] .giq-report-card {
   gap: 12px;
   align-items: center;
 }
+.giq-thanks-report-id {
+  margin: 0 0 24px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(200, 245, 66, 0.12);
+  border: 1px solid rgba(200, 245, 66, 0.35);
+  text-align: center;
+}
+.giq-thanks-report-label {
+  display: block;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.giq-thanks-report-id code {
+  display: block;
+  font-size: 13px;
+  word-break: break-all;
+  color: var(--carbon);
+  margin-bottom: 8px;
+}
+.giq-thanks-report-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
 
 /* My Past Reports */
 .giq-my-reports {
@@ -1330,6 +1372,38 @@ html[data-theme="dark"] .giq-report-card {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+}
+.giq-my-reports-lookup--stacked {
+  flex-direction: column;
+}
+.giq-my-reports-session {
+  margin-top: 16px;
+}
+.giq-my-reports-session-note {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.giq-my-reports-device {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(32, 32, 32, 0.08);
+}
+.giq-my-reports-device-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.giq-my-reports-device-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.giq-my-reports-device-sub {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
 }
 .giq-my-reports-input {
   flex: 1;

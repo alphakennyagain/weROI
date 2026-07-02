@@ -456,7 +456,6 @@ export function saveReportToLibrary(assessment) {
     };
     const next = [entry, ...existing.filter((r) => r.report_id !== entry.report_id)].slice(0, 12);
     localStorage.setItem(REPORTS_LIBRARY_KEY, JSON.stringify(next));
-    localStorage.setItem('weroi_growthiq_email', assessment.business_email);
   } catch {
     /* ignore */
   }
@@ -468,8 +467,4 @@ export function getSavedReports() {
   } catch {
     return [];
   }
-}
-
-export function getSavedReportEmail() {
-  return localStorage.getItem('weroi_growthiq_email') || '';
 }

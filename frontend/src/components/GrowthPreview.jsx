@@ -273,10 +273,14 @@ export default function GrowthPreview() {
           <p>
             {expertRequested
               ? `Our weROI team will review your ${GROWTHIQ_BRAND} assessment and reach out within 48 hours.`
-              : `Your ${GROWTHIQ_BRAND} report has been saved. You can return anytime to request a complimentary expert review from our team.`}
+              : `Your ${GROWTHIQ_BRAND} report is saved. Check your email for your Report ID so you can open it again anytime.`}
           </p>
           {result?.report_id && (
-            <p className="giq-report-id">Report ID: {result.report_id}</p>
+            <div className="giq-thanks-report-id">
+              <span className="giq-thanks-report-label">Your Report ID</span>
+              <code>{result.report_id}</code>
+              <p className="giq-thanks-report-hint">Save this ID. We also sent it to {result.business_email}.</p>
+            </div>
           )}
           <div className="giq-thanks-actions">
             {result?.report_id && result?.business_email && (

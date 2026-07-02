@@ -563,6 +563,81 @@ The weROI Team
 GROWTHIQ_URL = f"{SITE_URL}/growth-preview"
 
 
+def get_growthiq_report_confirmation_email(
+    name: str,
+    business_name: str,
+    report_id: str,
+    business_email: str,
+    overall_score: int | None = None,
+    letter_grade: str | None = None,
+) -> dict:
+    """Thank-you email after assessment with report ID and reopen link (no PDF)."""
+    greeting = _greeting(name)
+    reopen_url = f"{GROWTHIQ_URL}?report={report_id}&email={business_email}"
+    score_line = ""
+    if overall_score is not None:
+        grade_part = f" ({letter_grade})" if letter_grade else ""
+        score_line = (
+            f'<p style="margin: 0 0 20px 0;">Your GrowthIQ™ score: '
+            f'<strong style="color: {BRAND_DARK};">{overall_score}{_e(grade_part)}</strong></p>'
+        )
+
+    body_html = f"""
+    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.7; color: #333;">
+      {greeting}
+    </p>
+    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.7; color: #333;">
+      Thank you for completing your weROI GrowthIQ™ assessment for
+      <strong style="color: {BRAND_DARK};">{_e(business_name)}</strong>.
+      Your personalized report is ready whenever you want to review it.
+    </p>
+    {score_line}
+    {_section_box(
+        "Your Report ID",
+        f'<p style="margin: 0 0 12px 0; font-family: monospace; font-size: 15px; color: {BRAND_DARK}; word-break: break-all;">{_e(report_id)}</p>'
+        f'<p style="margin: 0; font-size: 14px; color: #555;">Save this ID. You will need it with your email to open your report again later.</p>',
+        dark=True,
+    )}
+    <p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.7; color: #333;">
+      To keep a copy offline, open your report and use <strong>Download PDF</strong>. Save the PDF or keep this Report ID in a safe place.
+    </p>
+    <p style="margin: 0 0 8px 0; font-size: 15px; line-height: 1.7; color: #333;">
+      Use the button below to reopen your full report anytime.
+    </p>
+    <p style="margin: 24px 0 0 0; font-size: 14px; color: #666;">Talk soon,<br><strong style="color: {BRAND_DARK};">The weROI Team</strong></p>
+    """
+
+    display = "there" if not name or not str(name).strip() else str(name).strip()
+    score_text = f"\nYour GrowthIQ score: {overall_score}{f' ({letter_grade})' if letter_grade else ''}\n" if overall_score is not None else ""
+    text = f"""Hi {display},
+
+Thank you for completing your weROI GrowthIQ assessment for {business_name}.
+{score_text}
+Your Report ID: {report_id}
+
+Save this ID. You will need it with your email to open your report again later.
+
+Reopen your report: {GROWTHIQ_URL}?report={report_id}&email={business_email}
+
+To keep a copy offline, open your report and download the PDF.
+
+Talk soon,
+The weROI Team
+"""
+
+    return {
+        "subject": f"Your GrowthIQ report is ready, {display} | weROI",
+        "html": get_premium_email_template(
+            body_html,
+            headline="Your GrowthIQ report is ready",
+            cta_text="Open My Report",
+            cta_link=reopen_url,
+            preheader=f"Save your Report ID: {report_id}",
+        ),
+        "text": text,
+    }
+
+
 def get_visibility_checklist_email_content(name: str | None = None) -> dict:
     """Exit-intent checklist email with PDF download link (weROI branded, not legacy growth guide)."""
     greeting = _greeting(name)

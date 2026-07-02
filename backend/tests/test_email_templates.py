@@ -70,3 +70,21 @@ def test_visibility_checklist_email_branded():
     assert "weROI-Visibility-Checklist.pdf" in email["html"]
     assert "Growth Guide" not in email["subject"]
     assert "Hi there," in email["html"]
+
+
+def test_growthiq_report_confirmation_email():
+    from email_templates import get_growthiq_report_confirmation_email
+
+    email = get_growthiq_report_confirmation_email(
+        "Jane",
+        "Acme Co",
+        "abc-123-report",
+        "jane@example.com",
+        72,
+        "B",
+    )
+    assert "abc-123-report" in email["html"]
+    assert "abc-123-report" in email["text"]
+    assert "Open My Report" in email["html"]
+    assert "jane@example.com" in email["html"]
+    assert "GrowthIQ" in email["subject"]

@@ -191,6 +191,10 @@ export default function GrowthIQReport({
         <span className="giq-eyebrow">{GROWTHIQ_BRAND} Report</span>
         <h1 className="giq-report-title">{business}</h1>
         <p className="giq-report-id">Report ID: {reportId}</p>
+        <p className="giq-report-save-notice">
+          We emailed this Report ID to <strong>{assessment?.business_email}</strong>.
+          Save the ID or download the PDF below to keep a copy. You will need the ID and your email to open this report again.
+        </p>
 
         <div className="giq-report-score-block">
           <ScoreRing score={r.overall_score || 0} />
