@@ -27,6 +27,10 @@ const AdminDashboard = () => {
   const [editTarget, setEditTarget] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [editSaving, setEditSaving] = useState(false);
+  const [giqFilter, setGiqFilter] = useState({ industry: '', minScore: '', crmStatus: '' });
+  const [giqViewTarget, setGiqViewTarget] = useState(null);
+  const [giqNotes, setGiqNotes] = useState('');
+  const [giqStatus, setGiqStatus] = useState('');
 
   const fetchDashboardData = useCallback(async (isInitial = false) => {
     const storedPassword = sessionStorage.getItem('adminAuth');
@@ -104,7 +108,37 @@ const AdminDashboard = () => {
 
   const handleExportCSV = () => {
     if (!API_URL) return;
+    if (activeTab === 'growthiq') {
+      const storedPassword = sessionStorage.getItem('adminAuth');
+      window.open(`${API_URL}/api/growthiq/export/csv?password=${encodeURIComponent(storedPassword)}`, '_blank');
+      return;
+    }
     window.open(`${API_URL}/api/leads/export/csv`, '_blank');
+  };
+
+  const handleGiqUpdate = async (reportId) => {
+    const storedPassword = sessionStorage.getItem('adminAuth');
+    try {
+      const body = {};
+      if (giqStatus) body.crm_status = giqStatus;
+      if (giqNotes !== undefined) body.internal_notes = giqNotes;
+      const response = await fetch(
+        `${API_URL}/api/growthiq/assessment/${reportId}?password=${encodeURIComponent(storedPassword)}`,
+        { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+      );
+      if (response.ok) {
+        fetchDashboardData();
+        setGiqViewTarget(null);
+      }
+    } catch (err) {
+      console.error('Failed to update GrowthIQ assessment:', err);
+    }
+  };
+
+  const openGiqView = (assessment) => {
+    setGiqViewTarget(assessment);
+    setGiqNotes(assessment.internal_notes || '');
+    setGiqStatus(assessment.crm_status || 'analytics_only');
   };
 
   const handleLogout = () => {
@@ -248,8 +282,24 @@ const AdminDashboard = () => {
     return leads;
   }, [dashboardData, searchQuery, typeFilter]);
 
+  const filteredGrowthIQ = useMemo(() => {
+    let items = dashboardData?.growth_assessments || [];
+    if (giqFilter.industry) items = items.filter((g) => g.industry === giqFilter.industry);
+    if (giqFilter.minScore) items = items.filter((g) => (g.report?.overall_score || 0) >= Number(giqFilter.minScore));
+    if (giqFilter.crmStatus) items = items.filter((g) => g.crm_status === giqFilter.crmStatus);
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      items = items.filter((g) =>
+        [g.full_name, g.business_email, g.business_name, g.industry, g.report_id]
+          .filter(Boolean)
+          .some((field) => String(field).toLowerCase().includes(q))
+      );
+    }
+    return items;
+  }, [dashboardData, giqFilter, searchQuery]);
+
   const stats = dashboardData?.stats;
-  const totalLeads = (stats?.total_audit_leads || 0) + (stats?.total_guide_leads || 0);
+  const totalLeads = (stats?.total_audit_leads || 0) + (stats?.total_guide_leads || 0) + (stats?.total_growth_assessments || 0);
   const overallConv = (
     (totalLeads / Math.max(stats?.total_unique_visitors || 1, 1)) * 100
   ).toFixed(1);
@@ -294,6 +344,44 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
+      {giqViewTarget && (
+        <div className="delete-modal-overlay" onClick={() => setGiqViewTarget(null)}>
+          <div className="edit-modal giq-view-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 640, maxHeight: '85vh', overflow: 'auto' }}>
+            <button type="button" className="modal-close" onClick={() => setGiqViewTarget(null)}>
+              <X size={20} />
+            </button>
+            <h3>GrowthIQ™ Report — {giqViewTarget.business_name}</h3>
+            <p className="giq-modal-meta">
+              Score: {giqViewTarget.report?.overall_score ?? '—'} · Grade: {giqViewTarget.report?.letter_grade ?? '—'} · {giqViewTarget.report?.growth_level ?? ''}
+            </p>
+            <p className="giq-modal-meta">Report ID: {giqViewTarget.report_id}</p>
+            <div className="giq-modal-summary">
+              <strong>Executive Summary</strong>
+              <p>{giqViewTarget.report?.executive_summary || '—'}</p>
+            </div>
+            <div className="edit-field">
+              <label htmlFor="giq-status">CRM Status</label>
+              <select id="giq-status" value={giqStatus} onChange={(e) => setGiqStatus(e.target.value)}>
+                <option value="analytics_only">Analytics Only</option>
+                <option value="expert_review_requested">Expert Review Requested</option>
+                <option value="contacted">Contacted</option>
+                <option value="proposal_sent">Proposal Sent</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+              </select>
+            </div>
+            <div className="edit-field">
+              <label htmlFor="giq-notes">Internal Notes</label>
+              <textarea id="giq-notes" rows={4} value={giqNotes} onChange={(e) => setGiqNotes(e.target.value)} />
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn-cancel" onClick={() => setGiqViewTarget(null)}>Close</button>
+              <button type="button" className="admin-submit-btn" onClick={() => handleGiqUpdate(giqViewTarget.report_id)}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showEditModal && editTarget && (
         <div className="delete-modal-overlay" onClick={() => setShowEditModal(false)}>
           <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
@@ -491,6 +579,18 @@ const AdminDashboard = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon total">
+            <BarChart3 size={24} />
+          </div>
+          <div className="stat-content">
+            <span className="stat-value">{stats?.total_growth_assessments ?? '—'}</span>
+            <span className="stat-label">GrowthIQ™ Reports</span>
+            {stats && (
+              <span className="stat-rate">{stats.growth_expert_reviews || 0} expert reviews</span>
+            )}
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon total">
             <UserPlus size={24} />
           </div>
           <div className="stat-content">
@@ -508,6 +608,14 @@ const AdminDashboard = () => {
         >
           <Users size={18} />
           <span>Leads</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-tab ${activeTab === 'growthiq' ? 'active' : ''}`}
+          onClick={() => setActiveTab('growthiq')}
+        >
+          <BarChart3 size={18} />
+          <span>GrowthIQ™</span>
         </button>
         <button
           type="button"
@@ -649,9 +757,84 @@ const AdminDashboard = () => {
                       <td colSpan="8" className="no-data">
                         {searchQuery || typeFilter !== 'all'
                           ? 'No leads match your filters.'
-                          : 'No leads yet — submissions from /audit and the guide popup will appear here.'}
+                          : 'No leads yet — submissions from /growth-preview and the guide popup will appear here.'}
                       </td>
                     </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'growthiq' && (
+          <div className="leads-section">
+            <div className="leads-header">
+              <h2>GrowthIQ™ Assessments ({filteredGrowthIQ.length})</h2>
+            </div>
+            <div className="leads-toolbar">
+              <div style={{ position: 'relative', flex: 1, minWidth: 200, maxWidth: 320 }}>
+                <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input
+                  type="search"
+                  className="leads-search"
+                  style={{ paddingLeft: 36, width: '100%' }}
+                  placeholder="Search name, email, business…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <select className="leads-filter" value={giqFilter.crmStatus} onChange={(e) => setGiqFilter({ ...giqFilter, crmStatus: e.target.value })} aria-label="Filter by CRM status">
+                <option value="">All CRM statuses</option>
+                <option value="analytics_only">Analytics Only</option>
+                <option value="expert_review_requested">Expert Review Requested</option>
+                <option value="contacted">Contacted</option>
+                <option value="proposal_sent">Proposal Sent</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+              </select>
+              <input
+                type="number"
+                className="leads-filter"
+                placeholder="Min score"
+                value={giqFilter.minScore}
+                onChange={(e) => setGiqFilter({ ...giqFilter, minScore: e.target.value })}
+                style={{ width: 100 }}
+              />
+            </div>
+            <div className="leads-table-wrapper">
+              <table className="leads-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Business</th>
+                    <th>Contact</th>
+                    <th className="hide-mobile">Industry</th>
+                    <th>Score</th>
+                    <th className="hide-mobile">CRM Status</th>
+                    <th>Expert Review</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredGrowthIQ.map((g) => (
+                    <tr key={g.report_id}>
+                      <td className="date-cell">{formatDate(g.created_at)}</td>
+                      <td className="name-cell">{g.business_name}</td>
+                      <td className="email-cell">{g.business_email}</td>
+                      <td className="hide-mobile">{g.industry || '—'}</td>
+                      <td><strong>{g.report?.overall_score ?? '—'}</strong> {g.report?.letter_grade ? `(${g.report.letter_grade})` : ''}</td>
+                      <td className="hide-mobile"><span className={`lead-type ${g.crm_status}`}>{g.crm_status?.replace(/_/g, ' ')}</span></td>
+                      <td>{g.expert_review_requested ? 'Yes' : 'No'}</td>
+                      <td>
+                        <button type="button" className="btn-edit-row" onClick={() => openGiqView(g)} title="View report">
+                          <Eye size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!initialLoad && filteredGrowthIQ.length === 0 && (
+                    <tr><td colSpan="8" className="no-data">No GrowthIQ™ assessments yet.</td></tr>
                   )}
                 </tbody>
               </table>

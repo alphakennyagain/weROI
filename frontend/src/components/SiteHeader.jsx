@@ -32,7 +32,7 @@ export default function SiteHeader({
   dark = false,
   showCenterLinks = true,
   showDesktopCta = true,
-  ctaLabel = 'Start a Project',
+  ctaLabel = 'Free Assessment',
   ctaTestId = 'nav-cta-btn',
   onCtaClick,
   desktopActions = null,
@@ -45,8 +45,8 @@ export default function SiteHeader({
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = variant === 'home' || location.pathname === '/';
-  const isAuditPage = location.pathname === '/audit';
-  const showCta = showDesktopCta && !isAuditPage;
+  const isGrowthPage = location.pathname === '/growth-preview' || location.pathname === '/audit';
+  const showCta = showDesktopCta && !isGrowthPage;
   const panelId = useId();
   const [open, setOpen] = useState(false);
 
@@ -57,7 +57,7 @@ export default function SiteHeader({
     if (onCtaClick) {
       onCtaClick();
     } else {
-      navigate('/audit');
+      navigate('/growth-preview');
     }
   }, [closeMenu, navigate, onCtaClick]);
 

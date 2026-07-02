@@ -193,7 +193,7 @@ export default function ServicesTabs() {
             </ul>
 
             <div className="services-tabs__ctas">
-              <GlowButton onClick={() => navigate('/audit')} size="sm">
+              <GlowButton onClick={() => navigate('/growth-preview')} size="sm">
                 Get a Quote <ArrowRight size={14} />
               </GlowButton>
               <GlowButton onClick={() => navigate('/book-call')} size="sm" variant="ghost">

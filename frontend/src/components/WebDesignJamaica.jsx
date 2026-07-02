@@ -139,8 +139,8 @@ export default function WebDesignJamaica() {
               visibility, and next steps — wherever you are in Jamaica or abroad.
             </p>
             <div className="local-cta-actions">
-              <GlowButton onClick={() => navigate('/audit')} size="lg" data-testid="local-cta-audit">
-                <ClipboardList size={16} /> Request free audit <ArrowRight size={16} />
+              <GlowButton onClick={() => navigate('/growth-preview')} size="lg" data-testid="local-cta-audit">
+                <ClipboardList size={16} /> Get My Free Assessment <ArrowRight size={16} />
               </GlowButton>
               <GlowButton onClick={() => navigate('/book-call')} size="lg" variant="outline" data-testid="local-cta-book">
                 <Calendar size={16} /> Book a call <ArrowRight size={16} />

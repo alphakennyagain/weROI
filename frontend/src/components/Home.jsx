@@ -175,7 +175,7 @@ export default function Home() {
     }).catch(() => {});
   }, [API_URL, sid]);
 
-  const goAudit = () => navigate('/audit');
+  const goGrowthPreview = () => navigate('/growth-preview');
   const goCaseStudies = () => scrollToSection(CASE_STUDIES_SECTION, { navigate, pathname });
   const goWorkPage = () => navigate('/work');
 
@@ -188,7 +188,7 @@ export default function Home() {
         logoTestId="home-logo"
         logoOnClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         navTestId="home-nav"
-        onCtaClick={goAudit}
+        onCtaClick={goGrowthPreview}
       />
 
       {/* HERO - Premium Full screen with gradient */}
@@ -214,8 +214,8 @@ return { roi: "proven" };`}
         <div className="container hero-grid">
           <div className="hero-content">
             <motion.a
-              href="/audit"
-              onClick={(e) => { e.preventDefault(); goAudit(); }}
+              href="/growth-preview"
+              onClick={(e) => { e.preventDefault(); goGrowthPreview(); }}
               className="hero-audit-link"
               data-testid="hero-status-link"
               initial={{ opacity: 0, y: 10 }}
@@ -224,7 +224,7 @@ return { roi: "proven" };`}
               whileHover={{ x: 2 }}
             >
               <ShinyText
-                text="Claim your free audit"
+                text="Get your free assessment"
                 speed={3}
                 color="#202020"
                 shineColor="#c8f542"
@@ -275,8 +275,8 @@ return { roi: "proven" };`}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <GlowButton onClick={goAudit} data-testid="hero-cta-btn" size="lg" className="glow-btn">
-                Start a Project <ArrowRight size={18} />
+              <GlowButton onClick={goGrowthPreview} data-testid="hero-cta-btn" size="lg" className="glow-btn">
+                Get My Free Assessment <ArrowRight size={18} />
               </GlowButton>
               <GlowButton onClick={goCaseStudies} data-testid="hero-view-work-btn" size="lg" variant="ghost">
                 View our work <ArrowUpRight size={18} />
@@ -539,7 +539,7 @@ return { roi: "proven" };`}
             <div>
               <span className="eyebrow cta-eyebrow" style={{ color: 'var(--lime)' }}>
                 <TextType
-                  text={['Next step', 'Start here', 'Book your audit']}
+                  text={['Next step', 'Start here', 'Get your GrowthIQ report']}
                   typingSpeed={60}
                   pauseDuration={1800}
                   startOnVisible
@@ -559,8 +559,8 @@ return { roi: "proven" };`}
               </ScrollReveal>
             </div>
             <div>
-              <GlowButton onClick={goAudit} data-testid="cta-btn" size="lg" className="glow-btn">
-                Start a Project <ArrowRight size={18} />
+              <GlowButton onClick={goGrowthPreview} data-testid="cta-btn" size="lg" className="glow-btn">
+                Get My Free Assessment <ArrowRight size={18} />
               </GlowButton>
             </div>
           </div>
@@ -603,9 +603,9 @@ return { roi: "proven" };`}
                     <Mail size={14} /> contact.weroi@gmail.com
                   </a>
                 </li>
-                <li data-testid="footer-book-call">
-                  <Link to="/book-call">
-                    <Calendar size={14} /> Book a 30-minute call
+                <li data-testid="footer-growth-preview">
+                  <Link to="/growth-preview">
+                    <Calendar size={14} /> Free Assessment
                   </Link>
                 </li>
                 <li>

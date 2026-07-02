@@ -28,6 +28,7 @@ from email_templates import (
     get_email_3_content,
     get_growth_audit_email,
 )
+from growthiq import analyze_website, generate_growthiq_report
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -187,6 +188,100 @@ class AnalyticsEvent(BaseModel):
 # Admin Auth
 class AdminAuth(BaseModel):
     password: str
+
+# GrowthIQ™ Assessment Models
+CRM_STATUSES = [
+    "analytics_only",
+    "expert_review_requested",
+    "contacted",
+    "proposal_sent",
+    "won",
+    "lost",
+]
+
+class DigitalPresence(BaseModel):
+    website: str = ""
+    seo: str = ""
+    brand_guidelines: str = ""
+    social_media: str = ""
+    gbp: str = ""
+    email_marketing: str = ""
+    crm: str = ""
+    analytics: str = ""
+    paid_ads: str = ""
+    online_booking: str = ""
+    automation: str = ""
+    blog: str = ""
+    live_chat: str = ""
+    online_reviews: str = ""
+    accessibility: str = ""
+    ssl: str = ""
+    performance_optimization: str = ""
+
+class GrowthAssessmentCreate(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    full_name: str
+    business_name: str
+    business_email: EmailStr
+    phone: str
+    country: str
+    preferred_contact: str
+    industry: str
+    business_size: str
+    years_in_business: str
+    primary_goal: str
+    website: Optional[str] = None
+    website_url: Optional[str] = None
+    social_links: Optional[str] = None
+    google_business_profile: Optional[str] = None
+    digital_presence: DigitalPresence = Field(default_factory=DigitalPresence)
+    business_goals: str
+    referrer: Optional[str] = None
+    analytics_tools: Optional[list] = None
+    automation_tools: Optional[list] = None
+    social_platforms: Optional[list] = None
+
+class GrowthAssessment(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    report_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    full_name: str
+    business_name: str
+    business_email: EmailStr
+    phone: str
+    country: str
+    preferred_contact: str
+    industry: str
+    business_size: str
+    years_in_business: str
+    primary_goal: str
+    website: Optional[str] = None
+    website_url: Optional[str] = None
+    social_links: Optional[str] = None
+    google_business_profile: Optional[str] = None
+    digital_presence: DigitalPresence = Field(default_factory=DigitalPresence)
+    business_goals: str
+    referrer: Optional[str] = None
+    website_analysis: Optional[dict] = None
+    report: Optional[dict] = None
+    crm_status: str = "analytics_only"
+    expert_review_requested: bool = False
+    expert_review_requested_at: Optional[str] = None
+    internal_notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class GrowthExpertReviewRequest(BaseModel):
+    report_id: str
+
+class GrowthAssessmentUpdate(BaseModel):
+    crm_status: Optional[str] = None
+    internal_notes: Optional[str] = None
+    full_name: Optional[str] = None
+    business_email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+
+class GrowthIQGenerateRequest(BaseModel):
+    assessment: dict
 
 # ========================================
 # EMAIL SENDING FUNCTIONS
@@ -467,6 +562,242 @@ async def create_audit_lead(input: AuditLeadCreate):
     
     return lead_obj
 
+# ========================================
+# GROWTHIQ™ ASSESSMENT ROUTES
+# ========================================
+
+@api_router.post("/growthiq/generate")
+async def generate_growthiq(input: GrowthIQGenerateRequest):
+    """Generate AI GrowthIQ report from assessment answers."""
+    report = await generate_growthiq_report(input.assessment)
+    return {"report": report}
+
+@api_router.post("/growthiq/assessment", response_model=GrowthAssessment)
+async def create_growth_assessment(input: GrowthAssessmentCreate, background_tasks: BackgroundTasks):
+    """Submit assessment, generate report, store with unique report ID."""
+    assessment_data = input.model_dump()
+    website_url = assessment_data.get("website") or assessment_data.get("website_url")
+    presence = assessment_data.get("digital_presence") or {}
+    if hasattr(presence, "model_dump"):
+        presence = presence.model_dump()
+    website_analysis = None
+    if website_url and (presence.get("website") or "").lower() == "yes":
+        website_analysis = analyze_website(website_url)
+
+    report = await generate_growthiq_report(assessment_data, website_analysis)
+
+    assessment_obj = GrowthAssessment(
+        **assessment_data,
+        website_analysis=website_analysis,
+        report=report,
+        crm_status="analytics_only",
+        expert_review_requested=False,
+    )
+    doc = assessment_obj.model_dump()
+    doc["created_at"] = doc["created_at"].isoformat()
+    doc["updated_at"] = doc["updated_at"].isoformat()
+    if doc.get("digital_presence"):
+        doc["digital_presence"] = (
+            doc["digital_presence"].model_dump()
+            if hasattr(doc["digital_presence"], "model_dump")
+            else doc["digital_presence"]
+        )
+
+    await db.growth_assessments.insert_one(doc)
+    logger.info("GrowthIQ assessment created: %s (%s)", assessment_obj.report_id, assessment_obj.business_email)
+
+    # Notify admin only for analytics storage (not active sales lead yet)
+    background_tasks.add_task(_notify_growthiq_analytics, assessment_obj)
+
+    return assessment_obj
+
+async def _notify_growthiq_analytics(assessment: GrowthAssessment):
+    """Lightweight admin notification for new assessment (analytics)."""
+    if not resend.api_key:
+        return
+    subject = f"GrowthIQ™ Assessment: {assessment.business_name} (analytics)"
+    html = f"""
+    <p>New GrowthIQ™ assessment completed (analytics only, no expert review yet).</p>
+    <ul>
+      <li><strong>Report ID:</strong> {assessment.report_id}</li>
+      <li><strong>Business:</strong> {assessment.business_name}</li>
+      <li><strong>Contact:</strong> {assessment.full_name} ({assessment.business_email})</li>
+      <li><strong>Score:</strong> {(assessment.report or {}).get('overall_score', 'N/A')}</li>
+      <li><strong>Industry:</strong> {assessment.industry}</li>
+    </ul>
+    """
+    await send_email_async(ADMIN_EMAIL, subject, html)
+
+@api_router.post("/growthiq/expert-review")
+async def request_expert_review(input: GrowthExpertReviewRequest, background_tasks: BackgroundTasks):
+    """User requests free expert growth review — becomes active sales lead."""
+    result = await db.growth_assessments.update_one(
+        {"report_id": input.report_id},
+        {"$set": {
+            "expert_review_requested": True,
+            "expert_review_requested_at": datetime.now(timezone.utc).isoformat(),
+            "crm_status": "expert_review_requested",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    assessment_doc = await db.growth_assessments.find_one({"report_id": input.report_id}, {"_id": 0})
+    background_tasks.add_task(_notify_expert_review_requested, assessment_doc)
+    return {"status": "expert_review_requested", "report_id": input.report_id}
+
+async def _notify_expert_review_requested(doc: dict):
+    """Notify admin of expert review request."""
+    if not resend.api_key:
+        return
+    report = doc.get("report") or {}
+    subject = f"🔥 GrowthIQ Expert Review Requested: {doc.get('business_name')}"
+    html = f"""
+    <p><strong>Expert review requested</strong> for GrowthIQ™ assessment.</p>
+    <ul>
+      <li><strong>Report ID:</strong> {doc.get('report_id')}</li>
+      <li><strong>Business:</strong> {doc.get('business_name')}</li>
+      <li><strong>Contact:</strong> {doc.get('full_name')} ({doc.get('business_email')})</li>
+      <li><strong>Phone:</strong> {doc.get('phone')}</li>
+      <li><strong>Preferred contact:</strong> {doc.get('preferred_contact')}</li>
+      <li><strong>Score:</strong> {report.get('overall_score', 'N/A')} ({report.get('growth_level', '')})</li>
+      <li><strong>Industry:</strong> {doc.get('industry')}</li>
+      <li><strong>Primary goal:</strong> {doc.get('primary_goal')}</li>
+    </ul>
+    <p>View full report in admin dashboard.</p>
+    """
+    await send_email_async(ADMIN_EMAIL, subject, html)
+    # Confirmation to user
+    user_html = f"""
+    <p>Hi {doc.get('full_name')},</p>
+    <p>Thank you for requesting your free expert growth review from weROI. Our team will review your GrowthIQ™ report and reach out within 48 hours.</p>
+    <p>Report ID: {doc.get('report_id')}</p>
+    """
+    await send_email_async(doc.get("business_email", ""), "Your weROI Expert Growth Review Request", user_html)
+
+@api_router.post("/growthiq/maybe-later")
+async def growthiq_maybe_later(input: GrowthExpertReviewRequest):
+    """User declined expert review — store for analytics only."""
+    result = await db.growth_assessments.update_one(
+        {"report_id": input.report_id},
+        {"$set": {
+            "expert_review_requested": False,
+            "crm_status": "analytics_only",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return {"status": "saved", "report_id": input.report_id}
+
+@api_router.get("/growthiq/assessment/{report_id}")
+async def get_growth_assessment(report_id: str):
+    """Retrieve assessment by report ID."""
+    doc = await db.growth_assessments.find_one({"report_id": report_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return doc
+
+@api_router.get("/growthiq/assessments")
+async def list_growth_assessments(
+    password: str = Query(...),
+    industry: Optional[str] = None,
+    business_size: Optional[str] = None,
+    min_score: Optional[int] = None,
+    crm_status: Optional[str] = None,
+):
+    """Admin: list GrowthIQ assessments with filters."""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    query: dict = {}
+    if industry:
+        query["industry"] = industry
+    if business_size:
+        query["business_size"] = business_size
+    if crm_status:
+        query["crm_status"] = crm_status
+    if min_score is not None:
+        query["report.overall_score"] = {"$gte": min_score}
+
+    assessments = await db.growth_assessments.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return assessments
+
+@api_router.put("/growthiq/assessment/{report_id}")
+async def update_growth_assessment(report_id: str, update: GrowthAssessmentUpdate, password: str = Query(...)):
+    """Admin: update CRM status and internal notes."""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    if update_data.get("crm_status") and update_data["crm_status"] not in CRM_STATUSES:
+        raise HTTPException(status_code=400, detail=f"Invalid crm_status. Use: {CRM_STATUSES}")
+
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    result = await db.growth_assessments.update_one({"report_id": report_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    updated = await db.growth_assessments.find_one({"report_id": report_id}, {"_id": 0})
+    return updated
+
+@api_router.get("/growthiq/export/csv")
+async def export_growthiq_csv(password: str = Query(...)):
+    """Admin: export GrowthIQ assessments to CSV."""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    assessments = await db.growth_assessments.find({}, {"_id": 0}).sort("created_at", -1).to_list(10000)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "Report ID", "Date", "Name", "Email", "Phone", "Business", "Industry", "Size",
+        "Score", "Grade", "Growth Level", "CRM Status", "Expert Review", "Primary Goal", "Website",
+    ])
+    for a in assessments:
+        created = a.get("created_at", "")
+        if isinstance(created, datetime):
+            created = created.strftime("%Y-%m-%d %H:%M")
+        elif isinstance(created, str):
+            created = created[:16].replace("T", " ")
+        report = a.get("report") or {}
+        writer.writerow([
+            a.get("report_id", ""),
+            created,
+            a.get("full_name", ""),
+            a.get("business_email", ""),
+            a.get("phone", ""),
+            a.get("business_name", ""),
+            a.get("industry", ""),
+            a.get("business_size", ""),
+            report.get("overall_score", ""),
+            report.get("letter_grade", ""),
+            report.get("growth_level", ""),
+            a.get("crm_status", ""),
+            "Yes" if a.get("expert_review_requested") else "No",
+            a.get("primary_goal", ""),
+            a.get("website", ""),
+        ])
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=growthiq_{datetime.now().strftime('%Y%m%d')}.csv"},
+    )
+
+@api_router.delete("/growthiq/assessment/{report_id}")
+async def delete_growth_assessment(report_id: str, password: str = Query(...)):
+    """Admin: delete a GrowthIQ assessment."""
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    result = await db.growth_assessments.delete_one({"report_id": report_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return {"deleted": True, "report_id": report_id}
+
 @api_router.post("/leads/guide", response_model=GuideLead)
 async def create_guide_lead(input: GuideLeadCreate, background_tasks: BackgroundTasks):
     """Submit a guide download lead and trigger email sequence"""
@@ -702,6 +1033,7 @@ async def get_dashboard_data(password: str = Query(...)):
     # Get all leads
     audit_leads = await db.audit_leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     guide_leads = await db.guide_leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    growth_assessments = await db.growth_assessments.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     
     # Get enhanced analytics
     unique_sessions = await db.analytics_events.distinct("session_id", {"session_id": {"$ne": None}})
@@ -722,11 +1054,14 @@ async def get_dashboard_data(password: str = Query(...)):
     return {
         "audit_leads": audit_leads,
         "guide_leads": guide_leads,
+        "growth_assessments": growth_assessments,
         "stats": {
             "total_unique_visitors": total_unique_visitors,
             "total_page_views": total_page_views,
             "total_audit_leads": len(audit_leads),
             "total_guide_leads": len(guide_leads),
+            "total_growth_assessments": len(growth_assessments),
+            "growth_expert_reviews": sum(1 for g in growth_assessments if g.get("expert_review_requested")),
             "audit_form_starts": audit_form_starts,
             "audit_conversion_rate": round((len(audit_leads) / max(audit_form_starts, 1)) * 100, 1),
             "popup_shown": popup_shown,
